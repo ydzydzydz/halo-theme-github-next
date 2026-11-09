@@ -616,7 +616,7 @@ svg {
   gap: 24px;
 }
 
-.github-shell-full {
+.github-shell.github-shell-full {
   grid-template-columns: minmax(0, 1fr);
 }
 
