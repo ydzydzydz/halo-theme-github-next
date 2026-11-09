@@ -1550,353 +1550,95 @@ const setupPostUpvotes = () => {
 };
 
 const setupRepositoryFilters = () => {
-  const list = document.querySelector<HTMLUListElement>(".repository-list");
   const triggers = Array.from(
     document.querySelectorAll<HTMLButtonElement>("[data-repository-filter]"),
   );
-  const items = Array.from(list?.querySelectorAll<HTMLLIElement>("[data-repository-title]") || []);
 
-  if (!list || !triggers.length || !items.length) {
+  if (!triggers.length) {
     return;
   }
 
   type FilterKind = "category" | "tag" | "sort";
-  type SortOrder = "newest" | "oldest" | "title";
-  const taxonomyOptionLimit = 10;
-  type TaxonomyListResult = {
-    items?: Array<{
-      metadata?: {
-        name?: string;
-      };
-      spec?: {
-        displayName?: string;
-      };
-      postCount?: number;
-      status?: {
-        postCount?: number;
-        visiblePostCount?: number;
-      };
-    }>;
-    hasNext?: boolean;
-    last?: boolean;
-    page?: number;
-    pages?: number;
-    size?: number;
-    total?: number;
-    totalElements?: number;
-    totalItems?: number;
-    totalPages?: number;
-  };
-  type RepositoryItem = {
-    categories: string[];
-    date: number;
-    element: HTMLLIElement;
-    tags: string[];
-    title: string;
-  };
-  type TaxonomyOption = {
-    name: string;
-    postCount: number;
-  };
-
-  const repositoryItems: RepositoryItem[] = items.map((element) => ({
-    categories: Array.from(
-      element.querySelectorAll<HTMLAnchorElement>(".repository-list-meta a"),
-    ).map((link) => link.textContent?.trim() || ""),
-    date: Date.parse(element.dataset.repositoryDate || "") || 0,
-    element,
-    tags: Array.from(element.querySelectorAll<HTMLAnchorElement>(".repository-title-tag")).map(
-      (link) => link.textContent?.trim() || "",
-    ),
-    title: element.dataset.repositoryTitle?.trim() || "",
-  }));
-  const categoryUsage = new Map<string, number>();
-  repositoryItems.forEach(({ categories }) => {
-    categories.forEach((name) => {
-      if (name) {
-        categoryUsage.set(name, (categoryUsage.get(name) || 0) + 1);
-      }
-    });
-  });
-  let categories: TaxonomyOption[] = Array.from(categoryUsage, ([name, postCount]) => ({
-    name,
-    postCount,
-  }))
-    .sort(
-      (left, right) =>
-        right.postCount - left.postCount || left.name.localeCompare(right.name, "zh-CN"),
-    )
-    .slice(0, taxonomyOptionLimit);
-  const tagUsage = new Map<string, number>();
-  repositoryItems.forEach(({ tags }) => {
-    tags.forEach((name) => {
-      if (name) {
-        tagUsage.set(name, (tagUsage.get(name) || 0) + 1);
-      }
-    });
-  });
-  let tags: TaxonomyOption[] = Array.from(tagUsage, ([name, postCount]) => ({ name, postCount }))
-    .sort(
-      (left, right) =>
-        right.postCount - left.postCount || left.name.localeCompare(right.name, "zh-CN"),
-    )
-    .slice(0, taxonomyOptionLimit);
-  const labels: Record<FilterKind, string> = {
-    category: "分类",
-    sort: "排序",
-    tag: "标签",
-  };
-  const filters: { category?: string; sort: SortOrder; tag?: string } = { sort: "newest" };
-  let menu: HTMLElement | undefined;
+  let openedMenu: HTMLElement | undefined;
   let closeTimer = 0;
-
-  const fetchTaxonomyNames = async (endpoint: string, sortByPostCount = false) => {
-    const names: Array<{ name: string; postCount: number }> = [];
-    let page = 1;
-    let hasNext = true;
-    let previousPageSignature = "";
-
-    try {
-      while (hasNext && page <= 100) {
-        const response = await fetch(`${endpoint}?page=${page}&size=100`);
-
-        if (!response.ok) {
-          return [];
-        }
-
-        const result = (await response.json()) as TaxonomyListResult;
-        const items = result.items || [];
-        const pageSignature = items
-          .map((item) => item.metadata?.name || item.spec?.displayName || "")
-          .join("\u0000");
-
-        if (!items.length || pageSignature === previousPageSignature) {
-          break;
-        }
-
-        previousPageSignature = pageSignature;
-        names.push(
-          ...items
-            .map((item) => ({
-              name: item.spec?.displayName?.trim() || "",
-              postCount:
-                item.postCount ?? item.status?.visiblePostCount ?? item.status?.postCount ?? 0,
-            }))
-            .filter((item) => item.name),
-        );
-
-        const totalPages = result.totalPages || result.pages || 0;
-        const pageSize = result.size || items.length;
-        const total = result.total || result.totalItems || result.totalElements || 0;
-        if (typeof result.hasNext === "boolean") {
-          hasNext = result.hasNext;
-        } else if (typeof result.last === "boolean") {
-          hasNext = !result.last;
-        } else if (totalPages > 0) {
-          hasNext = page < totalPages;
-        } else if (total > 0) {
-          hasNext = page * pageSize < total;
-        } else {
-          // 兼容未返回总数的 Halo 版本，继续请求直到下一页为空。
-          hasNext = true;
-        }
-        page += 1;
-      }
-    } catch {
-      return [];
-    }
-
-    const uniqueNames = Array.from(new Map(names.map((item) => [item.name, item])).values());
-    return uniqueNames
-      .sort((left, right) =>
-        sortByPostCount
-          ? right.postCount - left.postCount || left.name.localeCompare(right.name, "zh-CN")
-          : left.name.localeCompare(right.name, "zh-CN"),
-      )
-      .slice(0, taxonomyOptionLimit);
-  };
-
-  const taxonomyNamesReady = Promise.all([
-    fetchTaxonomyNames("/apis/api.content.halo.run/v1alpha1/categories", true),
-    fetchTaxonomyNames("/apis/api.content.halo.run/v1alpha1/tags", true),
-  ]).then(([loadedCategories, loadedTags]) => {
-    if (loadedCategories.length) {
-      categories = loadedCategories;
-    }
-
-    if (loadedTags.length) {
-      tags = loadedTags;
-    }
-  });
 
   const closeMenu = () => {
     window.clearTimeout(closeTimer);
-    menu?.remove();
-    menu = undefined;
+
+    if (openedMenu) {
+      openedMenu.hidden = true;
+      openedMenu = undefined;
+    }
+
     triggers.forEach((trigger) => trigger.setAttribute("aria-expanded", "false"));
   };
 
   const scheduleClose = () => {
-    window.clearTimeout(closeTimer);
-    closeTimer = window.setTimeout(closeMenu, 120);
+    closeTimer = window.setTimeout(() => {
+      const stillHovered =
+        triggers.some((trigger) => trigger.matches(":hover")) ||
+        (openedMenu?.matches(":hover") ?? false);
+
+      if (!stillHovered) {
+        closeMenu();
+      }
+    }, 120);
   };
 
-  const updateLabels = () => {
-    triggers.forEach((trigger) => {
-      const kind = trigger.dataset.repositoryFilter as FilterKind | undefined;
-      const label = trigger.querySelector<HTMLElement>("[data-repository-filter-label]");
+  const openMenu = (trigger: HTMLButtonElement, kind: FilterKind) => {
+    const menu = document.querySelector<HTMLElement>(`[data-repository-filter-menu="${kind}"]`);
 
-      if (!kind || !label) {
-        return;
-      }
-
-      if (kind === "category") {
-        label.textContent = filters.category || labels.category;
-      } else if (kind === "tag") {
-        label.textContent = filters.tag || labels.tag;
-      } else {
-        label.textContent =
-          filters.sort === "oldest"
-            ? "最早发布"
-            : filters.sort === "title"
-              ? "标题 A-Z"
-              : labels.sort;
-      }
-    });
-  };
-
-  const applyFilters = () => {
-    const sorted = [...repositoryItems].sort((left, right) => {
-      if (filters.sort === "oldest") {
-        return left.date - right.date;
-      }
-
-      if (filters.sort === "title") {
-        return left.title.localeCompare(right.title, "zh-CN");
-      }
-
-      return right.date - left.date;
-    });
-
-    sorted.forEach((item) => {
-      const categoryMatches = !filters.category || item.categories.includes(filters.category);
-      const tagMatches = !filters.tag || item.tags.includes(filters.tag);
-      item.element.hidden = !(categoryMatches && tagMatches);
-      list.append(item.element);
-    });
-
-    updateLabels();
-  };
-
-  const option = (label: string, value: string, active: boolean) => {
-    const button = document.createElement("button");
-    button.className = "repository-filter-option";
-    button.type = "button";
-    button.textContent = label;
-    button.dataset.value = value;
-    button.classList.toggle("is-active", active);
-    return button;
-  };
-
-  const openMenu = async (trigger: HTMLButtonElement, kind: FilterKind) => {
-    window.clearTimeout(closeTimer);
-
-    if (menu && trigger.getAttribute("aria-expanded") === "true") {
+    if (!menu || openedMenu === menu) {
       return;
     }
 
-    if (kind === "category" || kind === "tag") {
-      await taxonomyNamesReady;
-
-      if (!trigger.matches(":hover") && document.activeElement !== trigger) {
-        return;
-      }
-    }
-
     closeMenu();
-    menu = document.createElement("div");
-    menu.className = "repository-filter-menu";
-    menu.setAttribute("role", "menu");
+    menu.hidden = false;
+    openedMenu = menu;
 
-    const options =
-      kind === "category"
-        ? [
-            option("全部分类", "", !filters.category),
-            ...categories.map(({ name }) => option(name, name, filters.category === name)),
-          ]
-        : kind === "tag"
-          ? [
-              option("全部标签", "", !filters.tag),
-              ...tags.map(({ name }) => option(name, name, filters.tag === name)),
-            ]
-          : [
-              option("最新发布", "newest", filters.sort === "newest"),
-              option("最早发布", "oldest", filters.sort === "oldest"),
-              option("标题 A-Z", "title", filters.sort === "title"),
-            ];
-
-    menu.append(...options);
-    document.body.append(menu);
     const rect = trigger.getBoundingClientRect();
     menu.style.top = `${rect.bottom + 4}px`;
     menu.style.left = `${Math.min(rect.left, window.innerWidth - menu.offsetWidth - 8)}px`;
     trigger.setAttribute("aria-expanded", "true");
-
-    menu.addEventListener("pointerenter", () => window.clearTimeout(closeTimer));
-    menu.addEventListener("pointerleave", scheduleClose);
-
-    menu.addEventListener("click", (event) => {
-      const target = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-value]");
-
-      if (!target) {
-        return;
-      }
-
-      if (kind === "category") {
-        filters.category = target.dataset.value || undefined;
-      } else if (kind === "tag") {
-        filters.tag = target.dataset.value || undefined;
-      } else {
-        filters.sort = (target.dataset.value as SortOrder) || "newest";
-      }
-
-      applyFilters();
-      closeMenu();
-    });
   };
 
   triggers.forEach((trigger) => {
-    const openTriggerMenu = () => {
-      const kind = trigger.dataset.repositoryFilter as FilterKind | undefined;
+    const kind = trigger.dataset.repositoryFilter as FilterKind | undefined;
 
-      if (kind) {
-        void openMenu(trigger, kind);
-      }
-    };
+    if (!kind) {
+      return;
+    }
+
+    const openTriggerMenu = () => openMenu(trigger, kind);
 
     trigger.addEventListener("pointerenter", openTriggerMenu);
     trigger.addEventListener("pointerleave", scheduleClose);
     trigger.addEventListener("focus", openTriggerMenu);
   });
+
+  document.querySelectorAll<HTMLElement>("[data-repository-filter-menu]").forEach((menu) => {
+    menu.addEventListener("pointerenter", () => window.clearTimeout(closeTimer));
+    menu.addEventListener("pointerleave", scheduleClose);
+  });
+
   document.addEventListener("click", (event) => {
     const clickTarget = event.target;
 
     if (
-      menu &&
+      openedMenu &&
       clickTarget instanceof Node &&
-      !menu.contains(clickTarget) &&
+      !openedMenu.contains(clickTarget) &&
       !triggers.some((trigger) => trigger.contains(clickTarget))
     ) {
       closeMenu();
     }
   });
+
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && menu) {
+    if (event.key === "Escape" && openedMenu) {
       closeMenu();
     }
   });
-
-  applyFilters();
 };
 
 const setupNotificationIndicator = () => {

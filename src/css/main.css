@@ -1400,6 +1400,8 @@ svg {
   position: fixed;
   z-index: 30;
   min-width: 156px;
+  max-height: min(320px, 60vh);
+  overflow-y: auto;
   padding: 4px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -1420,6 +1422,7 @@ svg {
   font: inherit;
   font-size: 12px;
   text-align: left;
+  text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1434,6 +1437,27 @@ svg {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.repository-empty {
+  display: flex;
+  padding: 48px 0;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+
+.repository-empty a {
+  color: var(--accent);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.repository-empty a:hover {
+  text-decoration: underline;
 }
 
 .repository-list-item {

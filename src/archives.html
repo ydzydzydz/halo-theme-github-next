@@ -14,163 +14,320 @@
   </template>
 
   <section class="repositories-page">
-    <div class="repositories-toolbar">
-      <button class="repository-search" type="button" data-search-trigger aria-label="搜索文章">
-        Find an article...
-      </button>
-      <div class="repository-filters" aria-label="文章筛选">
-        <button
-          class="repository-filter-button"
-          type="button"
-          data-repository-filter="category"
-          aria-expanded="false"
+    <!--
+      归档页筛选完全由服务端渲染：
+      1. raw* 读取 URL 查询参数（category / tag / sort / page）
+      2. categoryName / tagName 传入 postFinder.list 做真实过滤，sortSpec 控制排序
+      3. q* 变量拼装干净的查询串，保证翻页与切换筛选时状态不丢失
+    -->
+    <th:block
+      th:with="rawCategory=${#lists.size(param.category) > 0 ? param.category[0] : ''},
+               rawTag=${#lists.size(param.tag) > 0 ? param.tag[0] : ''},
+               rawSort=${#lists.size(param.sort) > 0 ? param.sort[0] : ''},
+               rawPage=${#lists.size(param.page) > 0 ? param.page[0] : ''}"
+    >
+      <th:block
+        th:with="categoryName=${#strings.isEmpty(rawCategory) ? null : rawCategory},
+                 tagName=${#strings.isEmpty(rawTag) ? null : rawTag},
+                 sortKey=${rawSort == 'oldest' ? 'oldest' : (rawSort == 'title' ? 'title' : 'newest')},
+                 sortParam=${rawSort == 'oldest' ? 'oldest' : (rawSort == 'title' ? 'title' : null)},
+                 sortSpec=${rawSort == 'oldest' ? {'spec.publishTime,asc'} : (rawSort == 'title' ? {'spec.title,asc'} : {'spec.publishTime,desc'})},
+                 pageNum=${#strings.isEmpty(rawPage) ? (archives != null and archives.page != null ? #strings.toString(archives.page) : '1') : (rawPage.matches('[0-9]+') ? rawPage : '1')},
+                 pageSize=${archives != null and archives.size != null and archives.size > 0 ? archives.size : 8}"
+      >
+        <th:block
+          th:with="result=${postFinder.list({page: pageNum, size: pageSize, categoryName: categoryName, tagName: tagName, sort: sortSpec})},
+                   pCat=${categoryName != null ? 'category=' + categoryName : ''},
+                   pTag=${tagName != null ? 'tag=' + tagName : ''},
+                   pSort=${sortParam != null ? 'sort=' + sortParam : ''}"
         >
-          <span data-repository-filter-label>分类</span>
-          <span class="chevron"></span>
-        </button>
-        <button
-          class="repository-filter-button"
-          type="button"
-          data-repository-filter="tag"
-          aria-expanded="false"
-        >
-          <span data-repository-filter-label>标签</span>
-          <span class="chevron"></span>
-        </button>
-        <button
-          class="repository-filter-button"
-          type="button"
-          data-repository-filter="sort"
-          aria-expanded="false"
-        >
-          <span data-repository-filter-label>排序</span>
-          <span class="chevron"></span>
-        </button>
-      </div>
-    </div>
-
-    <ul class="repository-list">
-      <th:block th:each="archive : ${archives.items}">
-        <th:block th:each="month : ${archive.months}">
-          <li
-            class="repository-list-item"
-            th:each="post : ${month.posts}"
-            th:classappend="${theme.config.styles.archive_cover_enabled == true and not #strings.isEmpty(post.spec.cover) ? 'repository-list-item--cover' : ''}"
-            th:style="|--repository-cover: url('${post.spec.cover}')|"
-            th:attr="data-repository-title=${post.spec.title}, data-repository-date=${post.spec.publishTime}"
+          <th:block
+            th:with="qAll=${pCat != '' ? '?category=' + pCat + (pTag != '' ? '&tag=' + pTag : '') + (pSort != '' ? '&sort=' + pSort : '') : (pTag != '' ? '?tag=' + pTag + (pSort != '' ? '&sort=' + pSort : '') : (pSort != '' ? '?sort=' + pSort : ''))},
+                     qNoCat=${pTag != '' ? '?tag=' + pTag + (pSort != '' ? '&sort=' + pSort : '') : (pSort != '' ? '?sort=' + pSort : '')},
+                     qNoTag=${pCat != '' ? '?category=' + pCat + (pSort != '' ? '&sort=' + pSort : '') : (pSort != '' ? '?sort=' + pSort : '')},
+                     qNoSort=${pCat != '' ? '?category=' + pCat + (pTag != '' ? '&tag=' + pTag : '') : (pTag != '' ? '?tag=' + pTag : '')},
+                     catTail=${(pTag != '' ? '&tag=' + pTag : '') + (pSort != '' ? '&sort=' + pSort : '')},
+                     tagHead=${pCat != '' ? '?category=' + pCat + '&' : '?'},
+                     tagTail=${pSort != '' ? '&sort=' + pSort : ''}"
           >
-            <div class="repository-list-copy">
-              <div class="repository-list-heading">
-                <h2 class="repository-list-title">
-                  <a th:href="@{${post.status.permalink}}" th:text="${post.spec.title}">
-                    Article title
-                  </a>
-                </h2>
-                <span class="repository-title-tags" th:if="${not #lists.isEmpty(post.tags)}">
-                  <a
-                    class="repository-title-tag"
-                    th:each="tag : ${post.tags}"
-                    th:href="@{${tag.status.permalink}}"
-                    th:text="${tag.spec.displayName}"
-                  ></a>
-                </span>
-              </div>
-              <p class="repository-list-desc" th:text="${post.status.excerpt ?: '暂无文章摘要'}">
-                暂无文章摘要
-              </p>
-              <div class="repository-list-meta">
-                <span class="language-dot"></span>
-                <span th:if="${not #lists.isEmpty(post.categories)}">
-                  <a
-                    th:each="cat, catStat : ${post.categories}"
-                    th:if="${catStat.first}"
-                    th:href="@{${cat.status.permalink}}"
-                    th:text="${cat.spec.displayName}"
-                  ></a>
-                </span>
-                <span th:unless="${not #lists.isEmpty(post.categories)}">未分类</span>
-                <time
-                  th:datetime="${post.spec.publishTime}"
-                  th:text="|Updated ${#temporals.format(post.spec.publishTime, 'MMM d')}|"
-                >
-                  Updated now
-                </time>
-              </div>
-            </div>
-            <div class="repository-side">
-              <div class="repository-action-group" aria-label="文章操作">
+            <th:block
+              th:with="sortHead=${qNoSort != '' ? qNoSort + '&' : '?'},
+                       prevQuery=${qAll != '' ? qAll + '&page=' + (result.page - 1) : '?page=' + (result.page - 1)},
+                       nextQuery=${qAll != '' ? qAll + '&page=' + (result.page + 1) : '?page=' + (result.page + 1)}"
+            >
+              <div class="repositories-toolbar">
                 <button
-                  class="repository-action-button post-upvote"
+                  class="repository-search"
                   type="button"
-                  th:attr="data-post-upvote=${post.metadata.name}"
-                  aria-label="点赞文章"
-                  title="点赞"
+                  data-search-trigger
+                  aria-label="搜索文章"
                 >
-                  <iconify-icon icon="octicon:thumbsup-16"></iconify-icon>
-                  <span>点赞</span>
-                  <span data-post-upvote-count th:text="${post.stats?.upvote ?: 0}">0</span>
+                  Find an article...
                 </button>
-                <a
-                  class="repository-action-button"
-                  th:href="@{${post.status.permalink} + '#comments'}"
-                >
-                  <span>评论</span>
-                </a>
+                <div class="repository-filters" aria-label="文章筛选">
+                  <button
+                    class="repository-filter-button"
+                    type="button"
+                    data-repository-filter="category"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                  >
+                    <span data-repository-filter-label>
+                      <th:block th:if="${categoryName == null}">分类</th:block>
+                      <th:block
+                        th:each="cat : ${categoryFinder.listAll()}"
+                        th:if="${cat.metadata.name == categoryName}"
+                        th:text="${cat.spec.displayName}"
+                      ></th:block>
+                    </span>
+                    <span class="chevron"></span>
+                  </button>
+                  <div
+                    class="repository-filter-menu"
+                    data-repository-filter-menu="category"
+                    role="menu"
+                    aria-label="按分类筛选"
+                    hidden
+                  >
+                    <a
+                      class="repository-filter-option"
+                      th:classappend="${categoryName == null} ? 'is-active'"
+                      th:href="@{/archives} + ${qNoCat}"
+                    >
+                      全部分类
+                    </a>
+                    <a
+                      class="repository-filter-option"
+                      th:each="cat : ${categoryFinder.listAll()}"
+                      th:classappend="${cat.metadata.name == categoryName} ? 'is-active'"
+                      th:href="@{/archives} + '?category=' + ${cat.metadata.name} + ${catTail}"
+                      th:text="${cat.spec.displayName}"
+                    ></a>
+                  </div>
+
+                  <button
+                    class="repository-filter-button"
+                    type="button"
+                    data-repository-filter="tag"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                  >
+                    <span data-repository-filter-label>
+                      <th:block th:if="${tagName == null}">标签</th:block>
+                      <th:block
+                        th:each="tg : ${tagFinder.listAll()}"
+                        th:if="${tg.metadata.name == tagName}"
+                        th:text="${tg.spec.displayName}"
+                      ></th:block>
+                    </span>
+                    <span class="chevron"></span>
+                  </button>
+                  <div
+                    class="repository-filter-menu"
+                    data-repository-filter-menu="tag"
+                    role="menu"
+                    aria-label="按标签筛选"
+                    hidden
+                  >
+                    <a
+                      class="repository-filter-option"
+                      th:classappend="${tagName == null} ? 'is-active'"
+                      th:href="@{/archives} + ${qNoTag}"
+                    >
+                      全部标签
+                    </a>
+                    <a
+                      class="repository-filter-option"
+                      th:each="tg : ${tagFinder.listAll()}"
+                      th:classappend="${tg.metadata.name == tagName} ? 'is-active'"
+                      th:href="@{/archives} + ${tagHead} + 'tag=' + ${tg.metadata.name} + ${tagTail}"
+                      th:text="${tg.spec.displayName}"
+                    ></a>
+                  </div>
+
+                  <button
+                    class="repository-filter-button"
+                    type="button"
+                    data-repository-filter="sort"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                  >
+                    <span data-repository-filter-label>
+                      <th:block th:if="${sortKey == 'newest'}">排序</th:block>
+                      <th:block th:if="${sortKey == 'oldest'}">最早发布</th:block>
+                      <th:block th:if="${sortKey == 'title'}">标题 A-Z</th:block>
+                    </span>
+                    <span class="chevron"></span>
+                  </button>
+                  <div
+                    class="repository-filter-menu"
+                    data-repository-filter-menu="sort"
+                    role="menu"
+                    aria-label="排序方式"
+                    hidden
+                  >
+                    <a
+                      class="repository-filter-option"
+                      th:classappend="${sortKey == 'newest'} ? 'is-active'"
+                      th:href="@{/archives} + ${qNoSort}"
+                    >
+                      最新发布
+                    </a>
+                    <a
+                      class="repository-filter-option"
+                      th:classappend="${sortKey == 'oldest'} ? 'is-active'"
+                      th:href="@{/archives} + ${sortHead} + 'sort=oldest'"
+                    >
+                      最早发布
+                    </a>
+                    <a
+                      class="repository-filter-option"
+                      th:classappend="${sortKey == 'title'} ? 'is-active'"
+                      th:href="@{/archives} + ${sortHead} + 'sort=title'"
+                    >
+                      标题 A-Z
+                    </a>
+                  </div>
+                </div>
               </div>
-              <div
-                class="repository-engagement"
-                th:attr="data-repository-post-name=${post.metadata.name}, aria-label=|文章互动：${post.stats?.visit ?: 0} 次访问，${post.stats?.comment ?: 0} 条评论，${post.stats?.upvote ?: 0} 个赞|"
-              >
-                <span
-                  class="repository-engagement-metric"
-                  data-engagement-kind="visit"
-                  th:attr="data-engagement-count=${post.stats?.visit ?: 0}"
-                  title="访问量"
+
+              <ul class="repository-list">
+                <li
+                  class="repository-list-item"
+                  th:each="post : ${result.items}"
+                  th:classappend="${theme.config.styles.archive_cover_enabled == true and not #strings.isEmpty(post.spec.cover) ? 'repository-list-item--cover' : ''}"
+                  th:style="|--repository-cover: url('${post.spec.cover}')|"
+                  th:attr="data-repository-title=${post.spec.title}, data-repository-date=${post.spec.publishTime}"
                 >
-                  <iconify-icon icon="octicon:eye-16" aria-hidden="true"></iconify-icon>
-                  <span
-                    class="repository-engagement-value"
-                    th:text="${(post.stats?.visit ?: 0) > 99 ? '99+' : (post.stats?.visit ?: 0)}"
-                    >0</span
+                  <div class="repository-list-copy">
+                    <div class="repository-list-heading">
+                      <h2 class="repository-list-title">
+                        <a th:href="@{${post.status.permalink}}" th:text="${post.spec.title}">
+                          Article title
+                        </a>
+                      </h2>
+                      <span class="repository-title-tags" th:if="${not #lists.isEmpty(post.tags)}">
+                        <a
+                          class="repository-title-tag"
+                          th:each="tag : ${post.tags}"
+                          th:href="@{${tag.status.permalink}}"
+                          th:text="${tag.spec.displayName}"
+                        ></a>
+                      </span>
+                    </div>
+                    <p
+                      class="repository-list-desc"
+                      th:text="${post.status.excerpt ?: '暂无文章摘要'}"
+                    >
+                      暂无文章摘要
+                    </p>
+                    <div class="repository-list-meta">
+                      <span class="language-dot"></span>
+                      <span th:if="${not #lists.isEmpty(post.categories)}">
+                        <a
+                          th:each="cat, catStat : ${post.categories}"
+                          th:if="${catStat.first}"
+                          th:href="@{${cat.status.permalink}}"
+                          th:text="${cat.spec.displayName}"
+                        ></a>
+                      </span>
+                      <span th:unless="${not #lists.isEmpty(post.categories)}">未分类</span>
+                      <time
+                        th:datetime="${post.spec.publishTime}"
+                        th:text="|Updated ${#temporals.format(post.spec.publishTime, 'MMM d')}|"
+                      >
+                        Updated now
+                      </time>
+                    </div>
+                  </div>
+                  <div class="repository-side">
+                    <div class="repository-action-group" aria-label="文章操作">
+                      <button
+                        class="repository-action-button post-upvote"
+                        type="button"
+                        th:attr="data-post-upvote=${post.metadata.name}"
+                        aria-label="点赞文章"
+                        title="点赞"
+                      >
+                        <iconify-icon icon="octicon:thumbsup-16"></iconify-icon>
+                        <span>点赞</span>
+                        <span data-post-upvote-count th:text="${post.stats?.upvote ?: 0}">0</span>
+                      </button>
+                      <a
+                        class="repository-action-button"
+                        th:href="@{${post.status.permalink} + '#comments'}"
+                      >
+                        <span>评论</span>
+                      </a>
+                    </div>
+                    <div
+                      class="repository-engagement"
+                      th:attr="data-repository-post-name=${post.metadata.name}, aria-label=|文章互动：${post.stats?.visit ?: 0} 次访问，${post.stats?.comment ?: 0} 条评论，${post.stats?.upvote ?: 0} 个赞|"
+                    >
+                      <span
+                        class="repository-engagement-metric"
+                        data-engagement-kind="visit"
+                        th:attr="data-engagement-count=${post.stats?.visit ?: 0}"
+                        title="访问量"
+                      >
+                        <iconify-icon icon="octicon:eye-16" aria-hidden="true"></iconify-icon>
+                        <span
+                          class="repository-engagement-value"
+                          th:text="${(post.stats?.visit ?: 0) > 99 ? '99+' : (post.stats?.visit ?: 0)}"
+                          >0</span
+                        >
+                      </span>
+                      <span
+                        class="repository-engagement-metric"
+                        data-engagement-kind="comment"
+                        th:attr="data-engagement-count=${post.stats?.comment ?: 0}"
+                        title="评论数"
+                      >
+                        <iconify-icon icon="octicon:comment-16" aria-hidden="true"></iconify-icon>
+                        <span
+                          class="repository-engagement-value"
+                          th:text="${(post.stats?.comment ?: 0) > 99 ? '99+' : (post.stats?.comment ?: 0)}"
+                          >0</span
+                        >
+                      </span>
+                      <span
+                        class="repository-engagement-metric"
+                        data-engagement-kind="upvote"
+                        th:attr="data-engagement-count=${post.stats?.upvote ?: 0}"
+                        title="点赞数"
+                      >
+                        <iconify-icon icon="octicon:thumbsup-16" aria-hidden="true"></iconify-icon>
+                        <span
+                          class="repository-engagement-value"
+                          th:text="${(post.stats?.upvote ?: 0) > 99 ? '99+' : (post.stats?.upvote ?: 0)}"
+                          >0</span
+                        >
+                      </span>
+                    </div>
+                  </div>
+                </li>
+                <li class="repository-empty" th:if="${result.total == 0}">
+                  <span>没有符合条件的文章</span>
+                  <a
+                    th:if="${categoryName != null or tagName != null}"
+                    th:href="@{/archives} + ${qNoSort}"
                   >
-                </span>
-                <span
-                  class="repository-engagement-metric"
-                  data-engagement-kind="comment"
-                  th:attr="data-engagement-count=${post.stats?.comment ?: 0}"
-                  title="评论数"
+                    清除筛选
+                  </a>
+                </li>
+              </ul>
+
+              <nav class="pagination" th:if="${result.hasPrevious() || result.hasNext()}">
+                <a th:if="${result.hasPrevious()}" th:href="@{/archives} + ${prevQuery}"
+                  >Previous</a
                 >
-                  <iconify-icon icon="octicon:comment-16" aria-hidden="true"></iconify-icon>
-                  <span
-                    class="repository-engagement-value"
-                    th:text="${(post.stats?.comment ?: 0) > 99 ? '99+' : (post.stats?.comment ?: 0)}"
-                    >0</span
-                  >
-                </span>
-                <span
-                  class="repository-engagement-metric"
-                  data-engagement-kind="upvote"
-                  th:attr="data-engagement-count=${post.stats?.upvote ?: 0}"
-                  title="点赞数"
-                >
-                  <iconify-icon icon="octicon:thumbsup-16" aria-hidden="true"></iconify-icon>
-                  <span
-                    class="repository-engagement-value"
-                    th:text="${(post.stats?.upvote ?: 0) > 99 ? '99+' : (post.stats?.upvote ?: 0)}"
-                    >0</span
-                  >
-                </span>
-              </div>
-            </div>
-          </li>
+                <span th:text="|${result.page} / ${result.totalPages}|"></span>
+                <a th:if="${result.hasNext()}" th:href="@{/archives} + ${nextQuery}">Next</a>
+              </nav>
+            </th:block>
+          </th:block>
         </th:block>
       </th:block>
-    </ul>
+    </th:block>
   </section>
-
-  <nav class="pagination" th:if="${archives.hasPrevious() || archives.hasNext()}">
-    <a th:if="${archives.hasPrevious()}" th:href="@{${archives.prevUrl}}">Previous</a>
-    <span th:text="|${archives.page} / ${archives.totalPages}|"></span>
-    <a th:if="${archives.hasNext()}" th:href="@{${archives.nextUrl}}">Next</a>
-  </nav>
 </include>
