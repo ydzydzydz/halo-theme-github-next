@@ -1450,6 +1450,203 @@ svg {
   margin-bottom: 16px;
 }
 
+.douban-hero {
+  margin-bottom: 16px;
+}
+
+.douban-panel {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--canvas);
+  --db-main-color: var(--accent);
+  --db-hover-color: color-mix(in srgb, var(--accent) 78%, #ffffff);
+  --db--text-color: var(--fg);
+  --db--text-color-light: var(--fg-muted);
+  --db--background-gray: var(--canvas-subtle);
+  --db-border-color: var(--border);
+}
+
+.douban-panel .db--nav {
+  padding: 0 0 12px;
+  gap: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.douban-panel .db--navItem {
+  margin-right: 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid transparent;
+  color: var(--fg);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.douban-panel .db--navItem.current,
+.douban-panel .db--navItem:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.douban-panel .db--type {
+  display: inline-flex;
+  margin: 16px 0;
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--canvas-subtle);
+}
+
+.douban-panel .db--typeItem {
+  padding: 4px 14px;
+  border-radius: 999px;
+  color: var(--fg-muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.douban-panel .db--typeItem.is-active {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.douban-panel .db--genres {
+  padding: 16px 0 0;
+  gap: 8px;
+}
+
+.douban-panel .db--genreItem {
+  margin: 0;
+  padding: 3px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.douban-panel .db--genreItem:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--canvas));
+  color: var(--accent);
+}
+
+.douban-panel .db--genreItem.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.douban-panel .db--list {
+  margin-top: 16px;
+  gap: 16px;
+}
+
+.douban-panel .db--item {
+  width: 150px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--canvas);
+  transition:
+    border-color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.douban-panel .db--item:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.douban-panel .db--image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  border-radius: 6px;
+}
+
+.douban-panel .db--title {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.douban-panel .db--title a {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--fg);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.douban-panel .db--title a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.douban-panel .db--score {
+  margin-top: 6px;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.douban-panel .ipc-signpost {
+  width: auto;
+  margin-top: 6px;
+  border-radius: 4px;
+  background: var(--canvas-subtle);
+  color: var(--fg-muted);
+  font-size: 11px;
+}
+
+.douban-panel .db--listBydate {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.douban-panel .db--titleDate {
+  display: flex;
+  width: auto;
+  margin: 0 0 12px;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.douban-panel .db--titleDate__day {
+  color: var(--fg);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.douban-panel .db--titleDate__month {
+  order: -1;
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.douban-panel .db--dateList__card {
+  gap: 16px;
+}
+
+.douban-panel .db--empty {
+  height: 200px;
+  margin-bottom: 0;
+  background-size: 80px;
+}
+
+.douban-panel .db--copyright {
+  color: var(--fg-muted);
+  font-size: 12px;
+  text-align: left;
+}
+
 .repository-empty {
   display: flex;
   padding: 48px 0;

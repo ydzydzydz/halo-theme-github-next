@@ -1,0 +1,29 @@
+<include
+  src="layout.html"
+  activeHome=""
+  activePosts=""
+  activeProjects=""
+  activePackages=""
+  shellClass=""
+  sidebarClass=""
+  contentClass=""
+>
+  <template name="head">
+    <title th:text="|${title ?: '豆瓣'} - ${site.title}|">豆瓣</title>
+    <th:block th:replace="~{plugin:plugin-douban:modules/style}"></th:block>
+  </template>
+
+  <section class="links-hero douban-hero">
+    <div>
+      <p class="links-eyebrow">Douban</p>
+      <h1 th:text="${title ?: '豆瓣记录'}">豆瓣记录</h1>
+      <p>把在豆瓣标记过的影视作品整理成卡片，随时回看自己的片单。</p>
+    </div>
+  </section>
+
+  <div class="douban-panel">
+    <th:block th:replace="~{plugin:plugin-douban:modules/douban}"></th:block>
+  </div>
+
+  <th:block th:replace="~{plugin:plugin-douban:modules/script}"></th:block>
+</include>
