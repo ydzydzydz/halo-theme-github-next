@@ -118,6 +118,10 @@ svg {
   height: 16px;
 }
 
+.icon-button > iconify-icon {
+  font-size: 16px;
+}
+
 .wide-icon {
   width: 44px;
   gap: 6px;
@@ -205,6 +209,7 @@ svg {
   width: 16px;
   height: 16px;
   color: var(--accent);
+  font-size: 16px;
 }
 
 .weather-widget strong {
@@ -446,6 +451,7 @@ svg {
 .login-link iconify-icon {
   width: 18px;
   height: 18px;
+  font-size: 18px;
 }
 
 .user-menu-list {
@@ -505,6 +511,7 @@ svg {
 .notification-link iconify-icon {
   width: 18px;
   height: 18px;
+  font-size: 18px;
 }
 
 .profile-tabs {
@@ -845,6 +852,7 @@ svg {
   width: 16px;
   height: 16px;
   color: #cf4d6f;
+  font-size: 16px;
 }
 
 .love-people {
@@ -903,6 +911,7 @@ svg {
 .love-heart iconify-icon {
   width: 19px;
   height: 19px;
+  font-size: 19px;
 }
 
 .love-duration-label {
@@ -967,6 +976,7 @@ svg {
   width: 16px;
   height: 16px;
   color: var(--fg-muted);
+  font-size: 16px;
 }
 
 .sidebar-tag-sphere {
@@ -1168,6 +1178,7 @@ svg {
   height: 16px;
   flex: 0 0 auto;
   color: var(--fg-muted);
+  font-size: 16px;
 }
 
 .content-column {
@@ -1673,6 +1684,7 @@ svg {
   width: 14px;
   height: 14px;
   color: var(--fg-muted);
+  font-size: 14px;
 }
 
 .repository-engagement {
@@ -1695,6 +1707,7 @@ svg {
 .repository-engagement-metric iconify-icon {
   width: 14px;
   height: 14px;
+  font-size: 14px;
 }
 
 .repository-engagement-value {
@@ -2433,6 +2446,7 @@ article {
 .music-player--header .music-player-controls iconify-icon {
   width: 14px;
   height: 14px;
+  font-size: 14px;
 }
 
 .music-player--header .music-player-progress {
@@ -2460,6 +2474,7 @@ article {
 .music-player-cover iconify-icon {
   width: 18px;
   height: 18px;
+  font-size: 18px;
 }
 
 .music-player-info {
@@ -2521,6 +2536,7 @@ article {
 .music-player-controls iconify-icon {
   width: 16px;
   height: 16px;
+  font-size: 16px;
 }
 
 .music-player-progress {
@@ -2582,6 +2598,7 @@ article {
   display: block;
   width: 22px;
   height: 22px;
+  font-size: 22px;
   line-height: 1;
 }
 
@@ -2636,6 +2653,7 @@ article {
   display: block;
   width: 18px;
   height: 18px;
+  font-size: 18px;
 }
 
 .post-back-to-top {
@@ -2646,6 +2664,7 @@ article {
 .post-back-to-top iconify-icon {
   width: 20px;
   height: 20px;
+  font-size: 20px;
   filter: drop-shadow(0 0 0.35px currentColor);
 }
 
@@ -2854,6 +2873,7 @@ article {
   width: 14px;
   height: 14px;
   color: var(--fg-muted);
+  font-size: 14px;
 }
 
 .links-page {
@@ -2938,6 +2958,7 @@ article {
   width: 32px;
   height: 32px;
   color: var(--fg-muted);
+  font-size: 32px;
 }
 
 .links-empty h2 {
@@ -3215,6 +3236,7 @@ article {
   width: 18px;
   height: 18px;
   color: var(--fg-muted);
+  font-size: 18px;
 }
 
 .link-logo img {
@@ -3269,6 +3291,7 @@ article {
   height: 14px;
   flex: none;
   color: var(--fg-muted);
+  font-size: 14px;
   opacity: 0;
   transform: translateX(-4px);
   transition:
@@ -3479,6 +3502,7 @@ article {
 .image-preview-close iconify-icon {
   width: 20px;
   height: 20px;
+  font-size: 20px;
 }
 
 .moment-media-grid audio {
@@ -3545,6 +3569,7 @@ article {
 .moment-footer iconify-icon {
   width: 14px;
   height: 14px;
+  font-size: 14px;
 }
 
 .moment-tag-list {
@@ -3733,6 +3758,7 @@ article {
 .photo-gallery-back iconify-icon {
   width: 16px;
   height: 16px;
+  font-size: 16px;
 }
 
 .photos-grid {
@@ -4001,8 +4027,9 @@ article {
 }
 
 .love-page-heart iconify-icon {
-  width: 52%;
-  height: 52%;
+  width: 1em;
+  height: 1em;
+  font-size: clamp(22px, 2.6vw, 28px);
 }
 
 .love-timer-panel {

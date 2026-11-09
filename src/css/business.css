@@ -32,6 +32,7 @@
 .business-eyebrow iconify-icon {
   width: 14px;
   height: 14px;
+  font-size: 14px;
 }
 
 .business-hero h1 {
@@ -157,6 +158,7 @@
 .business-modal-icon iconify-icon {
   width: 21px;
   height: 21px;
+  font-size: 21px;
 }
 
 .business-card-copy {
@@ -231,6 +233,7 @@
   width: 24px;
   height: 24px;
   color: var(--accent);
+  font-size: 24px;
 }
 
 .business-empty p,
@@ -397,6 +400,7 @@
   width: 16px;
   height: 16px;
   color: var(--accent);
+  font-size: 16px;
 }
 
 .business-contact-item strong {
