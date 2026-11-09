@@ -4508,11 +4508,34 @@ html.photo-lightbox-open {
 
   .repository-list-item {
     flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
 
+  /* 窄屏下右栏改为整宽横排：操作按钮在左、统计在右，空间不足时换行 */
   .repository-side {
-    align-self: flex-start;
-    justify-items: start;
+    flex: 0 0 auto;
+    width: 100%;
+    align-self: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding-top: 0;
+  }
+
+  .repository-action-group {
+    flex: 0 1 160px;
+    width: 160px;
+    min-width: 116px;
+  }
+
+  .repository-engagement {
+    flex: 0 1 160px;
+    width: 160px;
+    min-width: 140px;
+    margin-left: auto;
   }
 
   .year-nav {
