@@ -25,6 +25,10 @@
   --green-2: #40c463;
   --green-3: #30a14e;
   --green-4: #216e39;
+  /* 页面主栅格：内容列宽度与左右内边距，右侧悬浮按钮按此锚定 */
+  --shell-max-width: 1280px;
+  --shell-pad-x: 24px;
+  --floating-size: 42px;
 }
 
 html[data-color-scheme="dark"] {
@@ -610,9 +614,9 @@ svg {
 .github-shell {
   display: grid;
   grid-template-columns: 296px minmax(0, 1fr);
-  max-width: 1280px;
+  max-width: var(--shell-max-width);
   margin: 0 auto;
-  padding: 32px 24px 48px;
+  padding: 32px var(--shell-pad-x) 48px;
   gap: 24px;
 }
 
@@ -2552,10 +2556,14 @@ article {
   cursor: default;
 }
 
+/* 右侧悬浮按钮：左边缘对齐内容列右边界，宽屏时整体落在右侧留白内 */
 .back-to-top {
   position: fixed;
   z-index: 30;
-  right: max(24px, calc((100vw - 1440px) / 2));
+  right: max(
+    16px,
+    calc(50% - var(--shell-max-width) / 2 + var(--shell-pad-x) - var(--floating-size))
+  );
   top: 66.667vh;
   display: grid;
   width: 42px;
@@ -2610,11 +2618,15 @@ article {
   justify-content: center;
 }
 
+/* 与 .back-to-top 共用同一条定位基准，两组悬浮按钮彼此对齐 */
 .post-side-actions {
   position: fixed;
   z-index: 20;
   top: 66.667vh;
-  right: max(16px, calc((100vw - 1400px) / 2));
+  right: max(
+    16px,
+    calc(50% - var(--shell-max-width) / 2 + var(--shell-pad-x) - var(--floating-size))
+  );
   display: flex;
   width: 42px;
   flex-direction: column;
@@ -4261,8 +4273,8 @@ article {
 @media (max-width: 1360px) {
   .github-shell {
     grid-template-columns: 256px minmax(0, 1fr);
-    padding-right: 24px;
-    padding-left: 24px;
+    padding-right: var(--shell-pad-x);
+    padding-left: var(--shell-pad-x);
   }
 
   .profile-avatar {
@@ -4271,6 +4283,10 @@ article {
 }
 
 @media (max-width: 1040px) {
+  :root {
+    --shell-pad-x: 16px;
+  }
+
   .search-box,
   .weather-widget,
   .header-clock,
@@ -4338,7 +4354,7 @@ article {
 
   .github-shell {
     grid-template-columns: 220px minmax(0, 1fr);
-    padding: 24px 16px 40px;
+    padding: 24px var(--shell-pad-x) 40px;
   }
 
   .profile-avatar {
@@ -4491,7 +4507,7 @@ article {
 
   .github-shell {
     grid-template-columns: 1fr;
-    padding: 24px 16px 40px;
+    padding: 24px var(--shell-pad-x) 40px;
   }
 
   .profile-card {
