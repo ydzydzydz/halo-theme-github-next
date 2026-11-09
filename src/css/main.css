@@ -3793,14 +3793,15 @@ article {
   cursor: zoom-in;
 }
 
-/* 4 列时每 4 张一组：2×2 大图 + 1 张竖图 + 2 张小图，正好铺满 2 行 × 4 列，不留空位 */
-.photo-card:nth-child(4n + 1) {
-  grid-column: span 2;
+/* 保留原本的交错节奏：每 7 张里 1 张 2×2 大图 + 1 张竖图；
+   配合 grid-auto-flow: dense，稀疏排布留下的空位会被后面的小图回填 */
+.photo-card:nth-child(7n + 1),
+.photo-card:nth-child(7n + 5) {
   grid-row: span 2;
 }
 
-.photo-card:nth-child(4n + 2) {
-  grid-row: span 2;
+.photo-card:nth-child(7n + 1) {
+  grid-column: span 2;
 }
 
 .photo-card:hover,
@@ -4530,18 +4531,6 @@ html.photo-lightbox-open {
   .photos-grid {
     grid-auto-rows: clamp(144px, 22vw, 220px);
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  /* 3 列（及以下）时每 3 张一组：2×2 大图 + 2 张小图，正好铺满，不留空位 */
-  .photo-card:nth-child(4n + 1),
-  .photo-card:nth-child(4n + 2) {
-    grid-column: auto;
-    grid-row: auto;
-  }
-
-  .photo-card:nth-child(3n + 1) {
-    grid-column: span 2;
-    grid-row: span 2;
   }
 
   .photo-albums {
