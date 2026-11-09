@@ -1,6 +1,6 @@
 {
   "name": "theme-github-next",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "private": true,
   "description": "A GitHub-inspired Halo theme, forked from dengchuanfu/halo-theme-github.",
   "author": "ydzydzydz",
@@ -10,6 +10,7 @@
     "build-only": "tsc && vp build",
     "dev": "vp build --watch",
     "check": "vp check --fix",
+    "format": "vp fmt",
     "prepare": "vp config",
     "skills:update": "npx skills update"
   },

@@ -809,6 +809,8 @@ const setupMusicPlayer = () => {
   const toggle = player?.querySelector<HTMLButtonElement>("[data-music-toggle]");
   const next = player?.querySelector<HTMLButtonElement>("[data-music-next]");
   const playbackMode = player?.querySelector<HTMLButtonElement>("[data-music-playback-mode]");
+  const playlistToggle = player?.querySelector<HTMLButtonElement>("[data-music-playlist-toggle]");
+  const playlistPanel = player?.querySelector<HTMLElement>("[data-music-playlist]");
   const toggleIcon = toggle?.querySelector<HTMLElement>("iconify-icon");
   const playbackModeIcon = playbackMode?.querySelector<HTMLElement>("iconify-icon");
   const playlistId = player?.dataset.musicPlaylistId?.trim();
@@ -836,6 +838,8 @@ const setupMusicPlayer = () => {
     configuredApi || (player.dataset.musicSource === "netease" ? musicFallbackApi : "");
   const defaultPlaybackMode: MusicPlaybackMode =
     player.dataset.musicPlaybackMode === "shuffle" ? "shuffle" : "sequence";
+  const autoplayEnabled = player.dataset.musicAutoplay === "true";
+  const playlistEnabled = player.dataset.musicShowPlaylist === "true";
   let tracks: MusicTrack[] = [];
   let index = 0;
   let playbackModeValue: MusicPlaybackMode = "sequence";
@@ -845,6 +849,7 @@ const setupMusicPlayer = () => {
   let lyricLines: MusicLyricLine[] = [];
   let lyricRequestId = 0;
   let displayedLyric = "";
+  let playlistItems: HTMLButtonElement[] = [];
 
   const setControlsEnabled = (enabled: boolean) => {
     previous.disabled = !enabled;
@@ -852,6 +857,10 @@ const setupMusicPlayer = () => {
     next.disabled = !enabled;
     playbackMode.disabled = !enabled;
     progress.disabled = !enabled;
+
+    if (playlistToggle) {
+      playlistToggle.disabled = !enabled || !playlistEnabled;
+    }
   };
 
   if (!sourceApi) {
@@ -910,6 +919,74 @@ const setupMusicPlayer = () => {
     playbackMode.setAttribute("aria-pressed", String(isShuffle));
     playbackMode.title = isShuffle ? "随机播放" : "顺序播放";
     playbackModeIcon?.setAttribute("icon", isShuffle ? "lucide:shuffle" : "lucide:list-ordered");
+  };
+
+  const updatePlaylistCurrent = () => {
+    playlistItems.forEach((item, itemIndex) => {
+      item.classList.toggle("is-current", itemIndex === index);
+    });
+  };
+
+  const buildPlaylist = () => {
+    if (!playlistPanel || !playlistEnabled) {
+      return;
+    }
+
+    playlistPanel.replaceChildren();
+    playlistItems = [];
+
+    if (!tracks.length) {
+      const empty = document.createElement("p");
+      empty.className = "music-player-playlist-empty";
+      empty.textContent = "播放列表为空";
+      playlistPanel.append(empty);
+      return;
+    }
+
+    const items = tracks.map((track, trackIndex) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "music-player-playlist-item";
+
+      const title = document.createElement("span");
+      title.className = "music-player-playlist-title";
+      title.textContent = track.title;
+
+      const artist = document.createElement("span");
+      artist.className = "music-player-playlist-artist";
+      artist.textContent = track.artist;
+
+      item.append(title, artist);
+      item.addEventListener("click", () => {
+        loadTrack(trackIndex);
+        closePlaylist();
+      });
+
+      playlistItems.push(item);
+      return item;
+    });
+
+    playlistPanel.append(...items);
+    updatePlaylistCurrent();
+  };
+
+  const closePlaylist = () => {
+    if (!playlistPanel || !playlistToggle) {
+      return;
+    }
+
+    playlistPanel.hidden = true;
+    playlistToggle.setAttribute("aria-expanded", "false");
+  };
+
+  const togglePlaylist = () => {
+    if (!playlistPanel || !playlistToggle) {
+      return;
+    }
+
+    const willOpen = playlistPanel.hidden;
+    playlistPanel.hidden = !willOpen;
+    playlistToggle.setAttribute("aria-expanded", String(willOpen));
   };
 
   const setLyrics = (value: string) => {
@@ -1008,6 +1085,7 @@ const setupMusicPlayer = () => {
     artist.textContent = track.artist;
     void loadLyrics(track);
     progress.value = "0";
+    updatePlaylistCurrent();
 
     if (track.cover) {
       cover.src = track.cover;
@@ -1078,6 +1156,25 @@ const setupMusicPlayer = () => {
     updatePlaybackMode();
     persistState();
   });
+  playlistToggle?.addEventListener("click", togglePlaylist);
+  document.addEventListener("click", (event) => {
+    if (!playlistPanel || playlistPanel.hidden || !player) {
+      return;
+    }
+
+    const target = event.target;
+
+    if (target instanceof Node && player.contains(target)) {
+      return;
+    }
+
+    closePlaylist();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closePlaylist();
+    }
+  });
   toggle.addEventListener("click", () => {
     if (audio.paused) {
       void play();
@@ -1139,6 +1236,7 @@ const setupMusicPlayer = () => {
 
       setControlsEnabled(true);
       updatePlaybackMode();
+      buildPlaylist();
       const matchingTrackIndex = canRestore
         ? tracks.findIndex(
             (track) =>
@@ -1149,7 +1247,8 @@ const setupMusicPlayer = () => {
         matchingTrackIndex >= 0
           ? matchingTrackIndex
           : Math.min(Math.max(canRestore?.index || 0, 0), tracks.length - 1);
-      loadTrack(restoredIndex, canRestore?.wasPlaying ?? true, canRestore?.time || 0);
+      const shouldPlay = autoplayEnabled && (canRestore?.wasPlaying ?? true);
+      loadTrack(restoredIndex, shouldPlay, canRestore?.time || 0);
     })
     .catch(() => {
       title.textContent = "音乐暂时不可用";
@@ -1221,31 +1320,17 @@ const setupMomentImagePreview = () => {
   });
 };
 
-const setupPhotoLightbox = () => {
-  const grid = document.querySelector<HTMLElement>("[data-photo-gallery]");
+type LightboxEntry = {
+  alt: string;
+  element?: HTMLElement;
+  href: string;
+  src: string;
+  title: string;
+};
 
-  if (!grid) {
-    return;
-  }
-
-  const items = Array.from(grid.querySelectorAll<HTMLAnchorElement>(".photo-card"))
-    .map((card) => {
-      const image = card.querySelector<HTMLImageElement>("img");
-      const title = card.querySelector<HTMLElement>(".photo-card-title span");
-      const src = image?.currentSrc || image?.src || "";
-
-      return {
-        card,
-        src,
-        alt: image?.alt ?? "",
-        title: title?.textContent?.trim() ?? "",
-        href: card.getAttribute("href") || src,
-      };
-    })
-    .filter((item) => item.src);
-
-  if (!items.length) {
-    return;
+const createImageLightbox = (entries: LightboxEntry[]) => {
+  if (!entries.length) {
+    return undefined;
   }
 
   let index = 0;
@@ -1309,7 +1394,7 @@ const setupPhotoLightbox = () => {
   document.body.append(overlay);
 
   const preload = (offset: number) => {
-    const item = items[(index + offset + items.length) % items.length];
+    const item = entries[(index + offset + entries.length) % entries.length];
 
     if (item) {
       const loader = new Image();
@@ -1318,22 +1403,22 @@ const setupPhotoLightbox = () => {
   };
 
   const render = () => {
-    const item = items[index];
+    const item = entries[index];
 
     image.src = item.src;
     image.alt = item.alt;
     title.textContent = item.title;
-    counter.textContent = `${index + 1} / ${items.length}`;
+    counter.textContent = `${index + 1} / ${entries.length}`;
     original.href = item.href;
     original.hidden = !item.href;
-    prevButton.hidden = items.length < 2;
-    nextButton.hidden = items.length < 2;
+    prevButton.hidden = entries.length < 2;
+    nextButton.hidden = entries.length < 2;
     preload(1);
     preload(-1);
   };
 
   const open = (start: number) => {
-    index = (start + items.length) % items.length;
+    index = (start + entries.length) % entries.length;
     render();
     overlay.hidden = false;
     document.documentElement.classList.add("photo-lightbox-open");
@@ -1343,24 +1428,13 @@ const setupPhotoLightbox = () => {
   const close = () => {
     overlay.hidden = true;
     document.documentElement.classList.remove("photo-lightbox-open");
-    items[index]?.card.focus();
+    entries[index]?.element?.focus();
   };
 
   const step = (delta: number) => {
-    index = (index + delta + items.length) % items.length;
+    index = (index + delta + entries.length) % entries.length;
     render();
   };
-
-  items.forEach((item, itemIndex) => {
-    item.card.addEventListener("click", (event) => {
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-        return;
-      }
-
-      event.preventDefault();
-      open(itemIndex);
-    });
-  });
 
   closeButton.addEventListener("click", close);
   prevButton.addEventListener("click", () => step(-1));
@@ -1410,6 +1484,82 @@ const setupPhotoLightbox = () => {
     },
     { passive: true },
   );
+
+  return { close, open };
+};
+
+const setupPhotoLightbox = () => {
+  const grid = document.querySelector<HTMLElement>("[data-photo-gallery]");
+
+  if (!grid) {
+    return;
+  }
+
+  const entries = Array.from(grid.querySelectorAll<HTMLAnchorElement>(".photo-card"))
+    .map((card) => {
+      const image = card.querySelector<HTMLImageElement>("img");
+      const title = card.querySelector<HTMLElement>(".photo-card-title span");
+      const src = image?.currentSrc || image?.src || "";
+
+      return {
+        element: card,
+        src,
+        alt: image?.alt ?? "",
+        title: title?.textContent?.trim() ?? "",
+        href: card.getAttribute("href") || src,
+      };
+    })
+    .filter((item) => item.src);
+
+  const lightbox = createImageLightbox(entries);
+
+  if (!lightbox) {
+    return;
+  }
+
+  entries.forEach((entry, entryIndex) => {
+    entry.element?.addEventListener("click", (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+
+      event.preventDefault();
+      lightbox.open(entryIndex);
+    });
+  });
+};
+
+const setupArticleImageLightbox = () => {
+  const images = Array.from(
+    document.querySelectorAll<HTMLImageElement>(".article-content img"),
+  ).filter((image) => !image.closest("a") && !image.closest(".image-preview"));
+
+  const entries = images
+    .map((image) => {
+      const src = image.currentSrc || image.src || "";
+      const caption = image.closest("figure")?.querySelector("figcaption");
+
+      return {
+        element: image,
+        src,
+        alt: image.alt ?? "",
+        title: caption?.textContent?.trim() || image.alt || "",
+        href: src,
+      };
+    })
+    .filter((item) => item.src);
+
+  const lightbox = createImageLightbox(entries);
+
+  if (!lightbox) {
+    return;
+  }
+
+  entries.forEach((entry, entryIndex) => {
+    entry.element?.addEventListener("click", () => {
+      lightbox.open(entryIndex);
+    });
+  });
 };
 
 const setupMomentUpvotes = () => {
@@ -2496,6 +2646,7 @@ setupWeather();
 setupMusicPlayer();
 setupMomentImagePreview();
 setupPhotoLightbox();
+setupArticleImageLightbox();
 setupMomentUpvotes();
 setupPostUpvotes();
 setupRepositoryFilters();

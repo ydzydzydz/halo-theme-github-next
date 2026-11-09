@@ -12,10 +12,19 @@
     <title th:text="|${category.spec.displayName} - ${site.title}|">Category Archive</title>
   </template>
 
-  <h1 th:text="|分类：${category.spec.displayName}|"></h1>
-  <p th:if="${category.spec.description}" th:text="${category.spec.description}"></p>
+  <section class="links-hero taxonomy-hero">
+    <div>
+      <p class="links-eyebrow">Categories</p>
+      <h1 th:text="|分类：${category.spec.displayName}|"></h1>
+      <p th:text="${category.spec.description} ?: '查看该分类下的全部文章。'"></p>
+    </div>
+    <span class="links-count" th:if="${posts != null}">
+      <span th:text="${posts.total ?: 0}">0</span>
+      <span>篇文章</span>
+    </span>
+  </section>
 
-  <ul class="repository-list">
+  <ul class="repository-list repository-list--bordered">
     <include src="repository-post-item.html"></include>
     <li class="repository-empty" th:if="${posts.total == 0}">
       <span>该分类下暂无文章</span>

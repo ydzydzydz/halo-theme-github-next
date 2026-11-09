@@ -57,7 +57,7 @@
             data-music-player
             th:if="${theme.config.styles.music_player_enabled == true and not #strings.isEmpty(theme.config.styles.music_playlist_id)}"
             th:classappend="${theme.config.styles.music_player_position == 'top-right' ? 'music-player--header' : ''}"
-            th:attr="data-music-source=${theme.config.styles.music_source ?: 'netease'}, data-music-playlist-id=${theme.config.styles.music_playlist_id}, data-music-playback-mode=${theme.config.styles.music_playback_mode ?: 'sequence'}, data-music-api=${theme.config.styles.music_api ?: 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id={id}'}"
+            th:attr="data-music-source=${theme.config.styles.music_source ?: 'netease'}, data-music-playlist-id=${theme.config.styles.music_playlist_id}, data-music-playback-mode=${theme.config.styles.music_playback_mode ?: 'sequence'}, data-music-api=${theme.config.styles.music_api ?: 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id={id}'}, data-music-autoplay=${theme.config.styles.music_autoplay == true}, data-music-hide-mobile=${theme.config.styles.music_hide_on_mobile == true}, data-music-show-playlist=${theme.config.styles.music_show_playlist == true}"
             aria-label="音乐播放器"
           >
             <div class="music-player-cover" aria-hidden="true">
@@ -91,6 +91,16 @@
               >
                 <iconify-icon icon="lucide:list-ordered" aria-hidden="true"></iconify-icon>
               </button>
+              <button
+                type="button"
+                data-music-playlist-toggle
+                aria-label="播放列表"
+                aria-expanded="false"
+                title="播放列表"
+                disabled
+              >
+                <iconify-icon icon="lucide:list-music" aria-hidden="true"></iconify-icon>
+              </button>
             </div>
             <input
               class="music-player-progress"
@@ -102,6 +112,7 @@
               data-music-progress
               disabled
             />
+            <div class="music-player-playlist" data-music-playlist hidden></div>
             <audio data-music-audio preload="metadata"></audio>
           </section>
           <div class="header-actions">

@@ -88,12 +88,18 @@
     </a>
   </nav>
 
-  <div id="comments">
-    <halo:comment
-      th:if="${haloCommentEnabled}"
-      group="content.halo.run"
-      kind="Post"
-      th:attr="name=${post.metadata.name}"
-    />
-  </div>
+  <section class="post-comments" id="comments" aria-label="评论区">
+    <header class="post-comments-header">
+      <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
+      <strong>评论</strong>
+    </header>
+    <div class="post-comments-body">
+      <halo:comment
+        th:if="${haloCommentEnabled}"
+        group="content.halo.run"
+        kind="Post"
+        th:attr="name=${post.metadata.name}"
+      />
+    </div>
+  </section>
 </include>

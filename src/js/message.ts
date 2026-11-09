@@ -48,6 +48,7 @@ const fetchComments = async (name: string) => {
       name,
       page: String(page),
       size: "100",
+      version: "alpha1",
     });
     const response = await fetch(`${commentEndpoint}?${query}`, { cache: "no-store" });
 
@@ -130,10 +131,6 @@ const setupMessageWall = () => {
   let signature = "";
 
   const refresh = async () => {
-    if (document.hidden) {
-      return;
-    }
-
     try {
       const comments = await fetchComments(name);
       count.textContent = `${comments.length} 条留言`;
@@ -187,7 +184,11 @@ const setupMessageWall = () => {
   };
 
   void refresh();
-  window.setInterval(() => void refresh(), 30_000);
+  window.setInterval(() => {
+    if (!document.hidden) {
+      void refresh();
+    }
+  }, 30_000);
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) {
       void refresh();
