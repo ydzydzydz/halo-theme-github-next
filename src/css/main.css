@@ -3775,6 +3775,7 @@ article {
 
 .photos-grid {
   display: grid;
+  grid-auto-flow: row dense;
   grid-auto-rows: clamp(156px, 15vw, 236px);
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
@@ -3789,15 +3790,17 @@ article {
   border-radius: 6px;
   background: var(--canvas-subtle);
   color: var(--fg);
+  cursor: zoom-in;
 }
 
-.photo-card:nth-child(7n + 1),
-.photo-card:nth-child(7n + 5) {
+/* 4 列时每 4 张一组：2×2 大图 + 1 张竖图 + 2 张小图，正好铺满 2 行 × 4 列，不留空位 */
+.photo-card:nth-child(4n + 1) {
+  grid-column: span 2;
   grid-row: span 2;
 }
 
-.photo-card:nth-child(7n + 1) {
-  grid-column: span 2;
+.photo-card:nth-child(4n + 2) {
+  grid-row: span 2;
 }
 
 .photo-card:hover,
@@ -3848,6 +3851,129 @@ article {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 图库灯箱 */
+html.photo-lightbox-open {
+  overflow: hidden;
+}
+
+.photo-lightbox {
+  display: grid;
+  position: fixed;
+  z-index: 80;
+  place-items: center;
+  padding: 32px 72px;
+  background: rgb(13 17 23 / 92%);
+  inset: 0;
+  animation: photo-lightbox-fade 160ms ease;
+}
+
+.photo-lightbox[hidden] {
+  display: none;
+}
+
+@keyframes photo-lightbox-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.photo-lightbox-figure {
+  display: grid;
+  max-width: 100%;
+  max-height: 100%;
+  gap: 12px;
+  justify-items: center;
+  margin: 0;
+}
+
+.photo-lightbox-image {
+  display: block;
+  max-width: min(92vw, 1600px);
+  max-height: 80vh;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.photo-lightbox-caption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgb(255 255 255 / 82%);
+  font-size: 13px;
+  text-align: center;
+}
+
+.photo-lightbox-original {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.photo-lightbox-counter {
+  color: rgb(255 255 255 / 60%);
+  font-variant-numeric: tabular-nums;
+}
+
+.photo-lightbox-close,
+.photo-lightbox-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 35%);
+  background: rgb(13 17 23 / 65%);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.photo-lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+}
+
+.photo-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.photo-lightbox-nav--prev {
+  left: 16px;
+}
+
+.photo-lightbox-nav--next {
+  right: 16px;
+}
+
+.photo-lightbox-close iconify-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+}
+
+.photo-lightbox-nav iconify-icon {
+  width: 22px;
+  height: 22px;
+  font-size: 22px;
+}
+
+.photo-lightbox-close:hover,
+.photo-lightbox-nav:hover {
+  border-color: rgb(255 255 255 / 65%);
+  background: rgb(13 17 23 / 90%);
 }
 
 @keyframes links-fade-up {
@@ -4406,6 +4532,18 @@ article {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  /* 3 列（及以下）时每 3 张一组：2×2 大图 + 2 张小图，正好铺满，不留空位 */
+  .photo-card:nth-child(4n + 1),
+  .photo-card:nth-child(4n + 2) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .photo-card:nth-child(3n + 1) {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
   .photo-albums {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 36px 28px;
@@ -4591,6 +4729,30 @@ article {
   .photos-grid {
     grid-auto-rows: 36vw;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .photo-lightbox {
+    padding: 56px 12px 76px;
+  }
+
+  .photo-lightbox-image {
+    max-height: 70vh;
+  }
+
+  .photo-lightbox-nav {
+    top: auto;
+    bottom: 16px;
+    width: 38px;
+    height: 38px;
+    transform: none;
+  }
+
+  .photo-lightbox-nav--prev {
+    left: 16px;
+  }
+
+  .photo-lightbox-nav--next {
+    right: 16px;
   }
 
   .photo-albums {

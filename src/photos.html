@@ -102,6 +102,7 @@
 
     <div
       class="photos-grid"
+      data-photo-gallery
       th:if="${photos != null and not #lists.isEmpty(photos.items) and (not #lists.isEmpty(param.group) or not #lists.isEmpty(param.ungrouped))}"
     >
       <a

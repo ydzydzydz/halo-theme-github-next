@@ -1221,6 +1221,197 @@ const setupMomentImagePreview = () => {
   });
 };
 
+const setupPhotoLightbox = () => {
+  const grid = document.querySelector<HTMLElement>("[data-photo-gallery]");
+
+  if (!grid) {
+    return;
+  }
+
+  const items = Array.from(grid.querySelectorAll<HTMLAnchorElement>(".photo-card"))
+    .map((card) => {
+      const image = card.querySelector<HTMLImageElement>("img");
+      const title = card.querySelector<HTMLElement>(".photo-card-title span");
+      const src = image?.currentSrc || image?.src || "";
+
+      return {
+        card,
+        src,
+        alt: image?.alt ?? "",
+        title: title?.textContent?.trim() ?? "",
+        href: card.getAttribute("href") || src,
+      };
+    })
+    .filter((item) => item.src);
+
+  if (!items.length) {
+    return;
+  }
+
+  let index = 0;
+  let touchStartX = 0;
+
+  const createIcon = (name: string) => {
+    const element = document.createElement("iconify-icon");
+    element.setAttribute("icon", name);
+    return element;
+  };
+
+  const image = document.createElement("img");
+  image.className = "photo-lightbox-image";
+  image.alt = "";
+
+  const title = document.createElement("span");
+  const counter = document.createElement("span");
+  counter.className = "photo-lightbox-counter";
+  const original = document.createElement("a");
+  original.className = "photo-lightbox-original";
+  original.textContent = "查看原图";
+  original.target = "_blank";
+  original.rel = "noreferrer";
+
+  const caption = document.createElement("figcaption");
+  caption.className = "photo-lightbox-caption";
+  caption.append(title, counter, original);
+
+  const figure = document.createElement("figure");
+  figure.className = "photo-lightbox-figure";
+  figure.append(image, caption);
+
+  const closeButton = document.createElement("button");
+  closeButton.className = "photo-lightbox-close";
+  closeButton.type = "button";
+  closeButton.title = "关闭预览";
+  closeButton.setAttribute("aria-label", "关闭预览");
+  closeButton.append(createIcon("material-symbols:close"));
+
+  const prevButton = document.createElement("button");
+  prevButton.className = "photo-lightbox-nav photo-lightbox-nav--prev";
+  prevButton.type = "button";
+  prevButton.title = "上一张";
+  prevButton.setAttribute("aria-label", "上一张");
+  prevButton.append(createIcon("material-symbols:chevron-left"));
+
+  const nextButton = document.createElement("button");
+  nextButton.className = "photo-lightbox-nav photo-lightbox-nav--next";
+  nextButton.type = "button";
+  nextButton.title = "下一张";
+  nextButton.setAttribute("aria-label", "下一张");
+  nextButton.append(createIcon("material-symbols:chevron-right"));
+
+  const overlay = document.createElement("div");
+  overlay.className = "photo-lightbox";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", "图片预览");
+  overlay.hidden = true;
+  overlay.append(figure, closeButton, prevButton, nextButton);
+  document.body.append(overlay);
+
+  const preload = (offset: number) => {
+    const item = items[(index + offset + items.length) % items.length];
+
+    if (item) {
+      const loader = new Image();
+      loader.src = item.src;
+    }
+  };
+
+  const render = () => {
+    const item = items[index];
+
+    image.src = item.src;
+    image.alt = item.alt;
+    title.textContent = item.title;
+    counter.textContent = `${index + 1} / ${items.length}`;
+    original.href = item.href;
+    original.hidden = !item.href;
+    prevButton.hidden = items.length < 2;
+    nextButton.hidden = items.length < 2;
+    preload(1);
+    preload(-1);
+  };
+
+  const open = (start: number) => {
+    index = (start + items.length) % items.length;
+    render();
+    overlay.hidden = false;
+    document.documentElement.classList.add("photo-lightbox-open");
+    closeButton.focus();
+  };
+
+  const close = () => {
+    overlay.hidden = true;
+    document.documentElement.classList.remove("photo-lightbox-open");
+    items[index]?.card.focus();
+  };
+
+  const step = (delta: number) => {
+    index = (index + delta + items.length) % items.length;
+    render();
+  };
+
+  items.forEach((item, itemIndex) => {
+    item.card.addEventListener("click", (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+
+      event.preventDefault();
+      open(itemIndex);
+    });
+  });
+
+  closeButton.addEventListener("click", close);
+  prevButton.addEventListener("click", () => step(-1));
+  nextButton.addEventListener("click", () => step(1));
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      close();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (overlay.hidden) {
+      return;
+    }
+
+    if (event.key === "Escape") {
+      close();
+      return;
+    }
+
+    if (event.key === "ArrowLeft") {
+      step(-1);
+      return;
+    }
+
+    if (event.key === "ArrowRight") {
+      step(1);
+    }
+  });
+
+  overlay.addEventListener(
+    "touchstart",
+    (event) => {
+      touchStartX = event.changedTouches[0]?.clientX ?? 0;
+    },
+    { passive: true },
+  );
+
+  overlay.addEventListener(
+    "touchend",
+    (event) => {
+      const delta = (event.changedTouches[0]?.clientX ?? 0) - touchStartX;
+
+      if (Math.abs(delta) > 48) {
+        step(delta < 0 ? 1 : -1);
+      }
+    },
+    { passive: true },
+  );
+};
+
 const setupMomentUpvotes = () => {
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-moment-upvote]"));
 
@@ -2555,6 +2746,7 @@ setupRepositoryEngagement();
 setupWeather();
 setupMusicPlayer();
 setupMomentImagePreview();
+setupPhotoLightbox();
 setupMomentUpvotes();
 setupPostUpvotes();
 setupRepositoryFilters();

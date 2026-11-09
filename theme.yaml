@@ -22,7 +22,7 @@ spec:
       - name: 服务
         description: 可配置服务项目并支持点击查看详情的服务展示页面
         file: business.html
-  version: 1.0.3
+  version: 1.0.4
   requires: ">=2.0.0"
   license:
     - name: "GPL-3.0"
