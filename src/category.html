@@ -12,11 +12,14 @@
     <title th:text="|${category.spec.displayName} - ${site.title}|">Category Archive</title>
   </template>
 
-  <h1 th:text="|Category: ${category.spec.displayName}|"></h1>
+  <h1 th:text="|分类：${category.spec.displayName}|"></h1>
   <p th:if="${category.spec.description}" th:text="${category.spec.description}"></p>
 
-  <ul class="post-list">
-    <include src="post-card.html"></include>
+  <ul class="repository-list">
+    <include src="repository-post-item.html"></include>
+    <li class="repository-empty" th:if="${posts.total == 0}">
+      <span>该分类下暂无文章</span>
+    </li>
   </ul>
 
   <include src="pagination.html"></include>

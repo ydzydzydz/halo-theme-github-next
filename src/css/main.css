@@ -976,7 +976,8 @@ svg {
   font-size: 14px;
 }
 
-.sidebar-tags-heading iconify-icon {
+.sidebar-tags-heading iconify-icon,
+.sidebar-categories-heading iconify-icon {
   width: 16px;
   height: 16px;
   color: var(--fg-muted);
@@ -1164,10 +1165,6 @@ svg {
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 14%, var(--canvas));
   text-decoration: none;
-}
-
-.sidebar-categories-heading iconify-icon {
-  color: var(--accent);
 }
 
 .sidebar-category-list span {
@@ -1389,6 +1386,12 @@ svg {
 
 .repository-filter-button:hover,
 .repository-filter-button[aria-expanded="true"] {
+  color: var(--accent);
+}
+
+.repository-filter-button.is-active {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, var(--canvas));
   color: var(--accent);
 }
 
@@ -2714,7 +2717,6 @@ article {
   margin-top: 16px;
 }
 
-.post-list,
 .tag-list,
 .category-list {
   margin: 0;

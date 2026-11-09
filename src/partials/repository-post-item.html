@@ -1,0 +1,110 @@
+<!--
+  文章列表项（归档页 / 分类页 / 标签页共用）
+  依赖上下文变量 posts（ListResult），由调用方决定数据来源与筛选条件。
+-->
+<li
+  class="repository-list-item"
+  th:each="post : ${posts.items}"
+  th:classappend="${theme.config.styles.archive_cover_enabled == true and not #strings.isEmpty(post.spec.cover) ? 'repository-list-item--cover' : ''}"
+  th:style="|--repository-cover: url('${post.spec.cover}')|"
+  th:attr="data-repository-title=${post.spec.title}, data-repository-date=${post.spec.publishTime}"
+>
+  <div class="repository-list-copy">
+    <div class="repository-list-heading">
+      <h2 class="repository-list-title">
+        <a th:href="@{${post.status.permalink}}" th:text="${post.spec.title}"> Article title </a>
+      </h2>
+      <span class="repository-title-tags" th:if="${not #lists.isEmpty(post.tags)}">
+        <a
+          class="repository-title-tag"
+          th:each="tag : ${post.tags}"
+          th:href="@{${tag.status.permalink}}"
+          th:text="${tag.spec.displayName}"
+        ></a>
+      </span>
+    </div>
+    <p class="repository-list-desc" th:text="${post.status.excerpt ?: '暂无文章摘要'}">
+      暂无文章摘要
+    </p>
+    <div class="repository-list-meta">
+      <span class="language-dot"></span>
+      <span th:if="${not #lists.isEmpty(post.categories)}">
+        <a
+          th:each="cat, catStat : ${post.categories}"
+          th:if="${catStat.first}"
+          th:href="@{${cat.status.permalink}}"
+          th:text="${cat.spec.displayName}"
+        ></a>
+      </span>
+      <span th:unless="${not #lists.isEmpty(post.categories)}">未分类</span>
+      <time
+        th:datetime="${post.spec.publishTime}"
+        th:text="|Updated ${#temporals.format(post.spec.publishTime, 'MMM d')}|"
+      >
+        Updated now
+      </time>
+    </div>
+  </div>
+  <div class="repository-side">
+    <div class="repository-action-group" aria-label="文章操作">
+      <button
+        class="repository-action-button post-upvote"
+        type="button"
+        th:attr="data-post-upvote=${post.metadata.name}"
+        aria-label="点赞文章"
+        title="点赞"
+      >
+        <iconify-icon icon="octicon:thumbsup-16"></iconify-icon>
+        <span>点赞</span>
+        <span data-post-upvote-count th:text="${post.stats?.upvote ?: 0}">0</span>
+      </button>
+      <a class="repository-action-button" th:href="@{${post.status.permalink} + '#comments'}">
+        <span>评论</span>
+      </a>
+    </div>
+    <div
+      class="repository-engagement"
+      th:attr="data-repository-post-name=${post.metadata.name}, aria-label=|文章互动：${post.stats?.visit ?: 0} 次访问，${post.stats?.comment ?: 0} 条评论，${post.stats?.upvote ?: 0} 个赞|"
+    >
+      <span
+        class="repository-engagement-metric"
+        data-engagement-kind="visit"
+        th:attr="data-engagement-count=${post.stats?.visit ?: 0}"
+        title="访问量"
+      >
+        <iconify-icon icon="octicon:eye-16" aria-hidden="true"></iconify-icon>
+        <span
+          class="repository-engagement-value"
+          th:text="${(post.stats?.visit ?: 0) > 99 ? '99+' : (post.stats?.visit ?: 0)}"
+          >0</span
+        >
+      </span>
+      <span
+        class="repository-engagement-metric"
+        data-engagement-kind="comment"
+        th:attr="data-engagement-count=${post.stats?.comment ?: 0}"
+        title="评论数"
+      >
+        <iconify-icon icon="octicon:comment-16" aria-hidden="true"></iconify-icon>
+        <span
+          class="repository-engagement-value"
+          th:text="${(post.stats?.comment ?: 0) > 99 ? '99+' : (post.stats?.comment ?: 0)}"
+          >0</span
+        >
+      </span>
+      <span
+        class="repository-engagement-metric"
+        data-engagement-kind="upvote"
+        th:attr="data-engagement-count=${post.stats?.upvote ?: 0}"
+        title="点赞数"
+      >
+        <iconify-icon icon="octicon:thumbsup-16" aria-hidden="true"></iconify-icon>
+        <span
+          class="repository-engagement-value"
+          th:text="${(post.stats?.upvote ?: 0) > 99 ? '99+' : (post.stats?.upvote ?: 0)}"
+          >0</span
+        >
+      </span>
+    </div>
+  </div>
+</li>
