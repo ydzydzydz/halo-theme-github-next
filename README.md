@@ -1,6 +1,17 @@
-# Halo Theme GitHub
+# Halo Theme GitHub Next
 
-一款仿 GitHub 个人主页风格的 [Halo 2](https://www.halo.run/) 主题，由 Monster 基于官方 [`theme-vite-starter`](https://github.com/halo-dev/theme-vite-starter) 开发。
+> [!IMPORTANT]
+> **本项目是 [原仓库 dengchuanfu/halo-theme-github](https://github.com/dengchuanfu/halo-theme-github) 的 Fork。**
+>
+> 原作者：[Monster](https://github.com/dengchuanfu)（作者网站 <https://ffbf.top>）基于官方 [`theme-vite-starter`](https://github.com/halo-dev/theme-vite-starter) 开发了原主题。
+> 本仓库 `ydzydzydz/theme-github-next` 在原主题基础上继续开发，沿用原项目的 [GPL-3.0](LICENSE) 许可证，原作者署名与版权声明予以保留。
+>
+> - 原仓库：<https://github.com/dengchuanfu/halo-theme-github>
+> - 原仓库 Issues：<https://github.com/dengchuanfu/halo-theme-github/issues>
+> - 本仓库（Fork）：<https://github.com/ydzydzydz/theme-github-next>
+> - 本仓库 Issues：<https://github.com/ydzydzydz/theme-github-next/issues>
+
+一款仿 GitHub 个人主页风格的 [Halo 2](https://www.halo.run/) 主题。
 
 主题将博客内容组织成类似 GitHub Profile 的界面，支持响应式布局、动态贡献图、站点动态、文章搜索，以及友链、瞬间、图库、留言板等 Halo 内容页面。
 
@@ -35,16 +46,16 @@
 
 ### 使用发行包
 
-1. 从仓库的 [Releases](https://github.com/dengchuanfu/halo-theme-github/releases) 页面下载最新的 `halo-theme-github-版本号.zip`。
+1. 从仓库的 [Releases](https://github.com/ydzydzydz/theme-github-next/releases) 页面下载最新的 `theme-github-next-版本号.zip`。
 2. 登录 Halo Console，进入「外观」->「主题」。
 3. 点击「安装主题」并上传下载的 zip 文件。
-4. 安装完成后启用 `GitHub` 主题。
+4. 安装完成后启用 `GitHub Next` 主题。
 
 ### 从源码构建
 
 ```bash
-git clone https://github.com/dengchuanfu/halo-theme-github.git
-cd halo-theme-github
+git clone https://github.com/ydzydzydz/theme-github-next.git
+cd theme-github-next
 corepack enable
 pnpm install
 pnpm build
@@ -54,18 +65,18 @@ pnpm build
 
 ## 基础配置
 
-进入 Halo Console 的「外观」->「主题」->「GitHub」->「设置」，按需配置以下内容。
+进入 Halo Console 的「外观」->「主题」->「GitHub Next」->「设置」，按需配置以下内容。
 
 ### 基础设置
 
-| 配置项       | 说明                                 | 默认值             |
-| ------------ | ------------------------------------ | ------------------ |
-| 名称         | 个人资料区头像下方的加粗名称         | `Monster`          |
-| 描述         | 名称下方的简介或用户名               | `我是真滴帅～`     |
-| 个人资料信息 | 可自定义侧边栏资料的内容、图标和链接 | 组织、所在地、邮箱 |
-| 显示网站统计 | 显示文章总数、评论总数和访问量       | 开启               |
-| 首页动态条数 | 首页“站点动态”默认展示的最新记录数量 | `6`                |
-| 状态 Emoji   | 显示在头像右下角的状态图标           | `😊`               |
+| 配置项       | 说明                                 | 默认值               |
+| ------------ | ------------------------------------ | -------------------- |
+| 名称         | 个人资料区头像下方的加粗名称         | `ydzydzydz`          |
+| 描述         | 名称下方的简介或用户名               | `欢迎来到我的小站～` |
+| 个人资料信息 | 可自定义侧边栏资料的内容、图标和链接 | 组织、所在地、邮箱   |
+| 显示网站统计 | 显示文章总数、评论总数和访问量       | 开启                 |
+| 首页动态条数 | 首页“站点动态”默认展示的最新记录数量 | `6`                  |
+| 状态 Emoji   | 显示在头像右下角的状态图标           | `😊`                 |
 
 个人资料头像和顶部 Logo 使用 Halo 的站点 Logo；顶部站点标题、页面标题和页脚站点名称使用 Halo 后台的站点标题。请在 Console 的「设置」->「基本设置」中配置。
 
@@ -169,7 +180,7 @@ pnpm build
 3. 在页面模板中选择「服务」，发布页面。
 4. 在「外观」->「菜单」中添加这个页面，菜单路径使用页面实际生成的 `/services`。
 
-发布后访问页面实际固定链接即可。服务卡片、详情弹窗、服务内容和联系方式在「外观」->「主题」->「GitHub」->「服务设置」中维护。主题同时兼容旧的 `/Business` 和 `/business` 路径，但不会为不存在的单页凭空创建 `/services` 路由。
+发布后访问页面实际固定链接即可。服务卡片、详情弹窗、服务内容和联系方式在「外观」->「主题」->「GitHub Next」->「服务设置」中维护。主题同时兼容旧的 `/Business` 和 `/business` 路径，但不会为不存在的单页凭空创建 `/services` 路由。
 
 ### 文章、分类和标签
 
@@ -249,8 +260,18 @@ pnpm build
 
 本项目使用 [GPL-3.0 License](LICENSE)。
 
+本项目为原仓库 [dengchuanfu/halo-theme-github](https://github.com/dengchuanfu/halo-theme-github) 的 Fork，遵循原项目的 GPL-3.0 许可证，保留原作者 Monster 的版权声明与署名。如需使用原主题功能，请优先参考原仓库文档。
+
 ## 相关链接
 
+### 原仓库（原作者）
+
+- 原作者：Monster（<https://github.com/dengchuanfu>）
 - 作者网站：<https://ffbf.top>
-- 源码仓库：<https://github.com/dengchuanfu/halo-theme-github>
-- 问题反馈：<https://github.com/dengchuanfu/halo-theme-github/issues>
+- 原仓库：<https://github.com/dengchuanfu/halo-theme-github>
+- 原仓库 Issues：<https://github.com/dengchuanfu/halo-theme-github/issues>
+
+### 本仓库（Fork）
+
+- Fork 仓库：<https://github.com/ydzydzydz/theme-github-next>
+- 问题反馈：<https://github.com/ydzydzydz/theme-github-next/issues>

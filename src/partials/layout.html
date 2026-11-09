@@ -16,11 +16,11 @@
       <div class="header-inner">
         <a class="octo-mark" th:href="@{/}" aria-label="Home">
           <img
-            th:src="${site.logo ?: 'https://github.com/dengchuanfu.png?size=80'}"
+            th:src="${site.logo ?: 'https://github.com/ydzydzydz.png?size=80'}"
             th:alt="${site.title}"
           />
         </a>
-        <a class="site-title" th:href="@{/}" th:text="${site.title}">monster</a>
+        <a class="site-title" th:href="@{/}" th:text="${site.title}">GitHub Next</a>
         <div class="header-tools">
           <button class="search-box" type="button" data-search-trigger aria-label="搜索">
             <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -161,7 +161,7 @@
                 hidden
               >
                 <img
-                  th:src="${site.logo ?: 'https://github.com/dengchuanfu.png?size=80'}"
+                  th:src="${site.logo ?: 'https://github.com/ydzydzydz.png?size=80'}"
                   th:alt="${theme.config.basic.name ?: site.title}"
                   data-user-avatar
                 />
@@ -494,7 +494,7 @@
             <div class="love-people">
               <figure
                 class="love-person"
-                th:with="avatar=${not #strings.isEmpty(love.person_one_qq) ? 'https://q1.qlogo.cn/g?b=qq&nk=' + love.person_one_qq + '&s=640' : (love.person_one_avatar ?: (site.logo ?: 'https://github.com/dengchuanfu.png?size=160'))}"
+                th:with="avatar=${not #strings.isEmpty(love.person_one_qq) ? 'https://q1.qlogo.cn/g?b=qq&nk=' + love.person_one_qq + '&s=640' : (love.person_one_avatar ?: (site.logo ?: 'https://github.com/ydzydzydz.png?size=160'))}"
               >
                 <img
                   class="love-person-avatar"
@@ -508,7 +508,7 @@
               </span>
               <figure
                 class="love-person"
-                th:with="avatar=${not #strings.isEmpty(love.person_two_qq) ? 'https://q1.qlogo.cn/g?b=qq&nk=' + love.person_two_qq + '&s=640' : (love.person_two_avatar ?: (site.logo ?: 'https://github.com/dengchuanfu.png?size=160'))}"
+                th:with="avatar=${not #strings.isEmpty(love.person_two_qq) ? 'https://q1.qlogo.cn/g?b=qq&nk=' + love.person_two_qq + '&s=640' : (love.person_two_avatar ?: (site.logo ?: 'https://github.com/ydzydzydz.png?size=160'))}"
               >
                 <img
                   class="love-person-avatar"

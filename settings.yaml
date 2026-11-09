@@ -1,7 +1,7 @@
 apiVersion: v1alpha1
 kind: Setting
 metadata:
-  name: halo-theme-github-setting
+  name: theme-github-next-setting
 spec:
   forms:
     - group: basic
@@ -10,12 +10,12 @@ spec:
         - $formkit: text
           name: name
           label: 站点信息设置 - 名称
-          value: "Monster"
+          value: "ydzydzydz"
           help: 显示在大 Logo 下方的加粗名称
         - $formkit: textarea
           name: description
           label: 站点信息设置 - 描述
-          value: "我是真滴帅～"
+          value: "欢迎来到我的小站～"
           help: 显示在加粗名称下方的灰色文字
         - $formkit: array
           name: profile_meta
@@ -27,9 +27,9 @@ spec:
             - text: "ShenZhen"
               icon: "octicon:location-16"
               url: ""
-            - text: "767267711@qq.com"
+            - text: "your@example.com"
               icon: "octicon:mail-16"
-              url: "mailto:767267711@qq.com"
+              url: "mailto:your@example.com"
           addLabel: 添加资料信息
           emptyText: 暂无资料信息
           help: 可自定义内容、Iconify 图标和链接，并拖动调整显示顺序
@@ -51,7 +51,7 @@ spec:
               name: url
               label: 链接（可选）
               value: ""
-              placeholder: "mailto:767267711@qq.com"
+              placeholder: "mailto:your@example.com"
         - $formkit: checkbox
           name: show_stats
           label: 是否显示网站统计信息
@@ -350,7 +350,7 @@ spec:
               price: "按配置与工作量评估"
               icon: "octicon:server-16"
               contact_label: "咨询服务器服务"
-              contact_url: "mailto:767267711@qq.com?subject=服务器服务咨询"
+              contact_url: "mailto:your@example.com?subject=服务器服务咨询"
               contact_wechat: ""
               contact_qq: ""
               contact_phone: ""
@@ -363,7 +363,7 @@ spec:
               price: "按证书类型与站点数量评估"
               icon: "octicon:shield-check-16"
               contact_label: "咨询 SSL 证书"
-              contact_url: "mailto:767267711@qq.com?subject=SSL证书咨询"
+              contact_url: "mailto:your@example.com?subject=SSL证书咨询"
               contact_wechat: ""
               contact_qq: ""
               contact_phone: ""
@@ -376,7 +376,7 @@ spec:
               price: "按型号与采购数量报价"
               icon: "octicon:device-desktop-16"
               contact_label: "咨询品牌机服务"
-              contact_url: "mailto:767267711@qq.com?subject=品牌机咨询"
+              contact_url: "mailto:your@example.com?subject=品牌机咨询"
               contact_wechat: ""
               contact_qq: ""
               contact_phone: ""
@@ -389,7 +389,7 @@ spec:
               price: "按配置方案报价"
               icon: "octicon:cpu-16"
               contact_label: "咨询组装机服务"
-              contact_url: "mailto:767267711@qq.com?subject=组装机咨询"
+              contact_url: "mailto:your@example.com?subject=组装机咨询"
               contact_wechat: ""
               contact_qq: ""
               contact_phone: ""
@@ -402,7 +402,7 @@ spec:
               price: "按域名后缀与注册年限报价"
               icon: "octicon:globe-16"
               contact_label: "咨询中文网址"
-              contact_url: "mailto:767267711@qq.com?subject=中文网址咨询"
+              contact_url: "mailto:your@example.com?subject=中文网址咨询"
               contact_wechat: ""
               contact_qq: ""
               contact_phone: ""
@@ -415,7 +415,7 @@ spec:
               price: "按站点数量与组网复杂度评估"
               icon: "octicon:workflow-16"
               contact_label: "咨询 SD-WAN 服务"
-              contact_url: "mailto:767267711@qq.com?subject=SD-WAN咨询"
+              contact_url: "mailto:your@example.com?subject=SD-WAN咨询"
               contact_wechat: ""
               contact_qq: ""
               contact_phone: ""
@@ -640,10 +640,10 @@ spec:
           label: 联系方式
           value:
             - label: "GitHub"
-              url: "https://github.com/dengchuanfu"
+              url: "https://github.com/ydzydzydz"
               icon: "octicon:mark-github-16"
             - label: "Gitee"
-              url: "https://gitee.com/dengchuanfu"
+              url: "https://gitee.com/ydzydzydz"
               icon: "simple-icons:gitee"
             - label: "RSS"
               url: "/rss.xml"

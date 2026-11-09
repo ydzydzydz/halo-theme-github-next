@@ -47,7 +47,7 @@ type WeatherCoordinates = {
 const searchEndpoint = "/apis/api.halo.run/v1alpha1/indices/-/search";
 const currentUserEndpoint = "/apis/api.console.halo.run/v1alpha1/users/-";
 const momentUpvoteEndpoint = "/apis/api.halo.run/v1alpha1/trackers/upvote";
-const colorSchemeStorageKey = "halo-theme-github-color-scheme";
+const colorSchemeStorageKey = "theme-github-next-color-scheme";
 let currentUserRequest: Promise<CurrentUserDetail | undefined> | undefined;
 
 const getWeatherMeta = (code: number) => {
@@ -614,7 +614,7 @@ type MusicPlayerState = {
 };
 
 const musicFallbackApi = "https://api.i-meto.com/meting/api?server=netease&type=playlist&id={id}";
-const musicPlayerStorageKey = "halo-theme-github-music-player";
+const musicPlayerStorageKey = "theme-github-next-music-player";
 
 const getRecord = (value: unknown): Record<string, unknown> | undefined =>
   value && typeof value === "object" && !Array.isArray(value)

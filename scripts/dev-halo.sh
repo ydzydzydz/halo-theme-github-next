@@ -21,7 +21,7 @@ if [[ ! -x "$GRADLE_BIN" ]]; then
 fi
 
 mkdir -p "$HALO_WORK_DIR/themes"
-THEME_LINK="$HALO_WORK_DIR/themes/halo-theme-github"
+THEME_LINK="$HALO_WORK_DIR/themes/theme-github-next"
 
 if [[ -e "$THEME_LINK" && ! -L "$THEME_LINK" ]]; then
   mv "$THEME_LINK" "$THEME_LINK.backup-$(date +%Y%m%d%H%M%S)"
