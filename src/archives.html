@@ -42,13 +42,14 @@
                    pSort=${sortParam != null ? 'sort=' + sortParam : ''}"
         >
           <th:block
-            th:with="qAll=${pCat != '' ? '?category=' + pCat + (pTag != '' ? '&tag=' + pTag : '') + (pSort != '' ? '&sort=' + pSort : '') : (pTag != '' ? '?tag=' + pTag + (pSort != '' ? '&sort=' + pSort : '') : (pSort != '' ? '?sort=' + pSort : ''))},
-                     qNoCat=${pTag != '' ? '?tag=' + pTag + (pSort != '' ? '&sort=' + pSort : '') : (pSort != '' ? '?sort=' + pSort : '')},
-                     qNoTag=${pCat != '' ? '?category=' + pCat + (pSort != '' ? '&sort=' + pSort : '') : (pSort != '' ? '?sort=' + pSort : '')},
-                     qNoSort=${pCat != '' ? '?category=' + pCat + (pTag != '' ? '&tag=' + pTag : '') : (pTag != '' ? '?tag=' + pTag : '')},
-                     catTail=${(pTag != '' ? '&tag=' + pTag : '') + (pSort != '' ? '&sort=' + pSort : '')},
-                     tagHead=${pCat != '' ? '?category=' + pCat + '&' : '?'},
-                     tagTail=${pSort != '' ? '&sort=' + pSort : ''}"
+            th:with="qAll=${pCat != '' ? '?' + pCat + (pTag != '' ? '&' + pTag : '') + (pSort != '' ? '&' + pSort : '') : (pTag != '' ? '?' + pTag + (pSort != '' ? '&' + pSort : '') : (pSort != '' ? '?' + pSort : ''))},
+                     qNoCat=${pTag != '' ? '?' + pTag + (pSort != '' ? '&' + pSort : '') : (pSort != '' ? '?' + pSort : '')},
+                     qNoTag=${pCat != '' ? '?' + pCat + (pSort != '' ? '&' + pSort : '') : (pSort != '' ? '?' + pSort : '')},
+                     qNoSort=${pCat != '' ? '?' + pCat + (pTag != '' ? '&' + pTag : '') : (pTag != '' ? '?' + pTag : '')},
+                     qOnlySort=${pSort != '' ? '?' + pSort : ''},
+                     catTail=${(pTag != '' ? '&' + pTag : '') + (pSort != '' ? '&' + pSort : '')},
+                     tagHead=${pCat != '' ? '?' + pCat + '&' : '?'},
+                     tagTail=${pSort != '' ? '&' + pSort : ''}"
           >
             <th:block
               th:with="sortHead=${qNoSort != '' ? qNoSort + '&' : '?'},
@@ -69,6 +70,7 @@
                     class="repository-filter-button"
                     type="button"
                     data-repository-filter="category"
+                    data-repository-filter-default="分类"
                     aria-expanded="false"
                     aria-haspopup="true"
                   >
@@ -109,6 +111,7 @@
                     class="repository-filter-button"
                     type="button"
                     data-repository-filter="tag"
+                    data-repository-filter-default="标签"
                     aria-expanded="false"
                     aria-haspopup="true"
                   >
@@ -149,6 +152,7 @@
                     class="repository-filter-button"
                     type="button"
                     data-repository-filter="sort"
+                    data-repository-filter-default="排序"
                     aria-expanded="false"
                     aria-haspopup="true"
                   >
@@ -310,7 +314,7 @@
                   <span>没有符合条件的文章</span>
                   <a
                     th:if="${categoryName != null or tagName != null}"
-                    th:href="@{/archives} + ${qNoSort}"
+                    th:href="@{/archives} + ${qOnlySort}"
                   >
                     清除筛选
                   </a>
@@ -318,11 +322,9 @@
               </ul>
 
               <nav class="pagination" th:if="${result.hasPrevious() || result.hasNext()}">
-                <a th:if="${result.hasPrevious()}" th:href="@{/archives} + ${prevQuery}"
-                  >Previous</a
-                >
+                <a th:if="${result.hasPrevious()}" th:href="@{/archives} + ${prevQuery}">上一页</a>
                 <span th:text="|${result.page} / ${result.totalPages}|"></span>
-                <a th:if="${result.hasNext()}" th:href="@{/archives} + ${nextQuery}">Next</a>
+                <a th:if="${result.hasNext()}" th:href="@{/archives} + ${nextQuery}">下一页</a>
               </nav>
             </th:block>
           </th:block>

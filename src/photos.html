@@ -129,8 +129,8 @@
     class="pagination"
     th:if="${photos != null and not #lists.isEmpty(param.group) and #lists.isEmpty(param.ungrouped) and (photos.hasPrevious() || photos.hasNext())}"
   >
-    <a th:if="${photos.hasPrevious()}" th:href="@{${photos.prevUrl}}">Previous</a>
+    <a th:if="${photos.hasPrevious()}" th:href="@{${photos.prevUrl}}">上一页</a>
     <span th:text="|${photos.page} / ${photos.totalPages}|"></span>
-    <a th:if="${photos.hasNext()}" th:href="@{${photos.nextUrl}}">Next</a>
+    <a th:if="${photos.hasNext()}" th:href="@{${photos.nextUrl}}">下一页</a>
   </nav>
 </include>

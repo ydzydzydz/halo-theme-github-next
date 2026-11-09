@@ -1609,6 +1609,13 @@ const setupRepositoryFilters = () => {
       return;
     }
 
+    // 兜底：筛选参数无效（例如手改 URL）时，回退到默认文案，避免按钮只剩箭头。
+    const label = trigger.querySelector<HTMLElement>("[data-repository-filter-label]");
+
+    if (label && !label.textContent?.trim()) {
+      label.textContent = trigger.dataset.repositoryFilterDefault || "";
+    }
+
     const openTriggerMenu = () => openMenu(trigger, kind);
 
     trigger.addEventListener("pointerenter", openTriggerMenu);
