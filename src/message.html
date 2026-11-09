@@ -39,23 +39,25 @@
       th:utext="${singlePage.content.content}"
     ></div>
 
-    <section class="message-compose" id="message-comments">
-      <div class="message-compose-heading">
-        <iconify-icon icon="octicon:pencil-16"></iconify-icon>
-        <h2>留下你的消息</h2>
+    <section class="post-comments" id="comments" aria-label="评论区">
+      <header class="post-comments-header">
+        <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
+        <strong>评论</strong>
+      </header>
+      <div class="post-comments-body">
+        <halo:comment
+          th:if="${haloCommentEnabled and singlePage.spec.allowComment}"
+          group="content.halo.run"
+          kind="SinglePage"
+          th:attr="name=${singlePage.metadata.name}"
+        />
+        <p
+          class="message-comments-disabled"
+          th:if="${not haloCommentEnabled or not singlePage.spec.allowComment}"
+        >
+          当前页面未启用评论。
+        </p>
       </div>
-      <halo:comment
-        th:if="${haloCommentEnabled and singlePage.spec.allowComment}"
-        group="content.halo.run"
-        kind="SinglePage"
-        th:attr="name=${singlePage.metadata.name}"
-      />
-      <p
-        class="message-comments-disabled"
-        th:if="${not haloCommentEnabled or not singlePage.spec.allowComment}"
-      >
-        当前页面未启用评论。
-      </p>
     </section>
   </section>
 </include>
