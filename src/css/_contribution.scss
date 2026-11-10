@@ -159,6 +159,13 @@
   background: var(--accent);
   color: #ffffff;
 }
+/* 选中的年份悬浮时保持强调色：
+   button:hover 的浅灰底优先级高于 .is-active，会把白字留在浅灰底上；
+   这里用亮度微调给出悬浮反馈，两种配色下白字的对比度都不低于静止态 */
+.year-nav .is-active:hover {
+  background: var(--accent);
+  filter: brightness(0.92);
+}
 .activity-section {
   min-width: 0;
   grid-column: 1;
