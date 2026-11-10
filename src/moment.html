@@ -110,12 +110,13 @@
     </footer>
   </article>
 
-  <div id="comments">
-    <halo:comment
-      th:if="${haloCommentEnabled}"
-      group="moment.halo.run"
-      kind="Moment"
-      th:attr="name=${moment.metadata.name}"
-    />
-  </div>
+  <section class="post-comments" id="comments" aria-label="评论区" th:if="${haloCommentEnabled}">
+    <header class="post-comments-header">
+      <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
+      <strong>评论</strong>
+    </header>
+    <div class="post-comments-body">
+      <halo:comment group="moment.halo.run" kind="Moment" th:attr="name=${moment.metadata.name}" />
+    </div>
+  </section>
 </include>
