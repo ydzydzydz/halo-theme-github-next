@@ -24,3 +24,9 @@ $space-sm: 8px;
 $space-md: 12px;
 $space-lg: 16px;
 $space-xl: 24px;
+
+// 界面字体栈：正文与评论组件共用，保证全站字形一致
+// 末尾保留 emoji 回退，评论区的表情才不会显示成方框
+$font-sans:
+  -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif,
+  "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

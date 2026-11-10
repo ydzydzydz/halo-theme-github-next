@@ -141,15 +141,24 @@ article {
   border: 1px solid var(--border);
   border-radius: $radius-lg;
   background: var(--canvas);
+  /* 评论组件主色：提交按钮沿用「申请友链」的 GitHub 绿 */
   --halo-cw-primary-1-color: var(--green-primary);
-  --halo-cw-primary-2-color: color-mix(in srgb, var(--green-primary) 82%, #000);
-  --halo-cw-primary-3-color: color-mix(in srgb, var(--green-primary) 32%, transparent);
+  --halo-cw-primary-contrast-color: #ffffff;
+  /* 字形与正文一致，组件默认的 Roboto/Helvetica 不再单独生效 */
+  --halo-cw-base-font-family: #{$font-sans};
+  /* 圆角与主题按钮保持一致 */
+  --halo-cw-base-rounded: #{$radius-md};
+  /* 聚焦光晕改成中性灰，评论输入框不再整圈泛绿 */
+  --halo-cw-primary-3-color: rgb(31 35 40 / 8%);
   --halo-cw-text-1-color: var(--fg);
   --halo-cw-text-2-color: var(--fg-muted);
   --halo-cw-text-3-color: var(--fg-muted);
   --halo-cw-muted-1-color: var(--border);
   --halo-cw-muted-2-color: var(--canvas-subtle);
   --halo-cw-muted-3-color: var(--canvas);
+}
+html[data-color-scheme="dark"] body .post-comments {
+  --halo-cw-primary-3-color: rgb(230 237 243 / 12%);
 }
 .post-comments-header {
   display: flex;

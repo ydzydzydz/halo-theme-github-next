@@ -1,13 +1,10 @@
 @use "mixins" as *;
 @use "tokens" as *;
-/* 悬浮按钮的横向定位基准：与内容列右边界对齐 */
-$floating-right: calc(50% - var(--shell-max-width) / 2 + var(--shell-pad-x) - var(--floating-size));
-
-/* 右侧悬浮按钮：左边缘对齐内容列右边界，宽屏时整体落在右侧留白内 */
+/* 悬浮按钮固定在浏览器窗口最右侧，不再贴着正文列的右边缘 */
 .back-to-top {
   position: fixed;
   z-index: 30;
-  right: max(16px, #{$floating-right});
+  right: 16px;
   top: 66.667vh;
   display: grid;
   width: 42px;
@@ -56,7 +53,7 @@ $floating-right: calc(50% - var(--shell-max-width) / 2 + var(--shell-pad-x) - va
   position: fixed;
   z-index: 20;
   top: 66.667vh;
-  right: max(16px, #{$floating-right});
+  right: 16px;
   display: flex;
   width: 42px;
   flex-direction: column;

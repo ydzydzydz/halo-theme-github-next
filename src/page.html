@@ -244,11 +244,17 @@
     <div class="article-content" th:utext="${singlePage.content.content}"></div>
   </article>
 
-  <div id="page-comments" th:if="${haloCommentEnabled}">
-    <halo:comment
-      group="content.halo.run"
-      kind="SinglePage"
-      th:attr="name=${singlePage.metadata.name}"
-    />
-  </div>
+  <section class="post-comments" id="comments" aria-label="评论区" th:if="${haloCommentEnabled}">
+    <header class="post-comments-header">
+      <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
+      <strong>评论</strong>
+    </header>
+    <div class="post-comments-body">
+      <halo:comment
+        group="content.halo.run"
+        kind="SinglePage"
+        th:attr="name=${singlePage.metadata.name}"
+      />
+    </div>
+  </section>
 </include>

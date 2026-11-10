@@ -67,21 +67,21 @@
 }
 .link-application-trigger,
 .link-application-form-actions button {
-  height: 32px;
+  height: var(--button-primary-height);
   padding: 0 12px;
-  border: 1px solid rgb(27 31 36 / 0.15);
-  border-radius: $radius-md;
-  background: #1f883d;
+  border: 1px solid var(--button-primary-border);
+  border-radius: var(--button-primary-radius);
+  background: var(--button-primary-bg);
   color: #ffffff;
   font: inherit;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--button-primary-font-size);
+  font-weight: var(--button-primary-weight);
   white-space: nowrap;
   cursor: pointer;
 }
 .link-application-trigger:hover,
 .link-application-form-actions button:hover {
-  background: #1a7f37;
+  background: var(--button-primary-hover-bg);
 }
 .link-application-profile {
   display: grid;

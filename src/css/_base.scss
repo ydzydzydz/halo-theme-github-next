@@ -1,3 +1,5 @@
+@use "tokens" as *;
+
 *,
 *::before,
 *::after {
@@ -33,12 +35,21 @@
   --green-4: #216e39;
   /* GitHub 主按钮强调色：评论提交等主要操作使用 */
   --green-primary: #1f883d;
+  /* GitHub 主按钮悬停色 */
+  --green-primary-hover: #1a7f37;
+  /* 主按钮规格：申请友链、评论提交等主要操作共用同一套令牌 */
+  --button-primary-bg: var(--green-primary);
+  --button-primary-hover-bg: var(--green-primary-hover);
+  --button-primary-border: rgb(27 31 36 / 0.15);
+  --button-primary-radius: #{$radius-md};
+  --button-primary-height: 32px;
+  --button-primary-font-size: 13px;
+  --button-primary-weight: 600;
   /* GitHub 星标强调色：豆瓣个人评分星级 */
   --star-color: #e3b341;
-  /* 页面主栅格：内容列宽度与左右内边距，右侧悬浮按钮按此锚定 */
+  /* 页面主栅格：内容列宽度与左右内边距 */
   --shell-max-width: 1280px;
   --shell-pad-x: 24px;
-  --floating-size: 42px;
 }
 html[data-color-scheme="dark"] {
   color-scheme: dark;
@@ -63,6 +74,7 @@ html[data-color-scheme="dark"] body {
   --green-3: #26a641;
   --green-4: #39d353;
   --green-primary: #238636;
+  --green-primary-hover: #2ea043;
   --star-color: #e3b341;
 }
 body {
@@ -72,8 +84,7 @@ body {
   margin: 0;
   background: var(--page-bg);
   color: var(--fg);
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  font-family: $font-sans;
   font-size: 14px;
   line-height: 1.5;
 }

@@ -1,6 +1,7 @@
 import "../css/main.scss";
 import "../css/about.scss";
 import "iconify-icon";
+import { setupCommentWidgetStyle } from "./shared/comment-widget";
 import { setupRepositoryFilters } from "./shared/repository-filters";
 
 type SearchHit = {
@@ -2738,3 +2739,4 @@ setupSidebarCategories();
 setupTaxonomyPage();
 setupLoveCounter();
 setupBackToTop();
+setupCommentWidgetStyle();
