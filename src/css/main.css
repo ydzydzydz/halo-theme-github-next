@@ -27,6 +27,8 @@
   --green-4: #216e39;
   /* GitHub 主按钮强调色：评论提交等主要操作使用 */
   --green-primary: #1f883d;
+  /* GitHub 星标强调色：豆瓣个人评分星级 */
+  --star-color: #e3b341;
   /* 页面主栅格：内容列宽度与左右内边距，右侧悬浮按钮按此锚定 */
   --shell-max-width: 1280px;
   --shell-pad-x: 24px;
@@ -57,6 +59,7 @@ html[data-color-scheme="dark"] body {
   --green-3: #26a641;
   --green-4: #39d353;
   --green-primary: #238636;
+  --star-color: #e3b341;
 }
 
 body {
@@ -1522,165 +1525,163 @@ svg {
   font-weight: 500;
 }
 
-.douban-segments {
-  display: inline-flex;
-  padding: 4px;
-  align-self: flex-start;
-  gap: 4px;
+.douban-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.douban-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.douban-list-cover {
+  display: block;
+  overflow: hidden;
+  width: 56px;
+  min-width: 56px;
+  height: 78px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--canvas-subtle);
 }
 
-.douban-segment {
-  display: inline-flex;
-  padding: 4px 14px;
-  align-items: center;
-  gap: 6px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--fg-muted);
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
+.douban-list-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.douban-segment.is-active {
-  background: var(--accent);
-  color: #ffffff;
-}
-
-.douban-segment-count {
-  font-size: 12px;
-  opacity: 0.75;
-}
-
-.douban-genres {
+.douban-list-side {
   display: flex;
+  flex: 0 0 auto;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.douban-list-score {
+  display: inline-flex;
+  min-width: 38px;
+  height: 20px;
+  padding: 0 7px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--fg);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.douban-list-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--star-color);
+}
+
+.douban-list-stars iconify-icon {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+}
+
+.douban-list-star--empty {
+  color: var(--border);
+}
+
+.douban-list-status {
+  display: inline-flex;
+  height: 20px;
+  padding: 0 8px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.douban-list-status--done {
+  border-color: color-mix(in srgb, var(--green-primary) 45%, var(--border));
+  color: var(--green-primary);
+}
+
+.douban-list-status--doing {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  color: var(--accent);
+}
+
+.douban-list-status--mark {
+  border-color: color-mix(in srgb, var(--star-color) 55%, var(--border));
+  color: color-mix(in srgb, var(--star-color) 80%, var(--fg));
+}
+
+.douban-list-date {
+  color: var(--fg-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.douban-pagination {
+  display: flex;
+  padding: 20px 0 0;
+  align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.douban-genre {
-  padding: 3px 12px;
+.douban-pagination button {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 5px 10px;
   border: 1px solid var(--border);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--fg-muted);
+  border-radius: 6px;
+  background: var(--canvas);
+  color: var(--fg);
   cursor: pointer;
   font: inherit;
-  font-size: 12px;
+  font-size: 14px;
 }
 
-.douban-genre:hover {
+.douban-pagination button:hover:not(:disabled) {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.douban-genre.is-active {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: #ffffff;
-}
-
-.douban-grid {
-  display: grid;
-  margin-top: 16px;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
-}
-
-.douban-grid[hidden] {
-  display: none;
-}
-
-.douban-card {
-  display: flex;
-  overflow: hidden;
-  flex-direction: column;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--canvas);
-  color: var(--fg);
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
-}
-
-.douban-card:hover {
-  border-color: var(--accent);
-  box-shadow: 0 6px 18px rgb(31 35 40 / 12%);
-  transform: translateY(-2px);
-  text-decoration: none;
-}
-
-.douban-card-cover {
-  display: block;
-  overflow: hidden;
-  aspect-ratio: 3 / 4;
-  background: var(--canvas-subtle);
-}
-
-.douban-card-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 220ms ease;
-}
-
-.douban-card:hover .douban-card-cover img {
-  transform: scale(1.03);
-}
-
-.douban-card-body {
-  display: flex;
-  padding: 10px 12px 12px;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.douban-card-title {
-  display: -webkit-box;
-  overflow: hidden;
-  color: var(--fg);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.4;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.douban-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--fg-muted);
-  font-size: 12px;
-}
-
-.douban-card-score {
-  padding: 0 6px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--fg);
-  font-size: 11px;
+.douban-pagination button.is-active {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, var(--canvas));
+  color: var(--accent);
   font-weight: 600;
 }
 
-.douban-card-genres {
-  overflow: hidden;
+.douban-pagination button:disabled {
   color: var(--fg-muted);
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  cursor: default;
+  opacity: 0.55;
+}
+
+.douban-pagination .douban-pagination-gap {
+  color: var(--fg-muted);
+  padding: 0 2px;
 }
 
 @media (max-width: 720px) {
-  .douban-grid {
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  .douban-list-item {
     gap: 12px;
+  }
+
+  .douban-list-cover {
+    width: 44px;
+    min-width: 44px;
+    height: 62px;
   }
 }
 
@@ -2703,6 +2704,26 @@ article {
   border-radius: 6px;
   background: var(--canvas);
   box-shadow: 0 8px 24px rgb(31 35 40 / 14%);
+  transition:
+    left 200ms ease,
+    top 200ms ease;
+}
+
+/* 悬浮播放器可拖拽，拖拽时关闭过渡以便跟手 */
+.music-player.is-dragging {
+  transition: none;
+  user-select: none;
+}
+
+.music-player:not(.music-player--header) .music-player-cover,
+.music-player:not(.music-player--header) .music-player-info {
+  cursor: grab;
+  touch-action: none;
+}
+
+.music-player.is-dragging .music-player-cover,
+.music-player.is-dragging .music-player-info {
+  cursor: grabbing;
 }
 
 .music-player--header {
@@ -4960,8 +4981,9 @@ html.photo-lightbox-open {
     top: auto;
     right: 16px;
     bottom: 16px;
-    width: auto;
-    flex-direction: row;
+    width: 42px;
+    flex-direction: column;
+    align-items: center;
     gap: 8px;
     transform: none;
   }

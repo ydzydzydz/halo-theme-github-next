@@ -1,6 +1,7 @@
 import "../css/main.css";
 import "../css/about.css";
 import "iconify-icon";
+import { setupRepositoryFilters } from "./shared/repository-filters";
 
 type SearchHit = {
   title?: string;
@@ -796,6 +797,182 @@ const normalizeMusicTrack = (value: unknown): MusicTrack | undefined => {
   };
 };
 
+const musicMobileQuery = "(max-width: 768px)";
+const musicPlayerPositionStorageKey = "theme-github-next-music-player-position";
+const musicPlayerEdgeGap = 16;
+const musicPlayerSnapThreshold = 56;
+
+type MusicPlayerPosition = {
+  left: number;
+  top: number;
+};
+
+// 移动端隐藏播放器时不应该自动播放，避免出现「看不见却在放歌」的情况。
+const isMusicHiddenOnMobile = (player: HTMLElement) => {
+  if (player.dataset.musicHideMobile !== "true") {
+    return false;
+  }
+
+  return window.matchMedia(musicMobileQuery).matches;
+};
+
+const readMusicPlayerPosition = (key: string): MusicPlayerPosition | undefined => {
+  try {
+    const value = getRecord(
+      JSON.parse(localStorage.getItem(`${musicPlayerPositionStorageKey}:${key}`) || ""),
+    );
+    const left = Number(value?.left);
+    const top = Number(value?.top);
+
+    if (!Number.isFinite(left) || !Number.isFinite(top)) {
+      return undefined;
+    }
+
+    return { left, top };
+  } catch {
+    return undefined;
+  }
+};
+
+const writeMusicPlayerPosition = (key: string, position: MusicPlayerPosition) => {
+  try {
+    localStorage.setItem(`${musicPlayerPositionStorageKey}:${key}`, JSON.stringify(position));
+  } catch {
+    // 浏览器禁用本地存储时，播放器位置仅在当前页面生效。
+  }
+};
+
+// 悬浮播放器：按住封面或歌曲信息即可拖动，松手后自动吸附到最近的边缘。
+const setupMusicPlayerDrag = (player: HTMLElement, storageKey: string) => {
+  if (player.classList.contains("music-player--header")) {
+    return;
+  }
+
+  const handles = Array.from(
+    player.querySelectorAll<HTMLElement>(".music-player-cover, .music-player-info"),
+  );
+
+  if (!handles.length) {
+    return;
+  }
+
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), Math.max(min, max));
+
+  let positioned = false;
+  let dragging = false;
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
+  let currentLeft = 0;
+  let currentTop = 0;
+
+  const applyPosition = (left: number, top: number) => {
+    const rect = player.getBoundingClientRect();
+    const maxLeft = Math.max(0, window.innerWidth - rect.width);
+    const maxTop = Math.max(0, window.innerHeight - rect.height);
+
+    currentLeft = clamp(left, 0, maxLeft);
+    currentTop = clamp(top, 0, maxTop);
+
+    player.style.bottom = "auto";
+    player.style.left = `${currentLeft}px`;
+    player.style.top = `${currentTop}px`;
+    positioned = true;
+  };
+
+  const saved = readMusicPlayerPosition(storageKey);
+
+  if (saved) {
+    applyPosition(saved.left, saved.top);
+  }
+
+  handles.forEach((handle) => {
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+
+      if (target?.closest("button, a, input")) {
+        return;
+      }
+
+      const rect = player.getBoundingClientRect();
+
+      dragging = true;
+      startX = event.clientX;
+      startY = event.clientY;
+      startLeft = rect.left;
+      startTop = rect.top;
+
+      player.classList.add("is-dragging");
+      player.style.bottom = "auto";
+      player.style.left = `${rect.left}px`;
+      player.style.top = `${rect.top}px`;
+      positioned = true;
+
+      handle.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+
+    handle.addEventListener("pointermove", (event) => {
+      if (!dragging) {
+        return;
+      }
+
+      applyPosition(startLeft + (event.clientX - startX), startTop + (event.clientY - startY));
+      event.preventDefault();
+    });
+
+    const finishDrag = (event: PointerEvent) => {
+      if (!dragging) {
+        return;
+      }
+
+      dragging = false;
+      player.classList.remove("is-dragging");
+
+      const rect = player.getBoundingClientRect();
+      const gap = musicPlayerEdgeGap;
+      // 横向吸附到更近的一侧，纵向贴近上下边缘时同样吸附。
+      const left =
+        currentLeft + rect.width / 2 < window.innerWidth / 2
+          ? gap
+          : Math.max(gap, window.innerWidth - rect.width - gap);
+
+      let top = currentTop;
+
+      if (top < musicPlayerSnapThreshold) {
+        top = gap;
+      } else if (top + rect.height > window.innerHeight - musicPlayerSnapThreshold) {
+        top = window.innerHeight - rect.height - gap;
+      }
+
+      applyPosition(left, top);
+      writeMusicPlayerPosition(storageKey, { left: currentLeft, top: currentTop });
+
+      if (handle.hasPointerCapture(event.pointerId)) {
+        handle.releasePointerCapture(event.pointerId);
+      }
+    };
+
+    handle.addEventListener("pointerup", finishDrag);
+    handle.addEventListener("pointercancel", finishDrag);
+  });
+
+  window.addEventListener("resize", () => {
+    if (!positioned || dragging) {
+      return;
+    }
+
+    // 使用记录下来的落点位置，避免读取动画中的位置覆盖吸附结果。
+    applyPosition(currentLeft, currentTop);
+  });
+};
+
 const setupMusicPlayer = () => {
   const player = document.querySelector<HTMLElement>("[data-music-player]");
   const audio = player?.querySelector<HTMLAudioElement>("[data-music-audio]");
@@ -838,7 +1015,7 @@ const setupMusicPlayer = () => {
     configuredApi || (player.dataset.musicSource === "netease" ? musicFallbackApi : "");
   const defaultPlaybackMode: MusicPlaybackMode =
     player.dataset.musicPlaybackMode === "shuffle" ? "shuffle" : "sequence";
-  const autoplayEnabled = player.dataset.musicAutoplay === "true";
+  const autoplayEnabled = player.dataset.musicAutoplay === "true" && !isMusicHiddenOnMobile(player);
   const playlistEnabled = player.dataset.musicShowPlaylist === "true";
   let tracks: MusicTrack[] = [];
   let index = 0;
@@ -869,6 +1046,8 @@ const setupMusicPlayer = () => {
     setControlsEnabled(false);
     return;
   }
+
+  setupMusicPlayerDrag(player, playlistId);
 
   const api = sourceApi.includes("{id}")
     ? sourceApi.replaceAll("{id}", encodeURIComponent(playlistId))
@@ -1696,105 +1875,6 @@ const setupPostUpvotes = () => {
         button.disabled = false;
       }
     });
-  });
-};
-
-const setupRepositoryFilters = () => {
-  const triggers = Array.from(
-    document.querySelectorAll<HTMLButtonElement>("[data-repository-filter]"),
-  );
-
-  if (!triggers.length) {
-    return;
-  }
-
-  type FilterKind = "category" | "tag" | "sort";
-  let openedMenu: HTMLElement | undefined;
-  let closeTimer = 0;
-
-  const closeMenu = () => {
-    window.clearTimeout(closeTimer);
-
-    if (openedMenu) {
-      openedMenu.hidden = true;
-      openedMenu = undefined;
-    }
-
-    triggers.forEach((trigger) => trigger.setAttribute("aria-expanded", "false"));
-  };
-
-  const scheduleClose = () => {
-    closeTimer = window.setTimeout(() => {
-      const stillHovered =
-        triggers.some((trigger) => trigger.matches(":hover")) ||
-        (openedMenu?.matches(":hover") ?? false);
-
-      if (!stillHovered) {
-        closeMenu();
-      }
-    }, 120);
-  };
-
-  const openMenu = (trigger: HTMLButtonElement, kind: FilterKind) => {
-    const menu = document.querySelector<HTMLElement>(`[data-repository-filter-menu="${kind}"]`);
-
-    if (!menu || openedMenu === menu) {
-      return;
-    }
-
-    closeMenu();
-    menu.hidden = false;
-    openedMenu = menu;
-
-    const rect = trigger.getBoundingClientRect();
-    menu.style.top = `${rect.bottom + 4}px`;
-    menu.style.left = `${Math.min(rect.left, window.innerWidth - menu.offsetWidth - 8)}px`;
-    trigger.setAttribute("aria-expanded", "true");
-  };
-
-  triggers.forEach((trigger) => {
-    const kind = trigger.dataset.repositoryFilter as FilterKind | undefined;
-
-    if (!kind) {
-      return;
-    }
-
-    // 兜底：筛选参数无效（例如手改 URL）时，回退到默认文案，避免按钮只剩箭头。
-    const label = trigger.querySelector<HTMLElement>("[data-repository-filter-label]");
-
-    if (label && !label.textContent?.trim()) {
-      label.textContent = trigger.dataset.repositoryFilterDefault || "";
-    }
-
-    const openTriggerMenu = () => openMenu(trigger, kind);
-
-    trigger.addEventListener("pointerenter", openTriggerMenu);
-    trigger.addEventListener("pointerleave", scheduleClose);
-    trigger.addEventListener("focus", openTriggerMenu);
-  });
-
-  document.querySelectorAll<HTMLElement>("[data-repository-filter-menu]").forEach((menu) => {
-    menu.addEventListener("pointerenter", () => window.clearTimeout(closeTimer));
-    menu.addEventListener("pointerleave", scheduleClose);
-  });
-
-  document.addEventListener("click", (event) => {
-    const clickTarget = event.target;
-
-    if (
-      openedMenu &&
-      clickTarget instanceof Node &&
-      !openedMenu.contains(clickTarget) &&
-      !triggers.some((trigger) => trigger.contains(clickTarget))
-    ) {
-      closeMenu();
-    }
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && openedMenu) {
-      closeMenu();
-    }
   });
 };
 

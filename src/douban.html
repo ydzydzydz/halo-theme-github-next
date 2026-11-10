@@ -17,7 +17,7 @@
     <div>
       <p class="links-eyebrow">Douban</p>
       <h1 th:text="${title ?: '豆瓣记录'}">豆瓣记录</h1>
-      <p>把在豆瓣标记过的影视与书籍整理成卡片，随时回看自己的片单。</p>
+      <p>把在豆瓣标记过的影视与书籍整理成清单，随时回看自己的片单。</p>
     </div>
     <span class="links-count" data-douban-count>
       <span data-douban-total>0</span>
@@ -25,7 +25,12 @@
     </span>
   </section>
 
-  <section class="douban-panel" data-douban-app aria-label="豆瓣记录">
+  <section
+    class="douban-panel"
+    data-douban-app
+    data-douban-detail-api="${theme.config.douban?.detail_api ?: ''}"
+    aria-label="豆瓣记录"
+  >
     <div class="douban-state" data-douban-state>
       <iconify-icon icon="octicon:database-16"></iconify-icon>
       <p>正在读取豆瓣记录...</p>
