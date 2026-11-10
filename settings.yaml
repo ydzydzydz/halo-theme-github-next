@@ -868,12 +868,3 @@ spec:
           value: ""
           placeholder: "https://cloud.example.com"
           help: 点击云服务商 Logo 或名称时打开的地址
-    - group: douban
-      label: 豆瓣设置
-      formSchema:
-        - $formkit: text
-          name: detail_api
-          label: 豆瓣简介接口
-          value: ""
-          placeholder: "https://example.com/dbapi/{type}/{id}?for_mobile=1"
-          help: 可选。豆瓣插件本身不提供简介，填写该接口后主题会为列表补全官方简介；需自行代理并开启 CORS，支持 {type} 与 {id} 占位符，留空则展示豆瓣短评与条目信息

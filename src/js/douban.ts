@@ -60,7 +60,6 @@ const state = {
   page: 1,
   items: [] as DoubanItem[],
   genres: [] as string[],
-  detailApi: "",
 };
 
 const refs = {
@@ -72,8 +71,6 @@ const refs = {
   pagination: null as HTMLElement | null,
   paginationHost: null as HTMLElement | null,
 };
-
-const introCache = new Map<string, string>();
 
 const fetchJson = async <T>(url: string): Promise<T> => {
   const response = await fetch(url, { cache: "no-store" });
@@ -206,7 +203,6 @@ const createListItem = (item: DoubanItem) => {
   }
 
   const desc = createElement("p", "repository-list-desc");
-  desc.dataset.doubanDesc = item.id || "";
   desc.textContent = (item.favesRemark || item.cardSubtitle || "暂无简介").trim();
   copy.append(heading, desc);
 
@@ -467,52 +463,6 @@ const updateUrl = () => {
   window.history.replaceState(null, "", url);
 };
 
-const loadDetailIntro = async (item: DoubanItem) => {
-  const key = item.id || item.doubanId || "";
-
-  if (!state.detailApi || !key) {
-    return;
-  }
-
-  if (introCache.has(key)) {
-    const cached = introCache.get(key);
-
-    if (cached) {
-      const desc = refs.list?.querySelector<HTMLElement>(`[data-douban-desc="${key}"]`);
-
-      if (desc) {
-        desc.textContent = cached;
-      }
-    }
-
-    return;
-  }
-
-  const url = state.detailApi
-    .replaceAll("{type}", encodeURIComponent(item.type || state.type))
-    .replaceAll("{id}", encodeURIComponent(item.doubanId || key));
-
-  try {
-    const payload = await fetchJson<Record<string, unknown>>(url);
-    const intro =
-      (typeof payload.intro === "string" && payload.intro.trim()) ||
-      (typeof payload.description === "string" && payload.description.trim()) ||
-      "";
-
-    introCache.set(key, intro);
-
-    if (intro) {
-      const desc = refs.list?.querySelector<HTMLElement>(`[data-douban-desc="${key}"]`);
-
-      if (desc) {
-        desc.textContent = intro;
-      }
-    }
-  } catch {
-    introCache.set(key, "");
-  }
-};
-
 const renderItems = () => {
   const list = refs.list;
 
@@ -542,10 +492,6 @@ const renderItems = () => {
   if (refs.paginationHost) {
     refs.paginationHost.hidden = totalPages <= 1;
   }
-
-  pageItems.forEach((item) => {
-    void loadDetailIntro(item);
-  });
 
   updateUrl();
 };
@@ -645,7 +591,6 @@ const setupDouban = () => {
 
   refs.root = root;
   refs.total = document.querySelector<HTMLElement>("[data-douban-total]");
-  state.detailApi = root.dataset.doubanDetailApi?.trim() || "";
 
   const showError = (message: string) => {
     refs.filters = null;
