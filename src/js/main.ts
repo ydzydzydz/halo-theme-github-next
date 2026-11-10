@@ -2701,6 +2701,12 @@ const setupBackToTop = () => {
     return;
   }
 
+  // 正文页自带侧边栏回顶按钮，避免重复渲染
+  if (document.querySelector("[data-post-back-to-top]")) {
+    button.remove();
+    return;
+  }
+
   const updateVisibility = () => {
     button.hidden = window.scrollY < 320;
   };
