@@ -1,0 +1,93 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 隐藏统一在这里处理：带 hidden 属性的元素一律不参与布局，
+   避免各页面再写一遍 [hidden] { display: none } */
+[hidden] {
+  display: none !important;
+}
+
+:root {
+  color-scheme: light;
+  --page-bg: #ffffff;
+  --accent: #0969da;
+  --canvas: #ffffff;
+  --canvas-subtle: #f6f8fa;
+  --border: #d0d7de;
+  --border-muted: #d8dee4;
+  --fg: #24292f;
+  --fg-muted: #57606a;
+  --fg-subtle: #6e7781;
+  --tab-active: #fd8c73;
+  --button-bg: #f6f8fa;
+  --button-hover: #f3f4f6;
+  --counter-bg: #eaeef2;
+  --overlay-bg: rgb(246 248 250 / 0.72);
+  --green-0: #ebedf0;
+  --green-1: #9be9a8;
+  --green-2: #40c463;
+  --green-3: #30a14e;
+  --green-4: #216e39;
+  /* GitHub 主按钮强调色：评论提交等主要操作使用 */
+  --green-primary: #1f883d;
+  /* GitHub 星标强调色：豆瓣个人评分星级 */
+  --star-color: #e3b341;
+  /* 页面主栅格：内容列宽度与左右内边距，右侧悬浮按钮按此锚定 */
+  --shell-max-width: 1280px;
+  --shell-pad-x: 24px;
+  --floating-size: 42px;
+}
+html[data-color-scheme="dark"] {
+  color-scheme: dark;
+}
+html[data-color-scheme="dark"] body {
+  --page-bg: #0d1117;
+  --accent: #58a6ff;
+  --canvas: #0d1117;
+  --canvas-subtle: #161b22;
+  --border: #30363d;
+  --border-muted: #21262d;
+  --fg: #e6edf3;
+  --fg-muted: #8b949e;
+  --fg-subtle: #6e7681;
+  --button-bg: #21262d;
+  --button-hover: #30363d;
+  --counter-bg: #21262d;
+  --overlay-bg: rgb(13 17 23 / 0.8);
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --green-primary: #238636;
+  --star-color: #e3b341;
+}
+body {
+  --page-bg: var(--configured-page-bg, #ffffff);
+  --accent: var(--configured-accent, #0969da);
+  min-width: 320px;
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--fg);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+body.is-prayer-mode {
+  filter: grayscale(1);
+}
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+svg {
+  display: block;
+  fill: currentColor;
+}

@@ -122,18 +122,31 @@ const setupMessageWall = () => {
   const stage = root?.querySelector<HTMLElement>("[data-message-stage]");
   const status = root?.querySelector<HTMLElement>("[data-message-status]");
   const count = root?.querySelector<HTMLElement>("[data-message-count]");
+  const countTotal = root?.querySelector<HTMLElement>("[data-message-total]");
+  const countUnit = root?.querySelector<HTMLElement>("[data-message-unit]");
   const name = root?.dataset.commentName;
 
   if (!root || !stage || !status || !count || !name) {
     return;
   }
 
+  const setCount = (total: string, unit: string) => {
+    if (countTotal) {
+      countTotal.textContent = total;
+      countTotal.hidden = !total;
+    }
+
+    if (countUnit) {
+      countUnit.textContent = unit;
+    }
+  };
+
   let signature = "";
 
   const refresh = async () => {
     try {
       const comments = await fetchComments(name);
-      count.textContent = `${comments.length} 条留言`;
+      setCount(String(comments.length), "条留言");
 
       if (!comments.length) {
         signature = "";
@@ -176,7 +189,7 @@ const setupMessageWall = () => {
       );
       stage.replaceChildren(...messages);
     } catch {
-      count.textContent = "留言暂不可用";
+      setCount("", "留言暂不可用");
       stage.replaceChildren(status);
       status.hidden = false;
       status.querySelector("span")!.textContent = "留言加载失败，请稍后重试。";

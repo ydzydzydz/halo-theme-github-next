@@ -1,0 +1,423 @@
+@use "tokens" as *;
+@use "mixins" as *;
+@include below($breakpoint-xl) {
+  .github-shell {
+    grid-template-columns: 256px minmax(0, 1fr);
+    padding-right: var(--shell-pad-x);
+    padding-left: var(--shell-pad-x);
+  }
+
+  .profile-avatar {
+    width: 256px;
+  }
+}
+@include below($breakpoint-lg) {
+  :root {
+    --shell-pad-x: 16px;
+  }
+
+  .search-box,
+  .weather-widget,
+  .header-clock,
+  .header-actions .icon-button:not(.wide-icon):not(.login-link):not(.theme-toggle) {
+    display: none;
+  }
+
+  .music-player--header {
+    position: fixed;
+    z-index: 40;
+    bottom: 16px;
+    left: 16px;
+    width: min(300px, calc(100vw - 32px));
+    height: auto;
+    flex: none;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 8px;
+    box-shadow: 0 8px 24px rgb(31 35 40 / 14%);
+  }
+
+  .music-player--header .music-player-cover {
+    display: grid;
+    width: 36px;
+    height: 36px;
+  }
+
+  .music-player--header .music-player-info {
+    display: grid;
+    gap: 2px;
+  }
+
+  .music-player--header .music-player-info strong {
+    display: block;
+    font-size: 12px;
+  }
+
+  .music-player--header .music-player-info span {
+    display: block;
+    font-size: 11px;
+  }
+
+  .music-player--header .music-player-info .music-player-lyrics {
+    display: none;
+  }
+
+  .music-player--header .music-player-controls {
+    gap: 2px;
+  }
+
+  .music-player--header .music-player-controls button {
+    width: 24px;
+    height: 24px;
+  }
+
+  .music-player--header .music-player-controls iconify-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .music-player--header .music-player-progress {
+    display: block;
+    height: 4px;
+  }
+
+  .github-shell {
+    grid-template-columns: 220px minmax(0, 1fr);
+    padding: 24px var(--shell-pad-x) 40px;
+  }
+
+  .profile-avatar {
+    width: 220px;
+  }
+
+  .repo-grid,
+  .contrib-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .repositories-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .repository-search {
+    width: 100%;
+    /* 竖排时不让搜索框在纵向拉伸 */
+    flex: 0 0 auto;
+  }
+
+  /* 竖排时筛选按钮整体靠右对齐 */
+  .repository-filters {
+    justify-content: flex-end;
+  }
+
+  .repository-list-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  /* 豆瓣条目保留「封面在左」的横向排布，不跟随归档页整宽堆叠 */
+  .douban-list-item {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  /* 窄屏下右栏改为整宽横排：操作按钮在左、统计在右，空间不足时换行 */
+  .repository-side {
+    flex: 0 0 auto;
+    width: 100%;
+    align-self: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding-top: 0;
+  }
+
+  .repository-action-group {
+    flex: 0 1 160px;
+    width: 160px;
+    min-width: 116px;
+  }
+
+  .repository-engagement {
+    flex: 0 1 160px;
+    width: 160px;
+    min-width: 140px;
+    margin-left: auto;
+  }
+
+  .year-nav {
+    display: flex;
+    position: static;
+    width: auto;
+    order: -1;
+    gap: 8px;
+    overflow-x: auto;
+  }
+
+  .links-grid {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  }
+
+  .photos-grid {
+    grid-auto-rows: clamp(144px, 22vw, 220px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .photo-albums {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px 28px;
+  }
+
+  .post-side-actions {
+    top: auto;
+    right: 16px;
+    bottom: 16px;
+    width: 42px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transform: none;
+  }
+
+  body:has(.music-player) .post-side-actions {
+    bottom: 96px;
+  }
+
+  .back-to-top {
+    right: 16px;
+    top: 66.667dvh;
+    width: 40px;
+    height: 40px;
+  }
+
+  .back-to-top.page-anchor-action {
+    top: calc(66.667dvh + 48px);
+  }
+}
+@include below($breakpoint-sm) {
+  .love-hero {
+    min-height: 320px;
+  }
+
+  .love-hero-inner {
+    padding: 28px 12px;
+  }
+
+  .love-people-card {
+    padding: 16px 12px;
+    gap: 8px;
+  }
+
+  .love-avatar {
+    width: min(23vw, 104px);
+    border-width: 3px;
+  }
+
+  .love-person > span {
+    font-size: 16px;
+  }
+
+  .love-timer-panel {
+    padding-top: 28px;
+    padding-bottom: 32px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .love-timer {
+    flex-wrap: wrap;
+    gap: 0 8px;
+  }
+
+  .header-inner {
+    height: 56px;
+    gap: 10px;
+  }
+
+  .site-title {
+    font-size: 14px;
+  }
+
+  .octo-mark,
+  .icon-button,
+  .header-avatar,
+  .header-avatar img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .wide-icon {
+    display: none;
+  }
+
+  .profile-tabs {
+    height: 48px;
+  }
+
+  .profile-tabs a {
+    font-size: 14px;
+  }
+
+  .site-announcement-inner {
+    padding: 10px 16px;
+  }
+
+  .github-shell {
+    grid-template-columns: 1fr;
+    padding: 24px var(--shell-pad-x) 40px;
+  }
+
+  .profile-card {
+    position: static;
+  }
+
+  .profile-avatar {
+    width: 160px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .profile-status {
+    margin: -44px auto 20px;
+    transform: translateX(61px);
+  }
+
+  .profile-name {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .profile-username {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .category-directory-card {
+    min-height: 0;
+    padding: 16px 0;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .category-directory-cover {
+    width: 112px;
+    height: 88px;
+  }
+
+  .category-directory-title {
+    font-size: 18px;
+  }
+
+  .category-directory-description {
+    font-size: 13px;
+  }
+
+  .category-directory-metrics {
+    gap: 6px 10px;
+    font-size: 12px;
+  }
+
+  .page-hero,
+  .links-group-heading,
+  .link-application-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .link-application-profile,
+  .link-application-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .link-application-profile div:nth-child(2n) {
+    border-left: 0;
+  }
+
+  .link-application-profile div + div {
+    border-top: 1px solid var(--border);
+  }
+
+  .link-card {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .links-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .photos-grid {
+    grid-auto-rows: 36vw;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .photo-lightbox {
+    padding: 56px 12px 76px;
+  }
+
+  .photo-lightbox-image {
+    max-height: 70vh;
+  }
+
+  .photo-lightbox-nav {
+    top: auto;
+    bottom: 16px;
+    width: 38px;
+    height: 38px;
+    transform: none;
+  }
+
+  .photo-lightbox-nav--prev {
+    left: 16px;
+  }
+
+  .photo-lightbox-nav--next {
+    right: 16px;
+  }
+
+  .photo-albums {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .photo-album-meta strong {
+    font-size: 16px;
+  }
+
+  .photo-card-title {
+    opacity: 1;
+  }
+
+  .contribution-panel {
+    padding: 12px;
+  }
+
+  .message-stage {
+    height: 300px;
+  }
+
+  .floating-message {
+    top: calc(10px + var(--message-lane) * 46px);
+    max-width: 88%;
+  }
+
+  .floating-message-body time {
+    display: none;
+  }
+
+  .footer-inner {
+    padding: 20px 16px;
+  }
+
+  .footer-halo:not(:empty)::before {
+    display: none;
+  }
+
+  .footer-primary {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

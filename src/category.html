@@ -12,13 +12,13 @@
     <title th:text="|${category.spec.displayName} - ${site.title}|">Category Archive</title>
   </template>
 
-  <section class="links-hero taxonomy-hero">
+  <section class="page-hero taxonomy-hero">
     <div>
-      <p class="links-eyebrow">Categories</p>
+      <p class="eyebrow">Categories</p>
       <h1 th:text="|分类：${category.spec.displayName}|"></h1>
       <p th:text="${category.spec.description} ?: '查看该分类下的全部文章。'"></p>
     </div>
-    <span class="links-count" th:if="${posts != null}">
+    <span class="page-hero-count" th:if="${posts != null}">
       <span th:text="${posts.total ?: 0}">0</span>
       <span>篇文章</span>
     </span>

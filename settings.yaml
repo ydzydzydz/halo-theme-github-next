@@ -770,11 +770,6 @@ spec:
           label: 移动端隐藏播放器
           value: false
           help: 开启后在手机等窄屏设备上不显示悬浮播放器
-        - $formkit: checkbox
-          name: music_show_playlist
-          label: 展示播放列表
-          value: false
-          help: 开启后播放器显示播放列表按钮，可查看歌单并点击选择要播放的歌曲
         - $formkit: text
           name: music_api
           label: 音乐 API 地址

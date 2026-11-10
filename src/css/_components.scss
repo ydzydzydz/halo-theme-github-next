@@ -1,0 +1,109 @@
+@use "tokens" as *;
+
+// ---------------------------------------------------------------------------
+// 组件基座
+//
+// 这里只放「跨页面复用」的样式基座，用占位符（%）而不是普通类：
+// 编译时相同基座的选择器会被合并成一条规则，既消除了重复声明，
+// 又不需要给 HTML 增加任何额外的 class。
+//
+// 占位符统一在 main.scss 的最前面 @use，保证基座声明先于各页面具体声明输出，
+// 页面自己写的属性始终优先生效。
+// ---------------------------------------------------------------------------
+
+// 描边卡片表面
+%surface-card {
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  background: var(--canvas);
+}
+
+// 药丸徽章：列表标签、分类、状态、计数等都用这一套骨架
+%pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: $radius-pill;
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+// 圆形头像
+%avatar {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: $radius-circle;
+  object-fit: cover;
+}
+
+// 页面头部与正文之间的间距
+%hero-gap {
+  margin-bottom: $space-lg;
+}
+
+// 头部内容更紧凑时使用
+%hero-gap-tight {
+  margin-bottom: 2px;
+}
+
+// 悬停时高亮为强调色
+%hover-accent {
+  &:hover {
+    color: var(--accent);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 页面头部卡片
+//
+// 全站各页面共用的标题卡片：左侧是眉标题 + 主标题 + 简介，右侧是计数胶囊。
+// 新增页面直接用 .page-hero 即可，无需再抄一份样式。
+// ---------------------------------------------------------------------------
+
+.page-hero {
+  display: flex;
+  padding: 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  @extend %surface-card;
+  animation: links-fade-up 0.28s ease both;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.page-hero h1 {
+  margin: 0;
+  color: var(--fg);
+  font-size: 20px;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.page-hero p:last-child {
+  max-width: 560px;
+  margin: 6px 0 0;
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+.page-hero-count {
+  @extend %pill;
+  min-width: max-content;
+  height: 28px;
+  padding: 0 10px;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.page-hero-count span:first-child {
+  color: var(--fg);
+  font-weight: 600;
+}

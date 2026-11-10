@@ -1,5 +1,5 @@
-import "../css/main.css";
-import "../css/about.css";
+import "../css/main.scss";
+import "../css/about.scss";
 import "iconify-icon";
 import { setupRepositoryFilters } from "./shared/repository-filters";
 
@@ -1016,7 +1016,6 @@ const setupMusicPlayer = () => {
   const defaultPlaybackMode: MusicPlaybackMode =
     player.dataset.musicPlaybackMode === "shuffle" ? "shuffle" : "sequence";
   const autoplayEnabled = player.dataset.musicAutoplay === "true" && !isMusicHiddenOnMobile(player);
-  const playlistEnabled = player.dataset.musicShowPlaylist === "true";
   let tracks: MusicTrack[] = [];
   let index = 0;
   let playbackModeValue: MusicPlaybackMode = "sequence";
@@ -1036,7 +1035,7 @@ const setupMusicPlayer = () => {
     progress.disabled = !enabled;
 
     if (playlistToggle) {
-      playlistToggle.disabled = !enabled || !playlistEnabled;
+      playlistToggle.disabled = !enabled;
     }
   };
 
@@ -1107,7 +1106,7 @@ const setupMusicPlayer = () => {
   };
 
   const buildPlaylist = () => {
-    if (!playlistPanel || !playlistEnabled) {
+    if (!playlistPanel) {
       return;
     }
 

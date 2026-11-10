@@ -1,0 +1,175 @@
+@use "components" as *;
+@use "tokens" as *;
+@use "mixins" as *;
+.taxonomy-hero {
+  @extend %hero-gap;
+}
+.douban-hero {
+  @extend %hero-gap;
+}
+.douban-panel {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: $radius-lg;
+  background: var(--canvas);
+}
+.douban-state {
+  display: flex;
+  padding: 48px 0;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+.douban-toolbar {
+  display: flex;
+  padding-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.douban-tabs {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.douban-tab {
+  display: inline-flex;
+  padding: 8px 0 10px;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+}
+.douban-tab {
+  @extend %hover-accent;
+}
+.douban-tab.is-active {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+.douban-tab-count {
+  padding: 0 6px;
+  border-radius: $radius-pill;
+  background: var(--counter-bg);
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.douban-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.douban-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.douban-list-cover {
+  display: block;
+  overflow: hidden;
+  width: 72px;
+  min-width: 72px;
+  height: 100px;
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  background: var(--canvas-subtle);
+}
+.douban-list-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.douban-list-side {
+  display: flex;
+  flex: 0 0 auto;
+  margin-left: auto;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 8px;
+}
+.douban-list-score {
+  display: inline-flex;
+  min-width: 38px;
+  height: 20px;
+  padding: 0 7px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: $radius-pill;
+  color: var(--fg);
+  font-size: 12px;
+  font-weight: 600;
+}
+.douban-list-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--star-color);
+}
+.douban-list-stars iconify-icon {
+  @include icon-size(14px);
+}
+.douban-list-star--empty {
+  color: var(--border);
+}
+.douban-list-status {
+  @extend %pill;
+  height: 20px;
+  padding: 0 8px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.douban-list-status--done {
+  border-color: color-mix(in srgb, var(--green-primary) 45%, var(--border));
+  color: var(--green-primary);
+}
+.douban-list-status--doing {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  color: var(--accent);
+}
+.douban-list-status--mark {
+  border-color: color-mix(in srgb, var(--star-color) 55%, var(--border));
+  color: color-mix(in srgb, var(--star-color) 80%, var(--fg));
+}
+.douban-list-date {
+  color: var(--fg-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+@include below($breakpoint-sm) {
+  .douban-list-item {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* 封面与标题保持同一行，评分与状态另起一行靠右 */
+  .douban-list-item .repository-list-copy {
+    flex: 1 1 200px;
+  }
+
+  .douban-list-side {
+    flex: 0 0 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .douban-list-cover {
+    width: 56px;
+    min-width: 56px;
+    height: 78px;
+  }
+}

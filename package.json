@@ -1,6 +1,6 @@
 {
   "name": "theme-github-next",
-  "version": "1.0.13",
+  "version": "1.0.17",
   "private": true,
   "description": "A GitHub-inspired Halo theme, forked from dengchuanfu/halo-theme-github.",
   "author": "ydzydzydz",
@@ -21,6 +21,7 @@
     "@halo-dev/theme-package-cli": "^1.0.1",
     "@halo-dev/vite-plugin-halo-theme": "^1.0.3",
     "@types/node": "18.11.9",
+    "sass": "^1.108.1",
     "typescript": "^5.9.3",
     "vite": "npm:@voidzero-dev/vite-plus-core@latest",
     "vite-plus": "latest"

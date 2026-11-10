@@ -70,6 +70,7 @@ const refs = {
   list: null as HTMLElement | null,
   empty: null as HTMLElement | null,
   pagination: null as HTMLElement | null,
+  paginationHost: null as HTMLElement | null,
 };
 
 const introCache = new Map<string, string>();
@@ -364,6 +365,7 @@ const syncFilterMenus = () => {
 };
 
 const buildFilters = () => {
+  const toolbar = createElement("div", "douban-toolbar");
   const filters = createElement("div", "repository-filters");
   filters.setAttribute("aria-label", "豆瓣筛选");
 
@@ -402,7 +404,11 @@ const buildFilters = () => {
     ]),
   );
 
-  return filters;
+  // 筛选按钮靠右，与归档页工具栏保持同一套布局
+  toolbar.append(filters);
+  refs.filters = filters;
+
+  return toolbar;
 };
 
 const buildPagination = (totalPages: number) => {
@@ -412,47 +418,26 @@ const buildPagination = (totalPages: number) => {
     return nodes;
   }
 
-  const createPageButton = (page: number, label: string, active = false, disabled = false) => {
+  const createNavButton = (page: number, label: string) => {
     const button = document.createElement("button");
     button.type = "button";
     button.textContent = label;
     button.dataset.doubanPage = String(page);
-    button.setAttribute("aria-label", `第 ${page} 页`);
-
-    if (active) {
-      button.classList.add("is-active");
-      button.setAttribute("aria-current", "page");
-    }
-
-    if (disabled) {
-      button.disabled = true;
-    }
-
+    button.setAttribute("aria-label", label);
     return button;
   };
 
-  nodes.push(createPageButton(state.page - 1, "上一页", false, state.page <= 1));
+  // 与归档页 / 动态页保持一致：上一页 - 当前页 / 总页数 - 下一页，
+  // 没有可翻的一侧就不渲染，而不是做成禁用态按钮
+  if (state.page > 1) {
+    nodes.push(createNavButton(state.page - 1, "上一页"));
+  }
 
-  const pages = new Set<number>([1, totalPages, state.page]);
+  nodes.push(createElement("span", "", `${state.page} / ${totalPages}`));
 
-  pages.add(state.page - 1);
-  pages.add(state.page + 1);
-
-  const visible = Array.from(pages)
-    .filter((page) => page >= 1 && page <= totalPages)
-    .sort((left, right) => left - right);
-
-  visible.forEach((page, index) => {
-    const previous = visible[index - 1];
-
-    if (previous && page - previous > 1) {
-      nodes.push(createElement("span", "douban-pagination-gap", "…"));
-    }
-
-    nodes.push(createPageButton(page, String(page), page === state.page));
-  });
-
-  nodes.push(createPageButton(state.page + 1, "下一页", false, state.page >= totalPages));
+  if (state.page < totalPages) {
+    nodes.push(createNavButton(state.page + 1, "下一页"));
+  }
 
   return nodes;
 };
@@ -554,6 +539,10 @@ const renderItems = () => {
     refs.pagination.hidden = totalPages <= 1;
   }
 
+  if (refs.paginationHost) {
+    refs.paginationHost.hidden = totalPages <= 1;
+  }
+
   pageItems.forEach((item) => {
     void loadDetailIntro(item);
   });
@@ -568,8 +557,7 @@ const renderPanel = () => {
     return;
   }
 
-  const filters = buildFilters();
-  refs.filters = filters;
+  const toolbar = buildFilters();
 
   const list = createElement("ul", "repository-list douban-list");
   list.dataset.doubanList = "";
@@ -579,11 +567,42 @@ const renderPanel = () => {
   empty.hidden = true;
   refs.empty = empty;
 
-  const pagination = createElement("nav", "douban-pagination");
+  // 翻页复用归档页的分页组件，位置也放在面板之外，与其他页面保持一致
+  const pagination = createElement("nav", "pagination");
+  pagination.setAttribute("aria-label", "豆瓣记录分页");
   pagination.hidden = true;
   refs.pagination = pagination;
 
-  root.replaceChildren(filters, list, empty, pagination);
+  // 翻页在面板之外，事件要单独绑定，不能依赖面板上的事件委托
+  pagination.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    const pageButton = target?.closest<HTMLButtonElement>("[data-douban-page]");
+
+    if (!pageButton || pageButton.disabled) {
+      return;
+    }
+
+    const page = Number.parseInt(pageButton.dataset.doubanPage || "", 10);
+
+    if (Number.isFinite(page) && page !== state.page) {
+      state.page = page;
+      renderItems();
+      refs.root?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
+  const paginationHost = document.querySelector<HTMLElement>("[data-douban-pagination]");
+
+  if (paginationHost) {
+    paginationHost.replaceChildren(pagination);
+    paginationHost.hidden = true;
+    refs.paginationHost = paginationHost;
+    root.replaceChildren(toolbar, list, empty);
+  } else {
+    refs.paginationHost = null;
+    root.replaceChildren(toolbar, list, empty, pagination);
+  }
+
   setupRepositoryFilters();
   syncFilterMenus();
   renderItems();
@@ -633,13 +652,14 @@ const setupDouban = () => {
     refs.list = null;
     refs.empty = null;
     refs.pagination = null;
+    refs.paginationHost?.replaceChildren();
+    refs.paginationHost = null;
     root.replaceChildren(createEmptyState("豆瓣记录读取失败", message));
   };
 
   root.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null;
     const option = target?.closest<HTMLElement>("[data-douban-filter]");
-    const pageButton = target?.closest<HTMLButtonElement>("[data-douban-page]");
 
     if (option) {
       const kind = option.dataset.doubanFilter;
@@ -664,17 +684,6 @@ const setupDouban = () => {
       state.page = 1;
       syncFilterMenus();
       renderItems();
-      return;
-    }
-
-    if (pageButton && !pageButton.disabled) {
-      const page = Number.parseInt(pageButton.dataset.doubanPage || "", 10);
-
-      if (Number.isFinite(page) && page !== state.page) {
-        state.page = page;
-        renderItems();
-        refs.root?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
     }
   });
 

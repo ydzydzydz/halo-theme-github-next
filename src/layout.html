@@ -1,0 +1,16 @@
+<!--
+  Halo 页面布局契约（v1）
+
+  插件的前台页面可以用 layout :: html(head, content) 复用本主题的页面外壳，
+  Halo 会检查主题包里的 templates/layout.html 是否声明了 html(head, content) 片段。
+
+  这里不复制一份布局，而是复用主题自己的 partials/layout.html：
+  head / content 两个插槽分别替换成契约传入的运行时片段。
+  契约文档：https://github.com/halo-dev/halo/blob/main/docs/developer-guide/page-layout.md
+-->
+<include src="layout.html">
+  <template name="head">
+    <th:block th:replace="${head}" />
+  </template>
+  <th:block th:replace="${content}" />
+</include>

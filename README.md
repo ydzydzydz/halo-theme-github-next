@@ -4,12 +4,12 @@
 > **本项目是 [原仓库 dengchuanfu/halo-theme-github](https://github.com/dengchuanfu/halo-theme-github) 的 Fork。**
 >
 > 原作者：[Monster](https://github.com/dengchuanfu)（作者网站 <https://ffbf.top>）基于官方 [`theme-vite-starter`](https://github.com/halo-dev/theme-vite-starter) 开发了原主题。
-> 本仓库 `ydzydzydz/theme-github-next` 在原主题基础上继续开发，沿用原项目的 [GPL-3.0](LICENSE) 许可证，原作者署名与版权声明予以保留。
+> 本仓库 `ydzydzydz/halo-theme-github-next` 在原主题基础上继续开发，沿用原项目的 [GPL-3.0](LICENSE) 许可证，原作者署名与版权声明予以保留。
 >
 > - 原仓库：<https://github.com/dengchuanfu/halo-theme-github>
 > - 原仓库 Issues：<https://github.com/dengchuanfu/halo-theme-github/issues>
-> - 本仓库（Fork）：<https://github.com/ydzydzydz/theme-github-next>
-> - 本仓库 Issues：<https://github.com/ydzydzydz/theme-github-next/issues>
+> - 本仓库（Fork）：<https://github.com/ydzydzydz/halo-theme-github-next>
+> - 本仓库 Issues：<https://github.com/ydzydzydz/halo-theme-github-next/issues>
 
 一款仿 GitHub 个人主页风格的 [Halo 2](https://www.halo.run/) 主题。
 
@@ -46,7 +46,7 @@
 
 ### 使用发行包
 
-1. 从仓库的 [Releases](https://github.com/ydzydzydz/theme-github-next/releases) 页面下载最新的 `theme-github-next-版本号.zip`。
+1. 从仓库的 [Releases](https://github.com/ydzydzydz/halo-theme-github-next/releases) 页面下载最新的 `theme-github-next-版本号.zip`。
 2. 登录 Halo Console，进入「外观」->「主题」。
 3. 点击「安装主题」并上传下载的 zip 文件。
 4. 安装完成后启用 `GitHub Next` 主题。
@@ -54,8 +54,8 @@
 ### 从源码构建
 
 ```bash
-git clone https://github.com/ydzydzydz/theme-github-next.git
-cd theme-github-next
+git clone https://github.com/ydzydzydz/halo-theme-github-next.git
+cd halo-theme-github-next
 corepack enable
 pnpm install
 pnpm build
@@ -273,5 +273,5 @@ pnpm build
 
 ### 本仓库（Fork）
 
-- Fork 仓库：<https://github.com/ydzydzydz/theme-github-next>
-- 问题反馈：<https://github.com/ydzydzydz/theme-github-next/issues>
+- Fork 仓库：<https://github.com/ydzydzydz/halo-theme-github-next>
+- 问题反馈：<https://github.com/ydzydzydz/halo-theme-github-next/issues>

@@ -13,13 +13,13 @@
     <script type="module" src="./js/douban.ts"></script>
   </template>
 
-  <section class="links-hero douban-hero">
+  <section class="page-hero douban-hero">
     <div>
-      <p class="links-eyebrow">Douban</p>
+      <p class="eyebrow">Douban</p>
       <h1 th:text="${title ?: '豆瓣记录'}">豆瓣记录</h1>
       <p>把在豆瓣标记过的影视与书籍整理成清单，随时回看自己的片单。</p>
     </div>
-    <span class="links-count" data-douban-count>
+    <span class="page-hero-count" data-douban-count>
       <span data-douban-total>0</span>
       <span>条记录</span>
     </span>
@@ -36,4 +36,6 @@
       <p>正在读取豆瓣记录...</p>
     </div>
   </section>
+
+  <nav data-douban-pagination hidden aria-label="豆瓣记录分页"></nav>
 </include>

@@ -13,13 +13,13 @@
   </template>
 
   <section class="moments-page">
-    <header class="links-hero moments-hero">
+    <header class="page-hero moments-hero">
       <div>
-        <p class="links-eyebrow">Moments</p>
+        <p class="eyebrow">Moments</p>
         <h1 th:text="${title ?: '瞬间'}">瞬间</h1>
         <p>把轻量的想法、照片和日常记录放在这里。</p>
       </div>
-      <span class="links-count" th:if="${moments != null}">
+      <span class="page-hero-count" th:if="${moments != null}">
         <span th:text="${moments.total ?: 0}">0</span>
         <span>条瞬间</span>
       </span>

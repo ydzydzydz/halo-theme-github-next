@@ -13,13 +13,13 @@
   </template>
 
   <section class="links-page">
-    <header class="links-hero">
+    <header class="page-hero">
       <div>
-        <p class="links-eyebrow">Links</p>
+        <p class="eyebrow">Links</p>
         <h1 th:text="${linksTitle ?: '友链'}">友链</h1>
         <p>把值得常去的站点放在这里，像 GitHub stars 一样收藏朋友和灵感。</p>
       </div>
-      <span class="links-count" th:if="${links != null}">
+      <span class="page-hero-count" th:if="${links != null}">
         <span th:text="${#lists.size(links)}">0</span>
         <span>个链接</span>
       </span>
@@ -79,7 +79,7 @@
     >
       <div class="link-application-heading">
         <div>
-          <p class="links-eyebrow">Exchange links</p>
+          <p class="eyebrow">Exchange links</p>
           <h2>添加我的友链</h2>
           <p
             th:text="${theme.config.links.link_application_note ?: '请先在贵站添加本站友链，提交后会作为留言发送，站长会手动审核。'}"

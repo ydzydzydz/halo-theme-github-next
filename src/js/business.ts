@@ -1,4 +1,4 @@
-import "../css/business.css";
+import "../css/business.scss";
 import "iconify-icon";
 
 const setupBusinessDetails = () => {

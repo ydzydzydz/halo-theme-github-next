@@ -1,0 +1,39 @@
+@keyframes links-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-hero,
+  .link-card {
+    animation: none;
+  }
+
+  .link-card,
+  .link-logo,
+  .link-logo img,
+  .link-card-title iconify-icon {
+    transition: none;
+  }
+
+  .message-stage {
+    display: grid;
+    height: 340px;
+    padding: 12px;
+    align-content: start;
+    gap: 8px;
+    overflow-y: auto;
+  }
+
+  .floating-message {
+    position: static;
+    max-width: 100%;
+    animation: none;
+  }
+}

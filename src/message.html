@@ -18,12 +18,16 @@
     data-message-wall
     th:attr="data-comment-name=${singlePage.metadata.name}"
   >
-    <header class="message-heading">
+    <header class="page-hero message-hero">
       <div>
-        <p class="message-eyebrow">Message board</p>
+        <p class="eyebrow">Message board</p>
         <h1 th:text="${singlePage.spec.title}">留言板</h1>
+        <p>在这里写下你的想法与建议，我会逐条看完并回复。</p>
       </div>
-      <span class="message-count" data-message-count>正在读取留言...</span>
+      <span class="page-hero-count" data-message-count>
+        <span data-message-total>…</span>
+        <span data-message-unit>正在读取留言</span>
+      </span>
     </header>
 
     <div class="message-stage" data-message-stage aria-live="polite">

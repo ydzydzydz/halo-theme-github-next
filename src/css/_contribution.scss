@@ -1,0 +1,246 @@
+@use "components" as *;
+@use "tokens" as *;
+@use "mixins" as *;
+.contrib-layout {
+  display: grid;
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) 124px;
+  margin-top: 40px;
+  gap: 32px;
+}
+.contribution-area {
+  min-width: 0;
+}
+.section-heading.compact {
+  margin-bottom: 8px;
+}
+.contribution-source {
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.contribution-panel {
+  padding: 8px 12px 12px;
+  @extend %surface-card;
+}
+.contribution-scroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.contribution-months {
+  display: grid;
+  width: max-content;
+  margin-left: 34px;
+  margin-bottom: 2px;
+  grid-template-columns: repeat(var(--contribution-weeks, 53), 10px);
+  column-gap: 3px;
+  color: var(--fg);
+  font-size: 12px;
+  font-weight: 400;
+}
+.contribution-months span {
+  white-space: nowrap;
+}
+.contribution-body {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 8px;
+}
+.contribution-weekdays {
+  display: grid;
+  grid-template-rows: repeat(7, 10px);
+  gap: 3px;
+  color: var(--fg);
+  font-size: 12px;
+  line-height: 10px;
+}
+.contribution-weekdays span:nth-child(1) {
+  grid-row: 2;
+}
+.contribution-weekdays span:nth-child(2) {
+  grid-row: 4;
+}
+.contribution-weekdays span:nth-child(3) {
+  grid-row: 6;
+}
+.contribution-graph {
+  display: grid;
+  width: max-content;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(var(--contribution-weeks, 53), 10px);
+  grid-template-rows: repeat(7, 10px);
+  justify-content: start;
+  gap: 3px;
+}
+.day {
+  display: block;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: $radius-xs;
+  background: var(--green-0);
+}
+.contribution-graph .day:not(:disabled) {
+  cursor: pointer;
+}
+.contribution-graph .day.is-selected {
+  outline: 2px solid var(--fg);
+  outline-offset: 1px;
+}
+.contribution-graph .day:focus-visible {
+  @include focus-ring(1px);
+}
+.level-1 {
+  background: var(--green-1);
+}
+.level-2 {
+  background: var(--green-2);
+}
+.level-3 {
+  background: var(--green-3);
+}
+.level-4 {
+  background: var(--green-4);
+}
+.contribution-graph .day.is-outside {
+  visibility: hidden;
+}
+.contribution-footer {
+  display: flex;
+  margin-top: 10px;
+  padding-left: 34px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.contribution-footer a,
+.contribution-legend {
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+.contribution-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.contribution-legend .day {
+  width: 10px;
+  height: 10px;
+}
+.year-nav {
+  display: grid;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 124px;
+  align-content: start;
+  gap: 8px;
+  padding-top: 0;
+}
+.year-nav button {
+  display: flex;
+  height: 32px;
+  padding: 0 16px;
+  align-items: center;
+  border: 0;
+  border-radius: $radius-md;
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+}
+.year-nav button:hover {
+  background: var(--canvas-subtle);
+}
+.year-nav .is-active {
+  background: var(--accent);
+  color: #ffffff;
+}
+.activity-section {
+  min-width: 0;
+  grid-column: 1;
+}
+.activity-section > h2 {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 500;
+}
+.activity-month {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+.activity-month h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.activity-month span {
+  height: 1px;
+  background: var(--border);
+}
+.activity-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  margin-top: 16px;
+  align-items: start;
+  gap: 12px;
+}
+.activity-item::before {
+  position: absolute;
+  top: -16px;
+  bottom: 0;
+  left: 16px;
+  width: 2px;
+  background: var(--border);
+  content: "";
+}
+.activity-icon {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: $radius-circle;
+  background: var(--canvas);
+  color: var(--fg-muted);
+  font-size: 16px;
+}
+.activity-copy h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.activity-copy p {
+  margin: 0;
+  color: var(--accent);
+  font-size: 14px;
+}
+.activity-copy a {
+  display: inline-block;
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+.activity-item time {
+  color: var(--fg-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.activity-group + .activity-group {
+  margin-top: 28px;
+}
+.activity-empty {
+  margin: 0;
+  padding: 24px 0;
+  color: var(--fg-muted);
+  font-size: 14px;
+}

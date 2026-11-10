@@ -1,0 +1,35 @@
+@use "tokens" as *;
+
+// ---------------------------------------------------------------------------
+// 通用 mixin：把主题里反复出现的写法收敛到一处
+// ---------------------------------------------------------------------------
+
+// 视口宽度不超过 $width 时生效
+@mixin below($width) {
+  @media (max-width: $width) {
+    @content;
+  }
+}
+
+// 单行超出时显示省略号
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 键盘焦点环
+@mixin focus-ring($offset: 2px) {
+  outline: 2px solid var(--accent);
+  outline-offset: $offset;
+}
+
+// 图标尺寸：iconify-icon 需要同时设定字号与盒子尺寸
+@mixin icon-size($size) {
+  font-size: $size;
+  height: $size;
+  width: $size;
+}
+
+// 描边卡片表面统一用 %surface-card 占位符（见 _components.scss），
+// 编译后会合并成一条共享规则，比 mixin 更省体积。

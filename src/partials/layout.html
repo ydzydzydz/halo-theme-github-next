@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="html (head, content)">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -57,7 +57,7 @@
             data-music-player
             th:if="${theme.config.styles.music_player_enabled == true and not #strings.isEmpty(theme.config.styles.music_playlist_id)}"
             th:classappend="${theme.config.styles.music_player_position == 'top-right' ? 'music-player--header' : ''}"
-            th:attr="data-music-source=${theme.config.styles.music_source ?: 'netease'}, data-music-playlist-id=${theme.config.styles.music_playlist_id}, data-music-playback-mode=${theme.config.styles.music_playback_mode ?: 'sequence'}, data-music-api=${theme.config.styles.music_api ?: 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id={id}'}, data-music-autoplay=${theme.config.styles.music_autoplay == true}, data-music-hide-mobile=${theme.config.styles.music_hide_on_mobile == true}, data-music-show-playlist=${theme.config.styles.music_show_playlist == true}"
+            th:attr="data-music-source=${theme.config.styles.music_source ?: 'netease'}, data-music-playlist-id=${theme.config.styles.music_playlist_id}, data-music-playback-mode=${theme.config.styles.music_playback_mode ?: 'sequence'}, data-music-api=${theme.config.styles.music_api ?: 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id={id}'}, data-music-autoplay=${theme.config.styles.music_autoplay == true}, data-music-hide-mobile=${theme.config.styles.music_hide_on_mobile == true}"
             aria-label="音乐播放器"
           >
             <div class="music-player-cover" aria-hidden="true">

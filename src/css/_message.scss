@@ -1,0 +1,132 @@
+@use "components" as *;
+@use "tokens" as *;
+@use "mixins" as *;
+.message-page {
+  min-width: 0;
+}
+/* 留言页头部与其他页面统一为同款卡片 */
+.message-hero {
+  @extend %hero-gap;
+}
+.message-stage {
+  position: relative;
+  height: 340px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  background: var(--canvas-subtle);
+  contain: layout paint;
+}
+.message-stage::before,
+.message-stage::after {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--border);
+  content: "";
+  opacity: 0.55;
+}
+.message-stage::before {
+  top: 33.333%;
+}
+.message-stage::after {
+  top: 66.666%;
+}
+.message-stage-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+.message-stage-status iconify-icon {
+  font-size: 28px;
+}
+.floating-message {
+  --message-lane: 0;
+  --message-duration: 18s;
+  --message-delay: 0s;
+  position: absolute;
+  z-index: 1;
+  top: calc(15px + var(--message-lane) * 52px);
+  left: 100%;
+  display: flex;
+  max-width: min(460px, 80%);
+  height: 40px;
+  align-items: center;
+  gap: 8px;
+  animation: message-drift var(--message-duration) linear var(--message-delay) 1 both;
+  white-space: nowrap;
+  will-change: left, transform;
+}
+.floating-message-avatar {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: $radius-circle;
+  background: var(--canvas);
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.floating-message-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.floating-message-body {
+  display: flex;
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  @extend %surface-card;
+  box-shadow: 0 1px 2px rgb(31 35 40 / 6%);
+  font-size: 13px;
+}
+.floating-message-body strong {
+  flex: 0 0 auto;
+  color: var(--fg);
+  font-size: 12px;
+}
+.floating-message-body > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.floating-message-body time {
+  flex: 0 0 auto;
+  color: var(--fg-muted);
+  font-size: 11px;
+}
+.message-stage:hover .floating-message {
+  animation-play-state: paused;
+}
+@keyframes message-drift {
+  from {
+    left: 100%;
+    transform: translateX(0);
+  }
+
+  to {
+    left: 0;
+    transform: translateX(-100%);
+  }
+}
+.message-intro {
+  margin-top: 24px;
+}
+.message-comments-disabled {
+  color: var(--fg-muted);
+  font-size: 14px;
+}

@@ -1,0 +1,106 @@
+@use "mixins" as *;
+@use "tokens" as *;
+/* 悬浮按钮的横向定位基准：与内容列右边界对齐 */
+$floating-right: calc(50% - var(--shell-max-width) / 2 + var(--shell-pad-x) - var(--floating-size));
+
+/* 右侧悬浮按钮：左边缘对齐内容列右边界，宽屏时整体落在右侧留白内 */
+.back-to-top {
+  position: fixed;
+  z-index: 30;
+  right: max(16px, #{$floating-right});
+  top: 66.667vh;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: $radius-circle;
+  background: var(--canvas);
+  color: var(--fg-muted);
+  cursor: pointer;
+  line-height: 0;
+  box-shadow: 0 6px 20px rgb(31 35 40 / 14%);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+.back-to-top.page-anchor-action {
+  top: calc(66.667vh + 52px);
+  text-decoration: none;
+}
+.back-to-top:hover,
+.back-to-top:focus-visible {
+  border-color: var(--accent);
+  background: var(--canvas-subtle);
+  color: var(--accent);
+  outline: none;
+  transform: translateY(-2px);
+}
+.back-to-top iconify-icon {
+  display: block;
+  @include icon-size(22px);
+  line-height: 1;
+}
+.back-to-top-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* 与 .back-to-top 共用同一条定位基准，两组悬浮按钮彼此对齐 */
+.post-side-actions {
+  position: fixed;
+  z-index: 20;
+  top: 66.667vh;
+  right: max(16px, #{$floating-right});
+  display: flex;
+  width: 42px;
+  flex-direction: column;
+  gap: 10px;
+  transform: none;
+}
+.post-side-action {
+  display: grid;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: $radius-circle;
+  background: var(--canvas);
+  color: var(--fg-muted);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgb(31 35 40 / 10%);
+}
+.post-side-action:hover,
+.post-side-action:focus-visible {
+  border-color: var(--accent);
+  background: var(--canvas-subtle);
+  color: var(--accent);
+  text-decoration: none;
+  outline: none;
+  transform: translateY(-2px);
+}
+.post-side-action iconify-icon {
+  display: block;
+  @include icon-size(18px);
+}
+.post-back-to-top {
+  color: var(--fg);
+  transition: opacity 0.16s ease;
+}
+.post-back-to-top iconify-icon {
+  @include icon-size(20px);
+  filter: drop-shadow(0 0 0.35px currentColor);
+}
+.post-back-to-top:disabled {
+  cursor: default;
+  opacity: 0.72;
+}

@@ -9,9 +9,9 @@ spec:
     website: https://github.com/ydzydzydz
   description: 仿 GitHub 个人主页风格的 Halo 2 主题，基于原仓库 dengchuanfu/halo-theme-github 二次开发。
   logo: /themes/theme-github-next/assets/github-logo.png
-  homepage: https://github.com/ydzydzydz/theme-github-next
-  repo: https://github.com/ydzydzydz/theme-github-next
-  issues: https://github.com/ydzydzydz/theme-github-next/issues
+  homepage: https://github.com/ydzydzydz/halo-theme-github-next
+  repo: https://github.com/ydzydzydz/halo-theme-github-next
+  issues: https://github.com/ydzydzydz/halo-theme-github-next/issues
   settingName: "theme-github-next-setting"
   configMapName: "theme-github-next-configMap"
   customTemplates:
@@ -22,8 +22,8 @@ spec:
       - name: 服务
         description: 可配置服务项目并支持点击查看详情的服务展示页面
         file: business.html
-  version: 1.0.13
+  version: 1.0.17
   requires: ">=2.0.0"
   license:
     - name: "GPL-3.0"
-      url: "https://github.com/ydzydzydz/theme-github-next/blob/main/LICENSE"
+      url: "https://github.com/ydzydzydz/halo-theme-github-next/blob/main/LICENSE"

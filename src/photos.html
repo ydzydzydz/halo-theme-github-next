@@ -17,13 +17,13 @@
     class="photos-page"
     th:with="ungroupedPhotos=${photos != null and photos.items != null ? photos.items.?[#strings.isEmpty(spec.groupName)] : null}"
   >
-    <header class="links-hero photos-hero">
+    <header class="page-hero photos-hero">
       <div>
-        <p class="links-eyebrow">Photos</p>
+        <p class="eyebrow">Photos</p>
         <h1 th:text="${title ?: '图库'}">图库</h1>
         <p>光影、地点与日常。</p>
       </div>
-      <span class="links-count" th:if="${photos != null}">
+      <span class="page-hero-count" th:if="${photos != null}">
         <span th:text="${photos.total ?: 0}">0</span>
         <span>张照片</span>
       </span>

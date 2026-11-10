@@ -12,13 +12,13 @@
     <title th:text="|${tag.spec.displayName} - ${site.title}|">Tag Archive</title>
   </template>
 
-  <section class="links-hero taxonomy-hero">
+  <section class="page-hero taxonomy-hero">
     <div>
-      <p class="links-eyebrow">Tags</p>
+      <p class="eyebrow">Tags</p>
       <h1 th:text="|标签：${tag.spec.displayName}|"></h1>
       <p th:text="${tag.spec.description} ?: '查看该标签下的全部文章。'"></p>
     </div>
-    <span class="links-count" th:if="${posts != null}">
+    <span class="page-hero-count" th:if="${posts != null}">
       <span th:text="${posts.total ?: 0}">0</span>
       <span>篇文章</span>
     </span>

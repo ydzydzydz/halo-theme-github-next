@@ -1,0 +1,26 @@
+// ---------------------------------------------------------------------------
+// 设计令牌（SCSS 变量层）
+// 编译后不产生任何 CSS 输出，只作为 partial 之间的共享常量来源。
+// ---------------------------------------------------------------------------
+
+// 响应式断点：与各 partial 内的 @include below() 配合使用
+$breakpoint-xl: 1360px;
+$breakpoint-lg: 1040px;
+$breakpoint-md: 768px;
+$breakpoint-sm: 720px;
+
+// 圆角
+$radius-xs: 2px;
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+$radius-xl: 12px;
+$radius-pill: 999px;
+$radius-circle: 50%;
+
+// 间距
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 12px;
+$space-lg: 16px;
+$space-xl: 24px;

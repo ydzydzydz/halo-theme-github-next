@@ -1,0 +1,125 @@
+@use "components" as *;
+@use "tokens" as *;
+@use "mixins" as *;
+.content-column {
+  min-width: 0;
+}
+.section-heading {
+  display: flex;
+  margin: 0 0 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.section-heading h2 {
+  margin: 0;
+  color: var(--fg);
+  font-size: 16px;
+  font-weight: 400;
+}
+.section-heading a {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  gap: 16px;
+  list-style: none;
+}
+.repo-card {
+  display: flex;
+  min-width: 0;
+  min-height: 114px;
+  padding: 16px;
+  flex-direction: column;
+  @extend %surface-card;
+}
+.repo-card-header {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.repo-name {
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.repo-name svg {
+  display: none;
+}
+.repo-name a {
+  display: block;
+  @include truncate;
+  color: var(--accent);
+  font-weight: 700;
+}
+.repo-visibility {
+  min-width: 0;
+  max-width: 45%;
+  flex: 0 0 auto;
+  @include truncate;
+  padding: 0 7px;
+  border: 1px solid var(--border);
+  border-radius: $radius-pill;
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+}
+.repo-visibility a {
+  display: block;
+  @include truncate;
+  color: inherit;
+}
+.repo-desc {
+  display: -webkit-box;
+  min-height: 36px;
+  margin: 8px 0 16px;
+  overflow: hidden;
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.repo-meta {
+  display: flex;
+  margin-top: auto;
+  align-items: center;
+  gap: 4px;
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.repo-meta a {
+  color: var(--fg-muted);
+}
+.repo-meta > span:not(.language-dot) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.language-dot {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  border: 1px solid rgb(31 35 40 / 0.15);
+  border-radius: $radius-circle;
+  background: #1f883d;
+}
+.language-dot.csharp {
+  background: #178600;
+}
+.language-dot.javascript {
+  background: #f1e05a;
+}
+.language-dot.java {
+  background: #b07219;
+}
