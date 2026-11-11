@@ -799,7 +799,7 @@ spec:
           name: music_autoplay
           label: 自动播放
           value: false
-          help: 开启后播放器加载完成即尝试自动播放；浏览器通常会拦截未交互的自动播放
+          help: 开启后播放器加载完成即尝试自动播放；浏览器通常会拦截未交互的自动播放。关闭后若用户已在前台手动播放，切换页面仍会继续播放
         - $formkit: checkbox
           name: music_hide_on_mobile
           label: 移动端隐藏播放器
@@ -884,7 +884,12 @@ spec:
           label: 站点开始运行时间
           value: ""
           step: 1
-          help: 设置后在前端底部显示精确到秒的站点运行时间，留空则不显示
+          help: 设置后在前端底部显示精确到秒的站点运行时间，留空则不显示；满一年后会自动追加年份
+        - $formkit: checkbox
+          name: rss_enabled
+          label: 显示 RSS 订阅
+          value: false
+          help: 开启后在页面底部显示 RSS 订阅入口，点击跳转到站点 RSS 订阅源
         - $formkit: text
           name: provider_name
           label: 云服务商名称

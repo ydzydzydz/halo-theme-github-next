@@ -152,7 +152,9 @@
     th:if="${moments != null and (moments.hasPrevious() || moments.hasNext())}"
   >
     <a th:if="${moments.hasPrevious()}" th:href="@{${moments.prevUrl}}">上一页</a>
+    <a th:unless="${moments.hasPrevious()}" aria-disabled="true">上一页</a>
     <span th:text="|${moments.page} / ${moments.totalPages}|"></span>
     <a th:if="${moments.hasNext()}" th:href="@{${moments.nextUrl}}">下一页</a>
+    <a th:unless="${moments.hasNext()}" aria-disabled="true">下一页</a>
   </nav>
 </include>

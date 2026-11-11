@@ -229,6 +229,9 @@ const setupThemeToggle = () => {
   });
 };
 
+// 一年按 365.2425 天计算，站点运行时间与建站历程进度条保持一致。
+const averageYearMs = 365.2425 * 86_400_000;
+
 const setupSiteTimeline = () => {
   const timeline = document.querySelector<HTMLElement>("[data-site-timeline]");
   const progress = timeline?.querySelector<HTMLElement>("[data-site-progress]");
@@ -251,7 +254,7 @@ const setupSiteTimeline = () => {
   const elapsed = Math.max(0, now.getTime() - start.getTime());
   const duration = end.getTime() - start.getTime();
   const elapsedDays = Math.floor(elapsed / 86_400_000);
-  const durationYears = duration / (365.2425 * 86_400_000);
+  const durationYears = duration / averageYearMs;
   const progressValue = Math.min(100, Math.max(0, (elapsed / duration) * 100));
 
   progress.style.width = `${progressValue}%`;
@@ -276,13 +279,22 @@ const setupSiteRuntime = () => {
 
   const pad = (value: number) => String(value).padStart(2, "0");
   const updateRuntime = () => {
-    const totalSeconds = Math.max(0, Math.floor((Date.now() - start.getTime()) / 1_000));
-    const days = Math.floor(totalSeconds / 86_400);
-    const hours = Math.floor((totalSeconds % 86_400) / 3_600);
-    const minutes = Math.floor((totalSeconds % 3_600) / 60);
-    const seconds = totalSeconds % 60;
+    const elapsed = Math.max(0, Date.now() - start.getTime());
+    const years = Math.floor(elapsed / averageYearMs);
+    const rest = elapsed - years * averageYearMs;
+    const days = Math.floor(rest / 86_400_000);
+    const hours = Math.floor((rest % 86_400_000) / 3_600_000);
+    const minutes = Math.floor((rest % 3_600_000) / 60_000);
+    const seconds = Math.floor((rest % 60_000) / 1_000);
+    const segments: string[] = [];
 
-    runtime.textContent = `${days} 天 ${pad(hours)} 时 ${pad(minutes)} 分 ${pad(seconds)} 秒`;
+    // 不足一年时不展示年份，避免出现「0 年」。
+    if (years > 0) {
+      segments.push(`${years} 年`);
+    }
+
+    segments.push(`${days} 天`, `${pad(hours)} 时`, `${pad(minutes)} 分`, `${pad(seconds)} 秒`);
+    runtime.textContent = segments.join(" ");
   };
 
   updateRuntime();
@@ -613,6 +625,8 @@ type MusicPlayerState = {
   time: number;
   track: Pick<MusicTrack, "artist" | "title">;
   wasPlaying: boolean;
+  // 用户是否在前台主动开启过播放，用于区分「后台自动播放」与「用户手动播放」。
+  userInitiated: boolean;
 };
 
 const musicFallbackApi = "https://api.i-meto.com/meting/api?server=netease&type=playlist&id={id}";
@@ -714,6 +728,9 @@ const getMusicPlayerState = (): MusicPlayerState | undefined => {
         title: track.title,
       },
       wasPlaying: value.wasPlaying,
+      // 旧版本没有记录用户意图，此时按「离开页面时正在播放」处理，避免升级后丢失续播。
+      userInitiated:
+        typeof value.userInitiated === "boolean" ? value.userInitiated : value.wasPlaying,
     };
   } catch {
     return undefined;
@@ -815,6 +832,35 @@ const isMusicHiddenOnMobile = (player: HTMLElement) => {
   }
 
   return window.matchMedia(mobileViewportQuery).matches;
+};
+
+// 后台的「自动播放」开关只决定「首次进入页面时是否自动播放」；
+// 用户在前台手动播放过后，切换页面应当继续播放，不再受该开关限制。
+const shouldResumeMusicPlayback = ({
+  autoplayEnabled,
+  hiddenOnMobile,
+  state,
+}: {
+  autoplayEnabled: boolean;
+  hiddenOnMobile: boolean;
+  state?: MusicPlayerState;
+}) => {
+  if (hiddenOnMobile) {
+    return false;
+  }
+
+  // 没有历史状态时，只能由后台的自动播放开关决定。
+  if (!state) {
+    return autoplayEnabled;
+  }
+
+  // 用户主动开启过播放：切换页面后继续播放。
+  if (state.userInitiated) {
+    return true;
+  }
+
+  // 其余情况沿用后台开关，且离开页面时本来就在播放才续播。
+  return autoplayEnabled && state.wasPlaying;
 };
 
 const readMusicPlayerPosition = (key: string): MusicPlayerPosition | undefined => {
@@ -1016,7 +1062,8 @@ const setupMusicPlayer = () => {
     configuredApi || (player.dataset.musicSource === "netease" ? musicFallbackApi : "");
   const defaultPlaybackMode: MusicPlaybackMode =
     player.dataset.musicPlaybackMode === "shuffle" ? "shuffle" : "sequence";
-  const autoplayEnabled = player.dataset.musicAutoplay === "true" && !isMusicHiddenOnMobile(player);
+  const hiddenOnMobile = isMusicHiddenOnMobile(player);
+  const autoplayEnabled = player.dataset.musicAutoplay === "true" && !hiddenOnMobile;
   let tracks: MusicTrack[] = [];
   let index = 0;
   let playbackModeValue: MusicPlaybackMode = "sequence";
@@ -1027,6 +1074,7 @@ const setupMusicPlayer = () => {
   let lyricRequestId = 0;
   let displayedLyric = "";
   let playlistItems: HTMLButtonElement[] = [];
+  let userInitiated = false;
 
   const setControlsEnabled = (enabled: boolean) => {
     previous.disabled = !enabled;
@@ -1056,6 +1104,8 @@ const setupMusicPlayer = () => {
   const canRestore =
     savedState?.api === api && savedState.playlistId === playlistId ? savedState : undefined;
   playbackModeValue = canRestore?.mode || defaultPlaybackMode;
+  // 继承上一页的用户意图：用户手动播放过时，切换页面后继续播放。
+  userInitiated = canRestore?.userInitiated ?? false;
   let lastPersistedTime = -1;
 
   const persistState = () => {
@@ -1077,6 +1127,7 @@ const setupMusicPlayer = () => {
           title: track.title,
         },
         wasPlaying: !audio.paused,
+        userInitiated,
       };
       sessionStorage.setItem(musicPlayerStorageKey, JSON.stringify(state));
       lastPersistedTime = state.time;
@@ -1137,6 +1188,7 @@ const setupMusicPlayer = () => {
 
       item.append(title, artist);
       item.addEventListener("click", () => {
+        userInitiated = true;
         loadTrack(trackIndex);
         closePlaylist();
       });
@@ -1231,6 +1283,8 @@ const setupMusicPlayer = () => {
     try {
       await audio.play();
       resumeOnInteraction = false;
+      // 播放成功后恢复歌曲信息，覆盖此前「点击页面后继续」的提示。
+      artist.textContent = tracks[index]?.artist || "";
       updatePlayState();
     } catch {
       resumeOnInteraction = true;
@@ -1327,8 +1381,14 @@ const setupMusicPlayer = () => {
     loadTrack(nextIndex);
   };
 
-  previous.addEventListener("click", goToPrevious);
-  next.addEventListener("click", goToNext);
+  previous.addEventListener("click", () => {
+    userInitiated = true;
+    goToPrevious();
+  });
+  next.addEventListener("click", () => {
+    userInitiated = true;
+    goToNext();
+  });
   playbackMode.addEventListener("click", () => {
     playbackModeValue = playbackModeValue === "sequence" ? "shuffle" : "sequence";
     playbackHistory = [];
@@ -1356,8 +1416,12 @@ const setupMusicPlayer = () => {
   });
   toggle.addEventListener("click", () => {
     if (audio.paused) {
+      // 用户主动播放：切换页面后应继续播放，不受后台自动播放开关影响。
+      userInitiated = true;
       void play();
     } else {
+      // 用户主动暂停：切换页面后不再自动续播。
+      userInitiated = false;
       audio.pause();
     }
   });
@@ -1426,7 +1490,11 @@ const setupMusicPlayer = () => {
         matchingTrackIndex >= 0
           ? matchingTrackIndex
           : Math.min(Math.max(canRestore?.index || 0, 0), tracks.length - 1);
-      const shouldPlay = autoplayEnabled && (canRestore?.wasPlaying ?? true);
+      const shouldPlay = shouldResumeMusicPlayback({
+        autoplayEnabled,
+        hiddenOnMobile,
+        state: canRestore,
+      });
       loadTrack(restoredIndex, shouldPlay, canRestore?.time || 0);
     })
     .catch(() => {

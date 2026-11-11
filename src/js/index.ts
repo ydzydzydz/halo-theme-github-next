@@ -584,6 +584,7 @@ const setupContributions = async () => {
       );
       activityPage = pageResult.currentPage;
       pagination.hidden = pageResult.totalPages <= 1;
+      // 全站统一的翻页约定：没有可翻的一侧保持可见但禁用，而不是直接隐藏
       previousButton.disabled = activityPage <= 1;
       nextButton.disabled = activityPage >= pageResult.totalPages;
       pageLabel.textContent = `${activityPage} / ${pageResult.totalPages}`;

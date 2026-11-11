@@ -40,6 +40,28 @@
 .footer-halo:not(:empty)::before {
   content: "·";
 }
+.footer-rss {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--fg-muted);
+}
+.footer-rss::before {
+  margin-right: 5px;
+  color: var(--fg-subtle);
+  content: "·";
+}
+/* Halo 后台页脚内容已经带分隔符时，RSS 入口不再重复添加。 */
+.footer-halo:not(:empty) + .footer-rss::before {
+  content: none;
+}
+.footer-rss:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+.footer-rss iconify-icon {
+  @include icon-size(14px);
+}
 .footer-records {
   gap: 8px 18px;
 }

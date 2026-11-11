@@ -414,26 +414,23 @@ const buildPagination = (totalPages: number) => {
     return nodes;
   }
 
-  const createNavButton = (page: number, label: string) => {
+  const createNavButton = (page: number, label: string, disabled: boolean) => {
     const button = document.createElement("button");
     button.type = "button";
     button.textContent = label;
+    button.disabled = disabled;
     button.dataset.doubanPage = String(page);
     button.setAttribute("aria-label", label);
     return button;
   };
 
-  // 与归档页 / 动态页保持一致：上一页 - 当前页 / 总页数 - 下一页，
-  // 没有可翻的一侧就不渲染，而不是做成禁用态按钮
-  if (state.page > 1) {
-    nodes.push(createNavButton(state.page - 1, "上一页"));
-  }
+  // 全站统一的翻页约定：上一页 - 当前页 / 总页数 - 下一页，
+  // 没有可翻的一侧保持可见但禁用，而不是直接隐藏
+  nodes.push(createNavButton(state.page - 1, "上一页", state.page <= 1));
 
   nodes.push(createElement("span", "", `${state.page} / ${totalPages}`));
 
-  if (state.page < totalPages) {
-    nodes.push(createNavButton(state.page + 1, "下一页"));
-  }
+  nodes.push(createNavButton(state.page + 1, "下一页", state.page >= totalPages));
 
   return nodes;
 };

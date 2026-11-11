@@ -439,6 +439,10 @@
     display: none;
   }
 
+  .footer-rss::before {
+    display: none;
+  }
+
   .footer-primary {
     flex-direction: column;
     gap: 4px;

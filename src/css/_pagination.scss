@@ -1,5 +1,17 @@
 @use "components" as *;
 @use "mixins" as *;
+
+// ---------------------------------------------------------------------------
+// 翻页组件
+//
+// 服务端渲染的页面（归档 / 分类 / 标签 / 瞬间 / 图库）用 <a>，
+// 客户端渲染的页面（首页动态 / 豆瓣）用 <button>。
+// 两种元素的默认态与悬浮态必须完全一致，所以交互样式合并成同一条规则，
+// 不再按标签名分别维护，避免整站风格出现分歧。
+//
+// 全站统一约定：没有可翻的一侧仍然显示，但处于禁用态
+// （服务端渲染用 aria-disabled，客户端渲染用 disabled）。
+// ---------------------------------------------------------------------------
 .pagination {
   display: flex;
   padding: 28px 0 0;
@@ -13,19 +25,40 @@
 .pagination button {
   min-height: 32px;
   padding: 5px 12px;
+  text-align: center;
   @extend %surface-card;
 }
+.pagination a,
 .pagination button {
   color: var(--accent);
   cursor: pointer;
   font: inherit;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
 }
+/* 禁用态不参与悬浮反馈，链接的全局下划线也要一并去掉 */
+.pagination a:hover:not([aria-disabled="true"]),
+.pagination button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+}
+.pagination a:focus-visible:not([aria-disabled="true"]),
+.pagination button:focus-visible:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+  @include focus-ring(2px);
+}
+/* 两类禁用态共用同一套外观：服务端渲染的链接用 aria-disabled，
+   客户端渲染的按钮用原生 disabled。
+   光标沿用主题里其它禁用控件的写法（default）：翻到头只是
+   「没有更多内容」，不是操作被拒绝，不需要 not-allowed 标识 */
+.pagination a[aria-disabled="true"],
 .pagination button:disabled {
   color: var(--fg-muted);
   cursor: default;
   opacity: 0.55;
-}
-.pagination button:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
 }

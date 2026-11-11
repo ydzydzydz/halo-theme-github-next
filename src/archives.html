@@ -213,8 +213,10 @@
 
               <nav class="pagination" th:if="${posts.hasPrevious() || posts.hasNext()}">
                 <a th:if="${posts.hasPrevious()}" th:href="@{/archives} + ${prevQuery}">上一页</a>
+                <a th:unless="${posts.hasPrevious()}" aria-disabled="true">上一页</a>
                 <span th:text="|${posts.page} / ${posts.totalPages}|"></span>
                 <a th:if="${posts.hasNext()}" th:href="@{/archives} + ${nextQuery}">下一页</a>
+                <a th:unless="${posts.hasNext()}" aria-disabled="true">下一页</a>
               </nav>
             </th:block>
           </th:block>
