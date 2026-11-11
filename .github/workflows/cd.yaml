@@ -12,3 +12,6 @@ jobs:
       contents: write
     with:
       skip-appstore-release: true
+      # package.json 已声明 packageManager，按官方文档需置空 pnpm-version，
+      # 否则 pnpm/action-setup 会因同时存在两个版本声明而直接失败
+      pnpm-version: ""
