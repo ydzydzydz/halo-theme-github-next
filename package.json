@@ -1,6 +1,6 @@
 {
   "name": "theme-github-next",
-  "version": "1.0.17",
+  "version": "1.0.20",
   "private": true,
   "description": "A GitHub-inspired Halo theme, forked from dengchuanfu/halo-theme-github.",
   "author": "ydzydzydz",
@@ -15,7 +15,9 @@
     "skills:update": "npx skills update"
   },
   "dependencies": {
-    "iconify-icon": "^3.0.2"
+    "dompurify": "^3.4.17",
+    "iconify-icon": "^3.0.2",
+    "marked": "^18.2.0"
   },
   "devDependencies": {
     "@halo-dev/theme-package-cli": "^1.0.1",

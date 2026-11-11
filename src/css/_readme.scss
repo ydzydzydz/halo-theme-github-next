@@ -1,0 +1,236 @@
+@use "components" as *;
+@use "tokens" as *;
+@use "mixins" as *;
+
+// ---------------------------------------------------------------------------
+// 首页 README 卡片
+//
+// 模仿 GitHub 个人主页顶部那块 README 面板：顶部是一条文件标签栏，
+// 下方是后台配置的自定义 Markdown 内容。
+// ---------------------------------------------------------------------------
+
+.readme-card {
+  margin-bottom: $space-xl;
+  overflow: hidden;
+  @extend %surface-card;
+}
+
+.readme-card-header {
+  display: flex;
+  padding: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--canvas-subtle);
+  color: var(--fg-muted);
+  font-size: 12px;
+}
+
+.readme-card-file {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.readme-card-file span {
+  @include truncate;
+}
+
+.readme-card-file iconify-icon {
+  @include icon-size(14px);
+  color: var(--fg-muted);
+}
+
+.readme-card-badge {
+  flex: 0 0 auto;
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: $radius-pill;
+  background: var(--canvas);
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.readme-card-body {
+  padding: 20px 24px;
+}
+
+// ---------------------------------------------------------------------------
+// Markdown 渲染结果的排版
+//
+// Markdown 由前端 marked 渲染成 HTML，这里只负责把它收拾成 GitHub README 的观感。
+// ---------------------------------------------------------------------------
+
+.readme-content {
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.readme-content > :first-child {
+  margin-top: 0;
+}
+
+.readme-content > :last-child {
+  margin-bottom: 0;
+}
+
+.readme-content h1,
+.readme-content h2,
+.readme-content h3,
+.readme-content h4,
+.readme-content h5,
+.readme-content h6 {
+  margin: 20px 0 10px;
+  color: var(--fg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.readme-content h1 {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 24px;
+}
+
+.readme-content h2 {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  font-size: 19px;
+}
+
+.readme-content h3 {
+  font-size: 16px;
+}
+
+.readme-content h4 {
+  font-size: 14px;
+}
+
+.readme-content h5,
+.readme-content h6 {
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+.readme-content p {
+  margin: 0 0 12px;
+}
+
+.readme-content ul,
+.readme-content ol {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.readme-content li + li {
+  margin-top: 4px;
+}
+
+.readme-content li > ul,
+.readme-content li > ol {
+  margin: 4px 0 0;
+}
+
+.readme-content a {
+  color: var(--accent);
+}
+
+.readme-content blockquote {
+  margin: 0 0 12px;
+  padding: 2px 16px;
+  border-left: 4px solid var(--border);
+  color: var(--fg-muted);
+}
+
+.readme-content blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.readme-content code {
+  padding: 0.2em 0.4em;
+  border-radius: $radius-xs;
+  background: var(--canvas-subtle);
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Consolas,
+    Liberation Mono,
+    Menlo,
+    monospace;
+  font-size: 85%;
+}
+
+.readme-content pre {
+  overflow-x: auto;
+  margin: 0 0 12px;
+  padding: 14px 16px;
+  border-radius: $radius-md;
+  background: var(--canvas-subtle);
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Consolas,
+    Liberation Mono,
+    Menlo,
+    monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.readme-content pre code {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 100%;
+}
+
+.readme-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: $radius-md;
+}
+
+.readme-content hr {
+  height: 1px;
+  margin: 20px 0;
+  border: 0;
+  background: var(--border);
+}
+
+.readme-content table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 12px;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.readme-content th,
+.readme-content td {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.readme-content th {
+  background: var(--canvas-subtle);
+  font-weight: 600;
+}
+
+.readme-content .task-list-item {
+  list-style: none;
+}
+
+.readme-content .task-list-item input {
+  margin-right: 6px;
+}

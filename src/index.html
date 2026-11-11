@@ -13,6 +13,22 @@
     <script type="module" src="./js/index.ts"></script>
   </template>
 
+  <section
+    class="readme-card"
+    data-readme-card
+    th:if="${theme.config.readme?.enabled != false and not #strings.isEmpty(theme.config.readme?.content)}"
+    th:attr="data-readme-content=${theme.config.readme?.content}"
+  >
+    <header class="readme-card-header">
+      <span class="readme-card-file">
+        <iconify-icon icon="octicon:file-16" aria-hidden="true"></iconify-icon>
+        <span th:text="${theme.config.readme?.title ?: 'README.md'}">README.md</span>
+      </span>
+      <span class="readme-card-badge">Markdown</span>
+    </header>
+    <div class="readme-card-body readme-content" data-readme-body></div>
+  </section>
+
   <section class="section-heading">
     <h2>最新文章</h2>
     <a th:href="@{/archives}">更多文章</a>

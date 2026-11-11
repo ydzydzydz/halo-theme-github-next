@@ -198,6 +198,29 @@
     top: calc(66.667dvh + 48px);
   }
 }
+@include below($breakpoint-md) {
+  // 窄屏隐藏整个左侧资料区：侧边栏整块收起，内容列占满整行
+  .github-shell[data-hide-sidebar-mobile="true"] {
+    grid-template-columns: minmax(0, 1fr);
+
+    .profile-sidebar {
+      display: none;
+    }
+  }
+
+  // README 卡片在窄屏下收紧内边距，避免长行溢出
+  .readme-card-body {
+    padding: 16px;
+  }
+
+  .readme-content h1 {
+    font-size: 20px;
+  }
+
+  .readme-content h2 {
+    font-size: 17px;
+  }
+}
 @include below($breakpoint-sm) {
   .love-hero {
     min-height: 320px;

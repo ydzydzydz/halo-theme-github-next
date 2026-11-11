@@ -1,3 +1,5 @@
+import { setupReadme } from "./shared/readme";
+
 type Post = {
   metadata?: Metadata;
   spec?: {
@@ -634,3 +636,4 @@ const setupContributions = async () => {
 };
 
 void setupContributions();
+setupReadme();

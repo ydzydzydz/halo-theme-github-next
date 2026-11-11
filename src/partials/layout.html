@@ -338,6 +338,7 @@
     <main
       class="site-main github-shell {{shellClass}}"
       th:classappend="${singlePage != null and (singlePage.spec.slug == 'services' or singlePage.spec.slug == 'Services' or singlePage.spec.slug == 'business' or singlePage.spec.slug == 'Business') ? 'github-shell-full' : ''}"
+      th:attr="data-hide-sidebar-mobile=${theme.config.sidebar.hide_sidebar_on_mobile != false}"
     >
       <aside
         class="profile-sidebar {{sidebarClass}}"

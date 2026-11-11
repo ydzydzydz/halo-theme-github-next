@@ -114,6 +114,36 @@ spec:
           value: ""
           placeholder: "请输入要发布的公告内容"
           help: 支持多行文本，内容会以纯文本方式显示
+    - group: readme
+      label: 首页 README
+      formSchema:
+        - $formkit: checkbox
+          name: enabled
+          label: 显示首页 README 卡片
+          value: true
+          help: 开启后在首页「最新文章」上方显示类似 GitHub 个人主页的 README 卡片；关闭后整块隐藏
+        - $formkit: text
+          name: title
+          label: 卡片标题
+          value: "README.md"
+          placeholder: "README.md"
+          help: 显示在卡片顶部的标签栏，可自定义
+        - $formkit: textarea
+          name: content
+          label: README 内容
+          value: |-
+            # 你好呀 👋
+
+            欢迎来到我的小站！在这里分享我的折腾记录与生活碎片。
+
+            ## 这里有些什么
+
+            - 📝 文章与笔记
+            - 🛠️ 项目与折腾
+            - 💬 随笔与动态
+
+            > 这是一段 README 示例，可在后台「首页 README」中自由编辑。
+          help: 支持 Markdown 语法（标题、列表、表格、代码块、引用等）；留空则不显示卡片
     - group: sidebar
       label: 侧边栏
       formSchema:
@@ -243,6 +273,11 @@ spec:
           max: 50
           step: 1
           help: 按文章数量排序，建议设置 10 至 20 个
+        - $formkit: checkbox
+          name: hide_sidebar_on_mobile
+          label: 移动端隐藏整个侧边栏
+          value: true
+          help: 开启后在手机等窄屏设备上隐藏整个左侧资料区（头像、名称、资料、标签、分类等），内容区占满整行
     - group: icons
       label: 图标配置
       formSchema:

@@ -798,7 +798,7 @@ const normalizeMusicTrack = (value: unknown): MusicTrack | undefined => {
   };
 };
 
-const musicMobileQuery = "(max-width: 768px)";
+const mobileViewportQuery = "(max-width: 768px)";
 const musicPlayerPositionStorageKey = "theme-github-next-music-player-position";
 const musicPlayerEdgeGap = 16;
 const musicPlayerSnapThreshold = 56;
@@ -814,7 +814,7 @@ const isMusicHiddenOnMobile = (player: HTMLElement) => {
     return false;
   }
 
-  return window.matchMedia(musicMobileQuery).matches;
+  return window.matchMedia(mobileViewportQuery).matches;
 };
 
 const readMusicPlayerPosition = (key: string): MusicPlayerPosition | undefined => {
@@ -2233,6 +2233,31 @@ const setupSearch = () => {
   });
 };
 
+// 窄屏隐藏整个侧边栏时，不请求侧边栏标签/分类数据，也不启动标签云动画；
+// 视口变宽后自动补加载，保证旋转屏幕或调整窗口后内容依然完整。
+const loadSidebarSectionWhenVisible = (load: () => void) => {
+  const shell = document.querySelector<HTMLElement>("[data-hide-sidebar-mobile]");
+  if (shell?.dataset.hideSidebarMobile !== "true") {
+    load();
+    return;
+  }
+
+  const query = window.matchMedia(mobileViewportQuery);
+  if (!query.matches) {
+    load();
+    return;
+  }
+
+  const handleChange = (event: MediaQueryListEvent) => {
+    if (!event.matches) {
+      query.removeEventListener("change", handleChange);
+      load();
+    }
+  };
+
+  query.addEventListener("change", handleChange);
+};
+
 const setupSidebarTags = () => {
   const root = document.querySelector<HTMLElement>("[data-sidebar-tags]");
   const cloud = root?.querySelector<HTMLElement>("[data-sidebar-tag-cloud]");
@@ -2383,7 +2408,7 @@ const setupSidebarTags = () => {
     empty.hidden = true;
   };
 
-  void loadTags();
+  loadSidebarSectionWhenVisible(() => void loadTags());
 };
 
 const setupSidebarCategories = () => {
@@ -2451,7 +2476,7 @@ const setupSidebarCategories = () => {
     }
   };
 
-  void loadCategories();
+  loadSidebarSectionWhenVisible(() => void loadCategories());
 };
 
 const setupTaxonomyPage = () => {
