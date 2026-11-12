@@ -4,6 +4,7 @@ import "iconify-icon";
 import { setupBackToTop } from "./shared/back-to-top";
 import { setupCommentWidgetStyle } from "./shared/comment-widget";
 import { pageLocale, showInlineHint } from "./shared/dom";
+import { setupDropdownMenu } from "./shared/dropdown-menu";
 import { messages, formatMessage } from "./shared/i18n";
 import { setupRepositoryFilters } from "./shared/repository-filters";
 import {
@@ -2159,47 +2160,7 @@ const setupUserMenu = async () => {
   loginLink.hidden = true;
   trigger.hidden = false;
 
-  let closeTimer = 0;
-
-  const closeMenu = (restoreFocus = false) => {
-    window.clearTimeout(closeTimer);
-    menu.hidden = true;
-    trigger.setAttribute("aria-expanded", "false");
-
-    if (restoreFocus) {
-      trigger.focus();
-    }
-  };
-
-  const openMenu = (focusFirstItem = false) => {
-    window.clearTimeout(closeTimer);
-    menu.hidden = false;
-    trigger.setAttribute("aria-expanded", "true");
-
-    if (focusFirstItem) {
-      menu.querySelector<HTMLAnchorElement>("a")?.focus();
-    }
-  };
-
-  container.addEventListener("pointerenter", () => openMenu());
-  container.addEventListener("pointerleave", () => {
-    closeTimer = window.setTimeout(() => closeMenu(), 120);
-  });
-  trigger.addEventListener("click", () => {
-    if (menu.hidden) {
-      openMenu(true);
-    }
-  });
-  document.addEventListener("click", (event) => {
-    if (!menu.hidden && event.target instanceof Node && !container.contains(event.target)) {
-      closeMenu();
-    }
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !menu.hidden) {
-      closeMenu(true);
-    }
-  });
+  setupDropdownMenu({ container, trigger, menu });
 };
 
 const setupPublishMenu = () => {
@@ -2211,50 +2172,7 @@ const setupPublishMenu = () => {
     return;
   }
 
-  let closeTimer = 0;
-
-  const closeMenu = (restoreFocus = false) => {
-    window.clearTimeout(closeTimer);
-    menu.hidden = true;
-    trigger.setAttribute("aria-expanded", "false");
-
-    if (restoreFocus) {
-      trigger.focus();
-    }
-  };
-
-  const openMenu = (focusFirstItem = false) => {
-    window.clearTimeout(closeTimer);
-    menu.hidden = false;
-    trigger.setAttribute("aria-expanded", "true");
-
-    if (focusFirstItem) {
-      menu.querySelector<HTMLAnchorElement>("a")?.focus();
-    }
-  };
-
-  trigger.addEventListener("click", () => {
-    if (menu.hidden) {
-      openMenu(true);
-    }
-  });
-
-  container.addEventListener("pointerenter", () => openMenu());
-  container.addEventListener("pointerleave", () => {
-    closeTimer = window.setTimeout(() => closeMenu(), 120);
-  });
-
-  document.addEventListener("click", (event) => {
-    if (!menu.hidden && event.target instanceof Node && !container.contains(event.target)) {
-      closeMenu();
-    }
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !menu.hidden) {
-      closeMenu(true);
-    }
-  });
+  setupDropdownMenu({ container, trigger, menu });
 };
 
 const isTypingEvent = (event: KeyboardEvent) =>
