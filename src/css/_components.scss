@@ -57,6 +57,61 @@
 }
 
 // ---------------------------------------------------------------------------
+// 悬浮圆形按钮
+//
+// 全站的悬浮按钮有三处来源：页面右下角的回顶按钮、正文页侧边的操作按钮
+// （回顶 / 点赞 / 评论）、以及回顶按钮下方的页面锚点按钮。
+// 以前三处各写一份样式，结果同一组悬浮按钮里同时出现过 18px 与 22px 两种图标、
+// 40px 与 42px 两种按钮直径，桌面端与平板端的规格也对不上。
+//
+// 这里抽成一个基座：直径、底色、描边、图标大小、过渡与悬浮反馈只此一处，
+// 页面之间不可能再各写一套。
+// ---------------------------------------------------------------------------
+%floating-button {
+  display: grid;
+  width: $control-float;
+  min-width: $control-float;
+  height: $control-float;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: $radius-circle;
+  background: var(--canvas);
+  color: var(--fg-muted);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  box-shadow: var(--shadow-md);
+  transition:
+    color $dur-base $ease-standard,
+    border-color $dur-base $ease-standard,
+    background $dur-base $ease-standard,
+    transform $dur-base $ease-standard;
+
+  /* 视觉仍是 42px，热区扩到 44px */
+  @include touch-target;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--accent);
+    background: var(--canvas-subtle);
+    color: var(--accent);
+    text-decoration: none;
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  iconify-icon {
+    display: block;
+    @include icon-size($control-float-icon);
+    line-height: 1;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // 空状态
 //
 // 「这里还没有内容」在站内出现了 7 处：友链 / 瞬间 / 照片、分类、标签、

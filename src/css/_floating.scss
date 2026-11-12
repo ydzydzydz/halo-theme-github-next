@@ -1,3 +1,4 @@
+@use "components" as *;
 @use "mixins" as *;
 @use "tokens" as *;
 /* 悬浮按钮固定在浏览器窗口最右侧，不再贴着正文列的右边缘 */
@@ -6,52 +7,17 @@
   z-index: 30;
   right: 16px;
   top: 66.667vh;
-  display: grid;
-  width: 42px;
-  height: $control-float;
-  padding: 0;
-  place-items: center;
-  border: 1px solid var(--border);
-  border-radius: $radius-circle;
-  background: var(--canvas);
-  color: var(--fg-muted);
-  cursor: pointer;
-  line-height: 0;
-  box-shadow: var(--shadow-md);
-  transition:
-    color $dur-base $ease-standard,
-    border-color $dur-base $ease-standard,
-    background $dur-base $ease-standard,
-    transform $dur-base $ease-standard;
-
-  /* 视觉仍是 42px，热区扩到 44px */
-  @include touch-target;
+  @extend %floating-button;
 }
 .back-to-top.page-anchor-action {
   top: calc(66.667vh + 52px);
   text-decoration: none;
 }
-.back-to-top:hover,
-.back-to-top:focus-visible {
-  border-color: var(--accent);
-  background: var(--canvas-subtle);
-  color: var(--accent);
-  transform: translateY(-2px);
-}
-.back-to-top:focus-visible {
-  @include focus-ring;
-}
-.back-to-top iconify-icon {
-  display: block;
-  @include icon-size(22px);
-  line-height: 1;
-}
-.back-to-top-icon {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* 置顶箭头用的是 icon-park 的描边图标，缩到 20px 后比旁边实心的 octicon 略轻，
+   补一层同色阴影把视觉字重拉齐（正文页与全站两处置顶按钮都要补） */
+.back-to-top iconify-icon,
+.post-side-action.post-back-to-top iconify-icon {
+  filter: drop-shadow(0 0 0.35px currentColor);
 }
 /* 与 .back-to-top 共用同一条定位基准，两组悬浮按钮彼此对齐 */
 .post-side-actions {
@@ -60,55 +26,26 @@
   top: 66.667vh;
   right: 16px;
   display: flex;
-  width: 42px;
+  width: $control-float;
   flex-direction: column;
   gap: $space-10;
   transform: none;
 }
 .post-side-action {
   position: relative;
-  display: grid;
-  width: 42px;
-  min-width: 42px;
-  height: $control-float;
-  padding: 0;
-  place-items: center;
-  border: 1px solid var(--border);
-  border-radius: $radius-circle;
-  background: var(--canvas);
-  color: var(--fg-muted);
-  cursor: pointer;
-  font: inherit;
-  line-height: 1;
-  box-shadow: var(--shadow-md);
-
-  /* 视觉仍是 42px，热区扩到 44px */
-  @include touch-target;
+  @extend %floating-button;
 }
-.post-side-action:hover,
-.post-side-action:focus-visible {
-  border-color: var(--accent);
-  background: var(--canvas-subtle);
-  color: var(--accent);
-  text-decoration: none;
-  transform: translateY(-2px);
-}
-.post-side-action:focus-visible {
-  @include focus-ring;
-}
-.post-side-action iconify-icon {
+/* 回顶按钮的占位槽：按钮滚动到位后才出现，
+   槽位常驻，点赞/评论按钮不会因为它出现而上下跳动 */
+.post-side-action-slot {
+  position: relative;
   display: block;
-  @include icon-size(18px);
+  width: $control-float;
+  height: $control-float;
 }
-.post-back-to-top {
-  color: var(--fg);
-  transition: opacity 0.16s $ease-standard;
-}
-.post-back-to-top iconify-icon {
-  @include icon-size(20px);
-  filter: drop-shadow(0 0 0.35px currentColor);
-}
-.post-back-to-top:disabled {
-  cursor: default;
-  opacity: var(--fg-disabled-opacity);
+/* 正文页的回顶按钮与全站悬浮回顶按钮保持同一套外观：
+   同样的底色、描边与前景色，滚动时不再变色 */
+.post-side-action.post-back-to-top {
+  position: absolute;
+  inset: 0;
 }

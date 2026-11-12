@@ -64,15 +64,17 @@
   </article>
 
   <nav class="post-side-actions" th:attr="aria-label=#{post.sideActions}">
-    <button
-      class="post-side-action post-back-to-top"
-      type="button"
-      data-post-back-to-top
-      disabled
-      th:attr="aria-label=#{footer.backToTop}, title=#{footer.backToTop}"
-    >
-      <iconify-icon icon="icon-park-outline:to-top" aria-hidden="true"></iconify-icon>
-    </button>
+    <span class="post-side-action-slot">
+      <button
+        class="post-side-action post-back-to-top"
+        type="button"
+        data-post-back-to-top
+        hidden
+        th:attr="aria-label=#{footer.backToTop}, title=#{footer.backToTop}"
+      >
+        <iconify-icon icon="icon-park-outline:to-top" aria-hidden="true"></iconify-icon>
+      </button>
+    </span>
     <button
       class="post-side-action post-upvote"
       type="button"

@@ -186,10 +186,10 @@
     top: auto;
     right: 16px;
     bottom: 16px;
-    width: 42px;
+    width: $control-float;
     flex-direction: column;
     align-items: center;
-    gap: $space-8;
+    gap: $space-10;
     transform: none;
   }
 
@@ -197,15 +197,15 @@
     bottom: 96px;
   }
 
+  /* 悬浮按钮直径与图标大小沿用桌面端规格，窄屏不再单独缩小，
+     否则同一组悬浮按钮在平板上会比桌面端矮一截 */
   .back-to-top {
     right: 16px;
     top: 66.667dvh;
-    width: 40px;
-    height: 40px;
   }
 
   .back-to-top.page-anchor-action {
-    top: calc(66.667dvh + 48px);
+    top: calc(66.667dvh + 52px);
   }
 }
 @include below($breakpoint-md) {

@@ -115,6 +115,9 @@ $control-sm: 28px;
 $control-md: 32px;
 $control-lg: 36px;
 $control-float: 42px;
+// 悬浮圆形按钮里的图标尺寸：全站悬浮按钮（回顶、点赞、评论、页面锚点）共用这一档，
+// 避免同一组悬浮按钮里出现 18px / 22px 两种大小。
+$control-float-icon: 20px;
 
 // 界面字体栈：正文与评论组件共用，保证全站字形一致
 // 末尾保留 emoji 回退，评论区的表情才不会显示成方框
