@@ -6,18 +6,12 @@ import { setupCommentWidgetStyle } from "./shared/comment-widget";
 import { pageLocale, showInlineHint } from "./shared/dom";
 import { messages, formatMessage } from "./shared/i18n";
 import { setupRepositoryFilters } from "./shared/repository-filters";
-
-type SearchHit = {
-  title?: string;
-  description?: string;
-  content?: string;
-  permalink?: string;
-};
-
-type SearchResult = {
-  hits?: SearchHit[];
-  total?: number;
-};
+import {
+  querySiteSearch,
+  renderSearchText,
+  type SearchHit,
+  type SearchResult,
+} from "./shared/search";
 
 type CurrentUserDetail = {
   user?: {
@@ -49,7 +43,6 @@ type WeatherCoordinates = {
   longitude: number;
 };
 
-const searchEndpoint = "/apis/api.halo.run/v1alpha1/indices/-/search";
 const currentUserEndpoint = "/apis/api.console.halo.run/v1alpha1/users/-";
 const momentUpvoteEndpoint = "/apis/api.halo.run/v1alpha1/trackers/upvote";
 const colorSchemeStorageKey = "theme-github-next-color-scheme";
@@ -2273,18 +2266,27 @@ const isTypingEvent = (event: KeyboardEvent) =>
         (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable),
     );
 
-const createResultItem = (hit: SearchHit) => {
+const createResultItem = (hit: SearchHit, keyword: string) => {
   const link = document.createElement("a");
   link.className = "search-result-item";
   link.href = hit.permalink || "#";
 
   const title = document.createElement("span");
   title.className = "search-result-title";
-  title.textContent = hit.title || "Untitled";
+  // 接口把命中词包在 <B> 里，交给 renderSearchText 转成高亮元素
+  renderSearchText(title, hit.title || "", keyword);
+
+  if (!title.textContent) {
+    title.textContent = "Untitled";
+  }
 
   const description = document.createElement("span");
   description.className = "search-result-desc";
-  description.textContent = hit.description || hit.content || "No description provided.";
+  renderSearchText(description, hit.description || hit.content || "", keyword, 160);
+
+  if (!description.textContent) {
+    description.textContent = "No description provided.";
+  }
 
   link.append(title, description);
   return link;
@@ -2332,7 +2334,7 @@ const setupSearch = () => {
     }
 
     status.textContent = formatMessage(messages.search.resultCount, data.total ?? data.hits.length);
-    results.append(...data.hits.map(createResultItem));
+    results.append(...data.hits.map((hit) => createResultItem(hit, keyword)));
   };
 
   const search = async () => {
@@ -2349,27 +2351,9 @@ const setupSearch = () => {
     status.textContent = messages.search.searching;
 
     try {
-      const response = await fetch(searchEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          keyword,
-          limit: 8,
-          filterExposed: true,
-          filterPublished: true,
-          filterRecycled: false,
-          includeTypes: ["post.content.halo.run", "singlepage.content.halo.run"],
-        }),
-        signal: controller.signal,
-      });
+      const data = await querySiteSearch(keyword, { limit: 8, signal: controller.signal });
 
-      if (!response.ok) {
-        throw new Error(`Search failed: ${response.status}`);
-      }
-
-      renderResults((await response.json()) as SearchResult, keyword);
+      renderResults(data, keyword);
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         return;

@@ -73,6 +73,11 @@
   --button-hover: #30363d;
   --counter-bg: #21262d;
   --overlay-bg: rgb(13 17 23 / 0.8);
+  /* 搜索命中词高亮：沿用 Primer 的暖黄，暗色下压到 16% 透明度，
+     避免大面积黄底在深色背景上刺眼 */
+  --search-hit-bg: rgb(255 248 197 / 0.16);
+  /* 暗色下内阴影反过来提亮一点 */
+  --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.03);
   --green-0: #161b22;
   --green-1: #0e4429;
   --green-2: #006d32;
@@ -112,6 +117,10 @@
   --button-hover: #f3f4f6;
   --counter-bg: #eaeef2;
   --overlay-bg: rgb(246 248 250 / 0.72);
+  /* 搜索命中词高亮：Primer 的暖黄，浅色下压到 70% 透明度以免盖住正文 */
+  --search-hit-bg: rgb(255 248 197 / 0.7);
+  /* 输入框顶部内阴影：Primer 的 --shadow-inset，浅色下是一道极淡的暗线 */
+  --shadow-inset: inset 0 1px 0 rgb(31 35 40 / 0.04);
   --green-0: #ebedf0;
   --green-1: #9be9a8;
   --green-2: #40c463;
@@ -234,4 +243,27 @@ svg {
    （更高特异性）依然可以覆盖这里的样式。 */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   @include focus-ring;
+}
+
+/* ---------------------------------------------------------------------------
+   输入框统一外观
+   ---------------------------------------------------------------------------
+   文本输入框、文本域、下拉框共用 GitHub 的表单控件外观：
+   默认 1px 细边框 + 6px 圆角，聚焦时边框变蓝并加一圈 1px 内描边
+   （视觉上是 2px 蓝边框，不会向外溢出光晕）。
+
+   这里刻意用 :where() 把特异性压到 0 —— 组件自己写的输入框样式
+   （归档页搜索框、申请友链表单等）仍然优先，全局规则只兜底。
+   复选框、单选框、进度条保持浏览器默认外观，不在统一范围内。
+   --------------------------------------------------------------------------- */
+:where(input:not([type="checkbox"], [type="radio"], [type="range"]), textarea, select) {
+  @include input-field;
+}
+:where(input:not([type="checkbox"], [type="radio"], [type="range"]), textarea, select):focus,
+:where(
+  input:not([type="checkbox"], [type="radio"], [type="range"]),
+  textarea,
+  select
+):focus-visible {
+  @include input-field-focus;
 }

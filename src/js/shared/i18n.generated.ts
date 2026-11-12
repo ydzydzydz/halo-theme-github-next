@@ -67,6 +67,7 @@ export interface ThemeMessages {
     allCategories: string;
     allTags: string;
     clearFilters: string;
+    exitSearch: string;
     filterByCategory: string;
     filterBySort: string;
     filterByTag: string;
@@ -77,12 +78,13 @@ export interface ThemeMessages {
     noMatch: string;
     noPosts: string;
     postCount: string;
+    searchLabel: string;
     searchPlaceholder: string;
+    searchTruncated: string;
     sortNewest: string;
     sortOldest: string;
     sortTitle: string;
     title: string;
-    updated: string;
   };
   business: {
     closeDetail: string;
@@ -148,6 +150,7 @@ export interface ThemeMessages {
     recordCount: string;
     relatedLink: string;
     uncategorized: string;
+    updated: string;
     upvoteCount: string;
     viewAllPosts: string;
     viewCount: string;
@@ -657,6 +660,7 @@ export const defaultMessages: ThemeMessages = {
     allCategories: "全部分类",
     allTags: "全部标签",
     clearFilters: "清除筛选",
+    exitSearch: "退出搜索",
     filterByCategory: "按分类筛选",
     filterBySort: "排序方式",
     filterByTag: "按标签筛选",
@@ -667,12 +671,13 @@ export const defaultMessages: ThemeMessages = {
     noMatch: "没有符合条件的文章",
     noPosts: "没有找到文章",
     postCount: "共 {0} 篇文章",
-    searchPlaceholder: "Find an article...",
+    searchLabel: "搜索文章",
+    searchPlaceholder: "搜索文章...",
+    searchTruncated: "仅显示前 {0} 条",
     sortNewest: "最新发布",
     sortOldest: "最早发布",
     sortTitle: "标题 A-Z",
     title: "文章",
-    updated: "更新于",
   },
   business: {
     closeDetail: "关闭详情",
@@ -738,6 +743,7 @@ export const defaultMessages: ThemeMessages = {
     recordCount: "条记录",
     relatedLink: "相关链接",
     uncategorized: "未分类",
+    updated: "更新于",
     upvoteCount: "点赞数",
     viewAllPosts: "查看全部文章",
     viewCount: "访问量",

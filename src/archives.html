@@ -11,6 +11,7 @@
 >
   <template name="head">
     <title th:text="|#{archives.title} - ${site.title}|">文章</title>
+    <script type="module" src="./js/archives.ts"></script>
   </template>
 
   <section class="repositories-page">
@@ -57,14 +58,38 @@
                        nextQuery=${qAll != '' ? qAll + '&page=' + (posts.page + 1) : '?page=' + (posts.page + 1)}"
             >
               <div class="repositories-toolbar">
-                <button
-                  class="repository-search"
-                  type="button"
-                  data-search-trigger
-                  th:attr="aria-label=#{search.open}"
-                >
-                  Find an article...
-                </button>
+                <!--
+                  归档页的搜索是内联的：输入关键词后列表直接换成全站搜索结果，
+                  不再弹出遮罩层。搜索逻辑在 src/js/archives.ts。
+                -->
+                <div class="repository-search-field" data-archive-search-field>
+                  <svg class="repository-search-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path
+                      d="M10.68 11.74a6 6 0 1 1 1.06-1.06l3.04 3.04a.75.75 0 1 1-1.06 1.06ZM11.5 7a4.5 4.5 0 1 0-9 0 4.5 4.5 0 0 0 9 0Z"
+                    />
+                  </svg>
+                  <input
+                    class="repository-search"
+                    type="search"
+                    data-archive-search-input
+                    autocomplete="off"
+                    spellcheck="false"
+                    th:attr="placeholder=#{archives.searchPlaceholder}, aria-label=#{archives.searchLabel}"
+                  />
+                  <button
+                    class="repository-search-clear"
+                    type="button"
+                    data-archive-search-clear
+                    hidden
+                    th:attr="aria-label=#{archives.exitSearch}, title=#{archives.exitSearch}"
+                  >
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <path
+                        d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"
+                      />
+                    </svg>
+                  </button>
+                </div>
                 <div class="repository-filters" th:attr="aria-label=#{archives.filterLabel}">
                   <button
                     class="repository-filter-button"
@@ -100,9 +125,8 @@
                       class="repository-filter-option"
                       th:classappend="${categoryName == null} ? 'is-active'"
                       th:href="@{/archives} + ${qNoCat}"
-                    >
                       th:text="#{archives.allCategories}"
-                    </a>
+                    ></a>
                     <a
                       class="repository-filter-option"
                       th:each="cat : ${categoryFinder.listAll()}"
@@ -144,9 +168,8 @@
                       class="repository-filter-option"
                       th:classappend="${tagName == null} ? 'is-active'"
                       th:href="@{/archives} + ${qNoTag}"
-                    >
                       th:text="#{archives.allTags}"
-                    </a>
+                    ></a>
                     <a
                       class="repository-filter-option"
                       th:each="tg : ${tagFinder.listAll()}"
@@ -189,28 +212,44 @@
                       class="repository-filter-option"
                       th:classappend="${sortKey == 'newest'} ? 'is-active'"
                       th:href="@{/archives} + ${qNoSort}"
-                    >
                       th:text="#{archives.sortNewest}"
-                    </a>
+                    ></a>
                     <a
                       class="repository-filter-option"
                       th:classappend="${sortKey == 'oldest'} ? 'is-active'"
                       th:href="@{/archives} + ${sortHead} + 'sort=oldest'"
-                    >
                       th:text="#{archives.sortOldest}"
-                    </a>
+                    ></a>
                     <a
                       class="repository-filter-option"
                       th:classappend="${sortKey == 'title'} ? 'is-active'"
                       th:href="@{/archives} + ${sortHead} + 'sort=title'"
-                    >
                       th:text="#{archives.sortTitle}"
-                    </a>
+                    ></a>
                   </div>
                 </div>
               </div>
 
-              <ul class="repository-list">
+              <!-- 搜索状态条：仅在搜索模式下出现，说明当前列表是搜索结果 -->
+              <div
+                class="repository-search-status"
+                data-archive-search-status
+                role="status"
+                aria-live="polite"
+                hidden
+              >
+                <span data-archive-search-status-text></span>
+                <button
+                  class="repository-search-exit"
+                  type="button"
+                  data-archive-search-exit
+                  th:text="#{archives.exitSearch}"
+                >
+                  退出搜索
+                </button>
+              </div>
+
+              <ul class="repository-list" data-archive-search-list>
                 <include src="repository-post-item.html"></include>
                 <li class="repository-empty" th:if="${posts.total == 0}">
                   <span th:text="#{archives.noMatch}">没有符合条件的文章</span>
@@ -223,7 +262,11 @@
                 </li>
               </ul>
 
-              <nav class="pagination" th:if="${posts.hasPrevious() || posts.hasNext()}">
+              <nav
+                class="pagination"
+                data-archive-pagination
+                th:if="${posts.hasPrevious() || posts.hasNext()}"
+              >
                 <a
                   th:if="${posts.hasPrevious()}"
                   th:href="@{/archives} + ${prevQuery}"
@@ -247,6 +290,22 @@
                   >下一页</a
                 >
               </nav>
+
+              <!--
+                分类 / 标签的显示名与永久链接映射。
+                搜索接口只返回 metadata.name，前端靠这张表把搜索结果里的
+                分类、标签还原成可点击的名称与链接。
+              -->
+              <div class="repository-taxonomy" data-archive-taxonomy hidden>
+                <span
+                  th:each="cat : ${categoryFinder.listAll()}"
+                  th:attr="data-kind=category, data-name=${cat.metadata.name}, data-display=${cat.spec.displayName}, data-permalink=${cat.status.permalink}"
+                ></span>
+                <span
+                  th:each="tg : ${tagFinder.listAll()}"
+                  th:attr="data-kind=tag, data-name=${tg.metadata.name}, data-display=${tg.spec.displayName}, data-permalink=${tg.status.permalink}"
+                ></span>
+              </div>
             </th:block>
           </th:block>
         </th:block>

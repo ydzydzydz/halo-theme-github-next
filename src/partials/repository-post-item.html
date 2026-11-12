@@ -41,7 +41,7 @@
       >
       <time
         th:datetime="${post.spec.publishTime}"
-        th:text="|Updated ${#temporals.format(post.spec.publishTime, 'MMM d')}|"
+        th:text="|#{common.updated} ${#temporals.format(post.spec.publishTime, 'MMM d')}|"
       >
         Updated now
       </time>

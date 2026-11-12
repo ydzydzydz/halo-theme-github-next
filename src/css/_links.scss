@@ -127,19 +127,15 @@
   width: 100%;
   min-height: $control-md;
   padding: $space-6 $space-8;
-  border: 1px solid var(--border);
-  border-radius: $radius-md;
-  outline: none;
-  background: var(--canvas);
-  color: var(--fg);
+  /* 与全站其它输入框同一套外观（GitHub 风格） */
+  @include input-field;
   font: inherit;
   font-size: $text-13;
   resize: vertical;
 }
 .link-application-fields input:focus,
 .link-application-fields textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+  @include input-field-focus;
 }
 .link-application-field-wide {
   grid-column: 1 / -1;

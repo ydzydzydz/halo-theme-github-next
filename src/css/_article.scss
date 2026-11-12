@@ -290,17 +290,14 @@
   --halo-cw-base-font-family: #{$font-sans};
   /* 圆角与主题按钮保持一致 */
   --halo-cw-base-rounded: #{$radius-md};
-  /* 聚焦光晕改成中性灰，评论输入框不再整圈泛绿 */
-  --halo-cw-primary-3-color: rgb(31 35 40 / 8%);
+  /* 组件自带的外圈聚焦光晕整个去掉，焦点提示只靠边框变色 */
+  --halo-cw-primary-3-color: transparent;
   --halo-cw-text-1-color: var(--fg);
   --halo-cw-text-2-color: var(--fg-muted);
   --halo-cw-text-3-color: var(--fg-muted);
   --halo-cw-muted-1-color: var(--border);
   --halo-cw-muted-2-color: var(--canvas-subtle);
   --halo-cw-muted-3-color: var(--canvas);
-}
-html[data-color-scheme="dark"] body .post-comments {
-  --halo-cw-primary-3-color: rgb(230 237 243 / 12%);
 }
 .post-comments-header {
   display: flex;
