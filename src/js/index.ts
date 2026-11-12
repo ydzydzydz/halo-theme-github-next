@@ -1,3 +1,6 @@
+import { fetchAllPages } from "./shared/api";
+import { pageLocale, plainTextFromHtml, scrollBehavior, truncateText } from "./shared/dom";
+import { messages, formatMessage } from "./shared/i18n";
 import { setupReadme } from "./shared/readme";
 
 type Post = {
@@ -48,11 +51,6 @@ type Photo = {
   };
 };
 
-type ListResult<T> = {
-  items?: T[];
-  totalPages?: number;
-};
-
 type ContributionKind = "published" | "updated";
 
 type Contribution = {
@@ -69,6 +67,24 @@ type ActivityKind =
   | "moment-published"
   | "photo-added"
   | "tag-created";
+
+/**
+ * 贡献图 / 站点动态模块使用的文案集合。
+ *
+ * 模块的语言有两个来源：
+ * 1. 跟随页面语言（Halo 协商出的 `<html lang>`）；
+ * 2. 后台「动态贡献图开启英文显示」开关打开时固定英文。
+ *
+ * 两种情况都从 i18n 消息表取值，脚本里不写死任何中英文字面量。
+ */
+type ContributionCopy = {
+  heading: string;
+  headingSelected: string;
+  tooltip: string;
+  yearTotal: string;
+  total: string;
+  kinds: Record<ActivityKind, string>;
+};
 
 type SiteActivity = Omit<Contribution, "kind"> & {
   kind: ActivityKind;
@@ -91,9 +107,7 @@ const tagsEndpoint = "/apis/api.content.halo.run/v1alpha1/tags";
 const categoriesEndpoint = "/apis/api.content.halo.run/v1alpha1/categories";
 const momentsEndpoint = "/apis/api.moment.halo.run/v1alpha1/moments";
 const photosEndpoint = "/apis/api.photo.halo.run/v1alpha1/photos";
-const getContributionFormatters = (isChinese: boolean): ContributionFormatters => {
-  const locale = isChinese ? "zh-CN" : "en";
-
+const getContributionFormatters = (locale: string): ContributionFormatters => {
   return {
     month: new Intl.DateTimeFormat(locale, { month: "short" }),
     activityMonth: new Intl.DateTimeFormat(locale, {
@@ -165,46 +179,25 @@ const getRangeDays = ({ start, end }: DateRange) => {
   return days;
 };
 
-const fetchAll = async <T>(endpoint: string) => {
-  const items: T[] = [];
-  let page = 1;
-  let totalPages = 1;
-
-  do {
-    const query = new URLSearchParams({ page: String(page), size: "100" });
-    const response = await fetch(`${endpoint}?${query}`);
-
-    if (!response.ok) {
-      throw new Error(`Unable to load posts: ${response.status}`);
-    }
-
-    const result = (await response.json()) as ListResult<T>;
-    items.push(...(result.items || []));
-    totalPages = Math.max(1, result.totalPages || 1);
-    page += 1;
-  } while (page <= totalPages);
-
-  return items;
-};
-
 const fetchOptional = async <T>(endpoint: string) => {
   try {
-    return await fetchAll<T>(endpoint);
+    const result = await fetchAllPages<T>(endpoint);
+    return result.items;
   } catch {
     return [];
   }
 };
 
-const getMomentTitle = (moment: Moment, isChinese: boolean) => {
-  const container = document.createElement("div");
-  container.innerHTML = moment.spec?.content?.html || moment.spec?.content?.raw || "";
-  const content = container.textContent?.replace(/\s+/g, " ").trim();
+const getMomentTitle = (moment: Moment) => {
+  // 瞬间正文是用户撰写的 HTML，只取纯文本：
+  // 用 DOMParser 解析不会发起任何网络请求，也不会让每条瞬间都跑一遍完整的 DOM 构建。
+  const content = plainTextFromHtml(moment.spec?.content?.html || moment.spec?.content?.raw || "");
 
   if (!content) {
-    return isChinese ? "一条瞬间" : "A moment";
+    return messages.common.noData;
   }
 
-  return content.length > 60 ? `${content.slice(0, 60)}...` : content;
+  return truncateText(content, 60);
 };
 
 const createSiteActivity = (
@@ -228,14 +221,13 @@ const getSiteActivities = (
   tags: ContentTaxonomy[],
   categories: ContentTaxonomy[],
   photos: Photo[],
-  isChinese: boolean,
 ) => {
   const activities: Array<SiteActivity | undefined> = [
     ...posts.map((post) =>
       createSiteActivity(
         post.spec?.publishTime,
         "published",
-        post.spec?.title?.trim() || (isChinese ? "未命名文章" : "Untitled post"),
+        post.spec?.title?.trim() || messages.common.noData,
         post.status?.permalink || "/archives",
       ),
     ),
@@ -243,7 +235,7 @@ const getSiteActivities = (
       createSiteActivity(
         moment.spec?.releaseTime || moment.metadata?.creationTimestamp,
         "moment-published",
-        getMomentTitle(moment, isChinese),
+        getMomentTitle(moment),
         "/moments",
       ),
     ),
@@ -251,7 +243,7 @@ const getSiteActivities = (
       createSiteActivity(
         tag.metadata?.creationTimestamp,
         "tag-created",
-        tag.spec?.displayName?.trim() || (isChinese ? "未命名标签" : "Untitled tag"),
+        tag.spec?.displayName?.trim() || messages.common.noData,
         tag.status?.permalink || "/tags",
       ),
     ),
@@ -259,7 +251,7 @@ const getSiteActivities = (
       createSiteActivity(
         category.metadata?.creationTimestamp,
         "category-created",
-        category.spec?.displayName?.trim() || (isChinese ? "未命名分类" : "Untitled category"),
+        category.spec?.displayName?.trim() || messages.common.noData,
         category.status?.permalink || "/categories",
       ),
     ),
@@ -267,7 +259,7 @@ const getSiteActivities = (
       createSiteActivity(
         photo.metadata?.creationTimestamp,
         "photo-added",
-        photo.spec?.displayName?.trim() || (isChinese ? "未命名图片" : "Untitled photo"),
+        photo.spec?.displayName?.trim() || messages.common.noData,
         photo.spec?.url || photo.status?.permalink || "/photos",
       ),
     ),
@@ -278,25 +270,6 @@ const getSiteActivities = (
     .sort((left, right) => right.date.getTime() - left.date.getTime());
 };
 
-const getActivityLabels = (isChinese: boolean): Record<ActivityKind, string> =>
-  isChinese
-    ? {
-        "category-created": "创建了分类",
-        "moment-published": "发布了瞬间",
-        "photo-added": "添加了图库内容",
-        published: "发布了文章",
-        "tag-created": "创建了标签",
-        updated: "更新了文章",
-      }
-    : {
-        "category-created": "Created a category",
-        "moment-published": "Published a moment",
-        "photo-added": "Added a photo",
-        published: "Published a post",
-        "tag-created": "Created a tag",
-        updated: "Updated a post",
-      };
-
 const activityIcons: Record<ActivityKind, string> = {
   "category-created": "lucide:folder-plus",
   "moment-published": "lucide:message-circle-plus",
@@ -306,10 +279,32 @@ const activityIcons: Record<ActivityKind, string> = {
   updated: "lucide:file-pen-line",
 };
 
+/**
+ * 取贡献图与站点动态使用的文案。
+ *
+ * 语言跟随 Halo 协商出的页面语言（`<html lang>`），与模板里的 `#{...}` 保持一致，
+ * 主题不再提供「强制英文」开关 —— 需要英文时切换站点语言即可。
+ */
+const getContributionCopy = (): ContributionCopy => ({
+  heading: messages.activity.heading,
+  headingSelected: messages.activity.headingSelected,
+  tooltip: messages.activity.tooltip,
+  yearTotal: messages.activity.yearTotal,
+  total: messages.activity.total,
+  kinds: {
+    "category-created": messages.activity.kindCategoryCreated,
+    "moment-published": messages.activity.kindMomentPublished,
+    "photo-added": messages.activity.kindPhotoAdded,
+    published: messages.activity.kindPublished,
+    "tag-created": messages.activity.kindTagCreated,
+    updated: messages.activity.kindUpdated,
+  },
+});
+
 const createActivityItem = (
   activity: SiteActivity,
-  isChinese: boolean,
   displayDateFormatter: Intl.DateTimeFormat,
+  copy: ContributionCopy,
 ) => {
   const item = document.createElement("div");
   item.className = "activity-item";
@@ -321,22 +316,22 @@ const createActivityItem = (
   iconElement.setAttribute("icon", activityIcons[activity.kind]);
   icon.append(iconElement);
 
-  const copy = document.createElement("div");
-  copy.className = "activity-copy";
+  const copy_ = document.createElement("div");
+  copy_.className = "activity-copy";
 
   const heading = document.createElement("h3");
-  heading.textContent = getActivityLabels(isChinese)[activity.kind];
+  heading.textContent = copy.kinds[activity.kind];
 
   const link = document.createElement("a");
   link.href = activity.permalink;
   link.textContent = activity.title;
-  copy.append(heading, link);
+  copy_.append(heading, link);
 
   const time = document.createElement("time");
   time.dateTime = activity.dateKey;
   time.textContent = displayDateFormatter.format(activity.date);
 
-  item.append(icon, copy, time);
+  item.append(icon, copy_, time);
   return item;
 };
 
@@ -349,15 +344,18 @@ const renderActivity = (
   page: number,
   pageSize: number,
   selectedDateKey: string | undefined,
-  isChinese: boolean,
   formatters: ContributionFormatters,
+  copy: ContributionCopy,
 ) => {
   const visible = activities.filter(
     (activity) =>
       (!selectedDateKey || activity.dateKey === selectedDateKey) &&
       activity.date >= range.start &&
       activity.date <= range.end &&
-      activity.date <= new Date() &&
+      // 活动时间统一归一化到当天 12:00，「今天」的基准也要用同一个口径，
+      // 否则上午发布的内容会被精确的 new Date() 过滤掉，
+      // 还会出现「贡献图有今天的方块、动态列表却是空的」。
+      activity.date <= atNoon(new Date()) &&
       (selectedYear === currentYear || activity.date.getFullYear() === selectedYear),
   );
   const totalPages = Math.max(1, Math.ceil(visible.length / pageSize));
@@ -368,13 +366,7 @@ const renderActivity = (
   if (!displayed.length) {
     const empty = document.createElement("p");
     empty.className = "activity-empty";
-    empty.textContent = selectedDateKey
-      ? isChinese
-        ? "该日期暂无站点动态。"
-        : "No site activity on this date."
-      : isChinese
-        ? "这个时间段暂无站点动态。"
-        : "No site activity for this period.";
+    empty.textContent = messages.activity.empty;
     container.append(empty);
     return { currentPage: 1, totalPages: 1, totalItems: 0 };
   }
@@ -400,7 +392,7 @@ const renderActivity = (
 
     section.append(
       month,
-      ...items.map((activity) => createActivityItem(activity, isChinese, formatters.displayDate)),
+      ...items.map((activity) => createActivityItem(activity, formatters.displayDate, copy)),
     );
     container.append(section);
   });
@@ -418,8 +410,8 @@ const renderContributionGraph = (
   currentYear: number,
   selectedDateKey: string | undefined,
   onSelectDate: (dateKey: string) => void,
-  isChinese: boolean,
   formatters: ContributionFormatters,
+  copy: ContributionCopy,
 ) => {
   const days = getRangeDays(range);
   const today = atNoon(new Date());
@@ -447,12 +439,8 @@ const renderContributionGraph = (
   months.replaceChildren();
   total.textContent =
     selectedYear === currentYear
-      ? isChinese
-        ? `过去一年有 ${totalCount} 次站点互动`
-        : `${totalCount} contributions in the last year`
-      : isChinese
-        ? `${selectedYear} 年有 ${totalCount} 次站点互动`
-        : `${totalCount} contributions in ${selectedYear}`;
+      ? formatMessage(copy.total, totalCount)
+      : formatMessage(copy.yearTotal, selectedYear, totalCount);
 
   days.forEach((day) => {
     const key = dateKey(day);
@@ -463,9 +451,12 @@ const renderContributionGraph = (
     const level =
       items.length && maximum ? Math.max(1, Math.ceil((items.length / maximum) * 4)) : 0;
     const titles = items.map(({ title }) => title).join(", ");
-    const description = isChinese
-      ? `${formatters.displayDate.format(day)}有 ${items.length} 次站点互动${titles ? `：${titles}` : ""}`
-      : `${items.length} contribution${items.length === 1 ? "" : "s"} on ${formatters.displayDate.format(day)}${titles ? `: ${titles}` : ""}`;
+    const description = formatMessage(
+      copy.tooltip,
+      formatters.displayDate.format(day),
+      items.length,
+      titles,
+    );
 
     const isSelected = key === selectedDateKey;
     cell.type = "button";
@@ -526,18 +517,20 @@ const setupContributions = async () => {
   const activityLimit = Number.isNaN(configuredLimit)
     ? 6
     : Math.min(Math.max(configuredLimit, 1), 50);
-  const isChinese = root.dataset.contributionLanguage === "zh-CN";
-  const formatters = getContributionFormatters(isChinese);
+  // 贡献图与站点动态跟随 Halo 协商出的页面语言。
+  const locale = pageLocale();
+  const formatters = getContributionFormatters(locale);
+  const copy = getContributionCopy();
 
   try {
     const [posts, moments, tags, categories, photos] = await Promise.all([
-      fetchAll<Post>(postsEndpoint),
+      fetchAllPages<Post>(postsEndpoint).then((result) => result.items),
       fetchOptional<Moment>(momentsEndpoint),
       fetchOptional<ContentTaxonomy>(tagsEndpoint),
       fetchOptional<ContentTaxonomy>(categoriesEndpoint),
       fetchOptional<Photo>(photosEndpoint),
     ]);
-    const siteActivities = getSiteActivities(posts, moments, tags, categories, photos, isChinese);
+    const siteActivities = getSiteActivities(posts, moments, tags, categories, photos);
     const currentYear = new Date().getFullYear();
     const earliestYear = Math.min(
       currentYear,
@@ -567,8 +560,8 @@ const setupContributions = async () => {
           activityPage = 1;
           render();
         },
-        isChinese,
         formatters,
+        copy,
       );
       const pageResult = renderActivity(
         activity,
@@ -579,8 +572,8 @@ const setupContributions = async () => {
         activityPage,
         activityLimit,
         selectedDateKey,
-        isChinese,
         formatters,
+        copy,
       );
       activityPage = pageResult.currentPage;
       pagination.hidden = pageResult.totalPages <= 1;
@@ -591,11 +584,9 @@ const setupContributions = async () => {
       if (selectedDateKey) {
         const [year, month, day] = selectedDateKey.split("-").map(Number);
         const selectedDate = formatters.selectedDate.format(new Date(year, month - 1, day, 12));
-        activityHeading.textContent = isChinese
-          ? `${selectedDate}站点动态`
-          : `Site activity on ${selectedDate}`;
+        activityHeading.textContent = formatMessage(copy.headingSelected, selectedDate);
       } else {
-        activityHeading.textContent = isChinese ? "站点动态" : "Site activity";
+        activityHeading.textContent = copy.heading;
       }
       years.querySelectorAll("button").forEach((button) => {
         const isActive = Number((button as HTMLButtonElement).dataset.year) === selectedYear;
@@ -621,18 +612,21 @@ const setupContributions = async () => {
     previousButton.addEventListener("click", () => {
       activityPage -= 1;
       render();
-      activityHeading.scrollIntoView({ behavior: "smooth", block: "start" });
+      activityHeading.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
     });
     nextButton.addEventListener("click", () => {
       activityPage += 1;
       render();
-      activityHeading.scrollIntoView({ behavior: "smooth", block: "start" });
+      activityHeading.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
     });
 
     render();
   } catch {
-    total.textContent = isChinese ? "无法加载贡献图" : "Contribution activity unavailable";
-    activity.innerHTML = `<p class="activity-empty">${isChinese ? "无法加载站点动态。" : "Unable to load site activity."}</p>`;
+    total.textContent = messages.activity.failed;
+    const failed = document.createElement("p");
+    failed.className = "activity-empty";
+    failed.textContent = messages.activity.failed;
+    activity.replaceChildren(failed);
   }
 };
 

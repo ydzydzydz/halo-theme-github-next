@@ -13,7 +13,9 @@ export default defineConfig({
     insertFinalNewline: true,
     sortImports: {},
     sortTailwindcss: {},
-    ignorePatterns: [".agents"],
+    // 消息产物由 scripts/gen-messages.mjs 依据 i18n/*.properties 生成，
+    // 格式由生成脚本负责，不参与 prettier 格式化，避免两边反复改写。
+    ignorePatterns: [".agents", "src/js/shared/i18n.generated.ts", "src/partials/messages.html"],
   },
   staged: {
     // The lint task aborts when the staged set contains no JS/TS file

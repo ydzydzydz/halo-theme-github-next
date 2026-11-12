@@ -8,5 +8,18 @@ indent_style = space
 indent_size = 2
 end_of_line = lf
 charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.md]
+# Markdown 行尾两个空格表示换行，不能被裁剪
 trim_trailing_whitespace = false
-insert_final_newline = false
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.sh]
+indent_size = 2
+
+[*.{html,ts,scss,css}]
+indent_size = 2

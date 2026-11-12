@@ -1,4 +1,5 @@
 @use "tokens" as *;
+@use "mixins" as *;
 
 // ---------------------------------------------------------------------------
 // 组件基座
@@ -25,7 +26,7 @@
   border: 1px solid var(--border);
   border-radius: $radius-pill;
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
 }
 
 // 圆形头像
@@ -38,19 +39,69 @@
 
 // 页面头部与正文之间的间距
 %hero-gap {
-  margin-bottom: $space-lg;
+  margin-bottom: $space-16;
 }
 
 // 头部内容更紧凑时使用
 %hero-gap-tight {
-  margin-bottom: 2px;
+  margin-bottom: $space-2;
 }
 
 // 悬停时高亮为强调色
+// 用 --accent-hover 而不是 --accent：亮色下强调色悬停要更沉一档，
+// 暗色下要更亮一档，否则hover 前后完全看不出反馈。
 %hover-accent {
   &:hover {
-    color: var(--accent);
+    color: var(--accent-hover);
   }
+}
+
+// ---------------------------------------------------------------------------
+// 空状态
+//
+// 「这里还没有内容」在站内出现了 7 处：友链 / 瞬间 / 照片、分类、标签、
+// 归档、贡献图、豆瓣、业务页。以前每处各写一遍，居中方式、间距、字号都不同，
+// 页面之间来回切换能明显看出风格不统一。这里抽成两个基座：
+//
+//   %empty-state       图标 + 标题 + 说明的居中大块（整页级别的列表用）
+//   %empty-state-text  一行灰字的轻量提示（侧栏、内嵌区域用）
+//
+// 各处只写自己与基座不同的部分（虚线边框、额外留白……）。
+// ---------------------------------------------------------------------------
+
+%empty-state {
+  display: grid;
+  padding: $space-32;
+  place-items: center;
+  align-content: center;
+  gap: $space-8;
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+%empty-state-icon {
+  @include icon-size(32px);
+  color: var(--fg-muted);
+}
+
+%empty-state-title {
+  margin: 0;
+  color: var(--fg);
+  font-size: $text-16;
+  font-weight: 600;
+}
+
+%empty-state-text {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: $text-14;
+}
+
+// 轻量提示：没有图标也没有标题，就是一行灰字
+// 外边距留给各处自己决定（有的位置靠浏览器默认的 <p> 边距就够）
+%empty-state-text-inline {
+  color: var(--fg-muted);
+  font-size: $text-14;
 }
 
 // ---------------------------------------------------------------------------
@@ -62,18 +113,18 @@
 
 .page-hero {
   display: flex;
-  padding: 16px;
+  padding: $space-16;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: $space-16;
   @extend %surface-card;
   animation: links-fade-up 0.28s ease both;
 }
 
 .eyebrow {
-  margin: 0 0 4px;
+  margin: 0 0 $space-4;
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -82,24 +133,24 @@
 .page-hero h1 {
   margin: 0;
   color: var(--fg);
-  font-size: 20px;
+  font-size: $text-20;
   line-height: 1.25;
   font-weight: 600;
 }
 
 .page-hero p:last-child {
   max-width: 560px;
-  margin: 6px 0 0;
+  margin: $space-6 0 0;
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: $text-13;
 }
 
 .page-hero-count {
   @extend %pill;
   min-width: max-content;
-  height: 28px;
-  padding: 0 10px;
-  gap: 4px;
+  height: $control-sm;
+  padding: 0 $space-10;
+  gap: $space-4;
   font-weight: 500;
 }
 

@@ -6,12 +6,17 @@
   "author": "ydzydzydz",
   "type": "module",
   "scripts": {
-    "build": "tsc && vp build && theme-package",
-    "build-only": "tsc && vp build",
+    "build": "node scripts/gen-messages.mjs && node scripts/sync-version.mjs && node scripts/clean-build.mjs && tsc && vp build && theme-package",
+    "build-only": "node scripts/gen-messages.mjs && tsc && vp build",
+    "clean": "node scripts/clean-build.mjs",
     "dev": "vp build --watch",
-    "check": "vp check --fix",
+    "check": "node scripts/gen-messages.mjs --check && node scripts/check-i18n.mjs && node scripts/check-js-i18n.mjs && vp check",
+    "check:fix": "vp check --fix",
+    "lint": "vp lint",
     "format": "vp fmt",
     "prepare": "vp config",
+    "gen:messages": "node scripts/gen-messages.mjs",
+    "version:sync": "node scripts/sync-version.mjs",
     "skills:update": "npx skills update"
   },
   "dependencies": {
@@ -25,8 +30,8 @@
     "@types/node": "18.11.9",
     "sass": "^1.108.1",
     "typescript": "^5.9.3",
-    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
-    "vite-plus": "latest"
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.1.19",
+    "vite-plus": "0.1.19"
   },
   "packageManager": "pnpm@10.33.0",
   "pnpm": {
@@ -34,8 +39,7 @@
       "esbuild"
     ],
     "overrides": {
-      "vite": "npm:@voidzero-dev/vite-plus-core@latest",
-      "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
+      "vite": "npm:@voidzero-dev/vite-plus-core@0.1.19"
     }
   }
 }

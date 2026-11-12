@@ -13,7 +13,7 @@
   </template>
 
   <section class="love-page" th:style="|--love-wallpaper-image: url('${coverImage}')|">
-    <section class="love-hero" aria-label="情侣头像">
+    <section class="love-hero" th:attr="aria-label=#{love.headline}">
       <div class="love-hero-inner">
         <div class="love-people-card">
           <div class="love-person">
@@ -23,23 +23,23 @@
               th:href="${leftProfileUrl}"
               target="_blank"
               rel="noopener noreferrer"
-              th:aria-label="|打开 ${couple.left_name()} 的链接|"
+              th:aria-label="|#{love.openLink(${couple.left_name()})}|"
             >
               <img
                 class="love-avatar"
                 th:src="${leftAvatar}"
-                th:alt="${couple.left_name() + ' 的头像'}"
+                th:alt="#{love.avatarAlt(${couple.left_name()})}"
               />
             </a>
             <img
               class="love-avatar"
               th:unless="${not #strings.isEmpty(leftProfileUrl)}"
               th:src="${leftAvatar}"
-              th:alt="${couple.left_name() + ' 的头像'}"
+              th:alt="#{love.avatarAlt(${couple.left_name()})}"
             />
             <span th:text="${couple.left_name()}">我们</span>
           </div>
-          <span class="love-page-heart" aria-label="相爱">
+          <span class="love-page-heart" th:attr="aria-label=#{love.heartLabel}">
             <iconify-icon icon="octicon:heart-fill-16" aria-hidden="true"></iconify-icon>
           </span>
           <div class="love-person">
@@ -49,19 +49,19 @@
               th:href="${rightProfileUrl}"
               target="_blank"
               rel="noopener noreferrer"
-              th:aria-label="|打开 ${couple.right_name()} 的链接|"
+              th:aria-label="|#{love.openLink(${couple.right_name()})}|"
             >
               <img
                 class="love-avatar"
                 th:src="${rightAvatar}"
-                th:alt="${couple.right_name() + ' 的头像'}"
+                th:alt="#{love.avatarAlt(${couple.right_name()})}"
               />
             </a>
             <img
               class="love-avatar"
               th:unless="${not #strings.isEmpty(rightProfileUrl)}"
               th:src="${rightAvatar}"
-              th:alt="${couple.right_name() + ' 的头像'}"
+              th:alt="#{love.avatarAlt(${couple.right_name()})}"
             />
             <span th:text="${couple.right_name()}">彼此</span>
           </div>
@@ -86,19 +86,17 @@
     <section
       class="love-timer-panel"
       id="love-timer"
-      th:attr="data-start=${couple.started_at()}"
+      th:attr=" data-start=${couple.started_at()}"
       aria-live="polite"
     >
-      <span class="love-timer-caption">这是我们一起走过的</span>
+      <span class="love-timer-caption" th:text="#{love.togetherCaption}">这是我们一起走过的</span>
       <div class="love-timer">
-        <span><b data-unit="days">0</b><small>天</small></span>
-        <span><b data-unit="hours">0</b><small>时</small></span>
-        <span><b data-unit="minutes">0</b><small>分</small></span>
-        <span><b data-unit="seconds">0</b><small>秒</small></span>
+        <span><b data-unit="days">0</b><small th:text="#{love.unitDays}">天</small></span>
+        <span><b data-unit="hours">0</b><small th:text="#{love.unitHours}">时</small></span>
+        <span><b data-unit="minutes">0</b><small th:text="#{love.unitMinutes}">分</small></span>
+        <span><b data-unit="seconds">0</b><small th:text="#{love.unitSeconds}">秒</small></span>
       </div>
-      <p class="love-page-message" th:text="${couple.message()}">
-        愿每一个平常的日子，都有彼此相伴。
-      </p>
+      <p class="love-page-message" th:text="${couple.message()}">th:text="#{page.loveMessage}"</p>
     </section>
   </section>
 
@@ -117,7 +115,7 @@
           seconds: Math.floor(diff / 1000) % 60,
         };
         Object.keys(values).forEach(function (unit) {
-          var node = timer.querySelector('[data-unit="' + unit + '"]');
+          var node = timer.querySelector('[ data-unit="' + unit + '"]');
           if (node) node.textContent = String(values[unit]);
         });
       }

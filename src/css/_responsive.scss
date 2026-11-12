@@ -1,6 +1,16 @@
 @use "tokens" as *;
 @use "mixins" as *;
+
+/* 常规屏（视口 ≤ 1360px）：主栅格与侧栏一起收窄。
+   宽屏（> 1360px）用的是 _base.scss 里的默认档：栅格 1360px + 侧栏 296px。
+   以前两种档位的栅格宽度都被 1280px 卡死，视口越过 1360px 时侧栏变宽、
+   内容列反而窄 40px —— 窗口越大正文越窄。现在宽屏的栅格会跟着放宽，
+   内容列宽度单调递增，不再倒挂。 */
 @include below($breakpoint-xl) {
+  :root {
+    --shell-max-width: 1280px;
+  }
+
   .github-shell {
     grid-template-columns: 256px minmax(0, 1fr);
     padding-right: var(--shell-pad-x);
@@ -32,9 +42,9 @@
     height: auto;
     flex: none;
     grid-template-columns: 36px minmax(0, 1fr) auto;
-    gap: 8px;
-    padding: 8px;
-    box-shadow: 0 8px 24px rgb(31 35 40 / 14%);
+    gap: $space-8;
+    padding: $space-8;
+    box-shadow: var(--shadow-md);
   }
 
   .music-player--header .music-player-cover {
@@ -45,17 +55,17 @@
 
   .music-player--header .music-player-info {
     display: grid;
-    gap: 2px;
+    gap: $space-2;
   }
 
   .music-player--header .music-player-info strong {
     display: block;
-    font-size: 12px;
+    font-size: $text-12;
   }
 
   .music-player--header .music-player-info span {
     display: block;
-    font-size: 11px;
+    font-size: $text-12;
   }
 
   .music-player--header .music-player-info .music-player-lyrics {
@@ -63,7 +73,7 @@
   }
 
   .music-player--header .music-player-controls {
-    gap: 2px;
+    gap: $space-2;
   }
 
   .music-player--header .music-player-controls button {
@@ -83,7 +93,7 @@
 
   .github-shell {
     grid-template-columns: 220px minmax(0, 1fr);
-    padding: 24px var(--shell-pad-x) 40px;
+    padding: $space-24 var(--shell-pad-x) $space-40;
   }
 
   .profile-avatar {
@@ -114,7 +124,7 @@
   .repository-list-item {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: $space-12;
   }
 
   /* 豆瓣条目保留「封面在左」的横向排布，不跟随归档页整宽堆叠 */
@@ -132,7 +142,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 10px 16px;
+    gap: $space-10 $space-16;
     padding-top: 0;
   }
 
@@ -154,7 +164,7 @@
     position: static;
     width: auto;
     order: -1;
-    gap: 8px;
+    gap: $space-8;
     overflow-x: auto;
   }
 
@@ -169,7 +179,7 @@
 
   .photo-albums {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 36px 28px;
+    gap: $space-36 $space-28;
   }
 
   .post-side-actions {
@@ -179,7 +189,7 @@
     width: 42px;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: $space-8;
     transform: none;
   }
 
@@ -210,29 +220,29 @@
 
   // README 卡片在窄屏下收紧内边距，避免长行溢出
   .readme-card-body {
-    padding: 16px;
+    padding: $space-16;
   }
 
   .readme-content h1 {
-    font-size: 20px;
+    font-size: $text-20;
   }
 
   .readme-content h2 {
-    font-size: 17px;
+    font-size: $text-16;
   }
 }
-@include below($breakpoint-sm) {
+@include below($breakpoint-md) {
   .love-hero {
     min-height: 320px;
   }
 
   .love-hero-inner {
-    padding: 28px 12px;
+    padding: $space-28 $space-12;
   }
 
   .love-people-card {
-    padding: 16px 12px;
-    gap: 8px;
+    padding: $space-16 $space-12;
+    gap: $space-8;
   }
 
   .love-avatar {
@@ -241,28 +251,28 @@
   }
 
   .love-person > span {
-    font-size: 16px;
+    font-size: $text-16;
   }
 
   .love-timer-panel {
-    padding-top: 28px;
-    padding-bottom: 32px;
-    padding-right: 12px;
-    padding-left: 12px;
+    padding-top: $space-28;
+    padding-bottom: $space-32;
+    padding-right: $space-12;
+    padding-left: $space-12;
   }
 
   .love-timer {
     flex-wrap: wrap;
-    gap: 0 8px;
+    gap: 0 $space-8;
   }
 
   .header-inner {
     height: 56px;
-    gap: 10px;
+    gap: $space-10;
   }
 
   .site-title {
-    font-size: 14px;
+    font-size: $text-14;
   }
 
   .octo-mark,
@@ -270,7 +280,7 @@
   .header-avatar,
   .header-avatar img {
     width: 32px;
-    height: 32px;
+    height: $control-md;
   }
 
   .wide-icon {
@@ -282,48 +292,53 @@
   }
 
   .profile-tabs a {
-    font-size: 14px;
+    font-size: $text-14;
   }
 
   .site-announcement-inner {
-    padding: 10px 16px;
+    padding: $space-10 $space-16;
   }
 
   .github-shell {
     grid-template-columns: 1fr;
-    padding: 24px var(--shell-pad-x) 40px;
+    padding: $space-24 var(--shell-pad-x) $space-40;
   }
 
   .profile-card {
     position: static;
   }
 
-  .profile-avatar {
-    width: 160px;
+  .profile-avatar-wrap {
+    width: fit-content;
     margin-right: auto;
     margin-left: auto;
+    margin-bottom: $space-14;
+  }
+
+  .profile-avatar {
+    width: 160px;
   }
 
   .profile-status {
-    margin: -44px auto 20px;
-    transform: translateX(61px);
+    left: calc(100% - #{$space-4 + 38px});
+    bottom: $space-6;
   }
 
   .profile-name {
-    font-size: 24px;
+    font-size: $text-24;
     text-align: center;
   }
 
   .profile-username {
-    font-size: 20px;
+    font-size: $text-20;
     text-align: center;
   }
 
   .category-directory-card {
     min-height: 0;
-    padding: 16px 0;
+    padding: $space-16 0;
     grid-template-columns: 112px minmax(0, 1fr);
-    gap: 14px;
+    gap: $space-14;
   }
 
   .category-directory-cover {
@@ -332,16 +347,16 @@
   }
 
   .category-directory-title {
-    font-size: 18px;
+    font-size: $text-18;
   }
 
   .category-directory-description {
-    font-size: 13px;
+    font-size: $text-13;
   }
 
   .category-directory-metrics {
-    gap: 6px 10px;
-    font-size: 12px;
+    gap: $space-6 $space-10;
+    font-size: $text-12;
   }
 
   .page-hero,
@@ -378,7 +393,7 @@
   }
 
   .photo-lightbox {
-    padding: 56px 12px 76px;
+    padding: $space-56 $space-12 $space-76;
   }
 
   .photo-lightbox-image {
@@ -403,11 +418,11 @@
 
   .photo-albums {
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: $space-28;
   }
 
   .photo-album-meta strong {
-    font-size: 16px;
+    font-size: $text-16;
   }
 
   .photo-card-title {
@@ -415,11 +430,11 @@
   }
 
   .contribution-panel {
-    padding: 12px;
+    padding: $space-12;
   }
 
   .message-stage {
-    height: 300px;
+    height: $message-stage-height-sm;
   }
 
   .floating-message {
@@ -432,7 +447,7 @@
   }
 
   .footer-inner {
-    padding: 20px 16px;
+    padding: $space-20 $space-16;
   }
 
   .footer-halo:not(:empty)::before {
@@ -445,6 +460,6 @@
 
   .footer-primary {
     flex-direction: column;
-    gap: 4px;
+    gap: $space-4;
   }
 }

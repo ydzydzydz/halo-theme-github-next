@@ -1,3 +1,7 @@
+import { fetchAllPages } from "./shared/api";
+import { createPolling, pageLocale, plainTextFromHtml, prefersReducedMotion } from "./shared/dom";
+import { messages, formatMessage } from "./shared/i18n";
+
 type CommentOwner = {
   avatar?: string;
   displayName?: string;
@@ -16,14 +20,8 @@ type HaloComment = {
   };
 };
 
-type CommentList = {
-  items?: HaloComment[];
-  total?: number;
-  totalPages?: number;
-};
-
 const commentEndpoint = "/apis/api.halo.run/v1alpha1/comments";
-const commentDateFormatter = new Intl.DateTimeFormat("zh-CN", {
+const commentDateFormatter = new Intl.DateTimeFormat(pageLocale(), {
   day: "numeric",
   hour: "2-digit",
   minute: "2-digit",
@@ -31,49 +29,35 @@ const commentDateFormatter = new Intl.DateTimeFormat("zh-CN", {
 });
 
 const getCommentText = (comment: HaloComment) => {
-  const container = document.createElement("div");
-  container.innerHTML = comment.spec?.content || "";
-  return container.textContent?.replace(/\s+/g, " ").trim() || "留下一条消息";
+  // 用户撰写的 HTML 只取纯文本：用 DOMParser 解析不会发起任何网络请求，
+  // 避免一条评论里的 <img> 让访客浏览器去请求任意外部地址。
+  return plainTextFromHtml(comment.spec?.content || "") || messages.message.empty;
 };
 
 const fetchComments = async (name: string) => {
-  const comments: HaloComment[] = [];
-  let page = 1;
-  let totalPages = 1;
-
-  do {
-    const query = new URLSearchParams({
+  const result = await fetchAllPages<HaloComment>(commentEndpoint, {
+    params: {
       group: "content.halo.run",
       kind: "SinglePage",
       name,
-      page: String(page),
-      size: "100",
       version: "alpha1",
-    });
-    const response = await fetch(`${commentEndpoint}?${query}`, { cache: "no-store" });
+    },
+  });
 
-    if (!response.ok) {
-      throw new Error(`Unable to load comments: ${response.status}`);
-    }
-
-    const result = (await response.json()) as CommentList;
-    comments.push(...(result.items || []));
-    totalPages = Math.max(1, result.totalPages || 1);
-    page += 1;
-  } while (page <= totalPages);
-
-  return comments.filter((comment) => comment.spec?.approved !== false && !comment.spec?.hidden);
+  return result.items.filter(
+    (comment) => comment.spec?.approved !== false && !comment.spec?.hidden,
+  );
 };
 
 const commentKey = (comment: HaloComment) =>
   comment.metadata?.name || `${comment.owner?.displayName}:${comment.spec?.creationTime}`;
 
-const createMessage = (comment: HaloComment, lane: number, delay: number) => {
+const createMessage = (comment: HaloComment, lane: number, delay: number, duration: number) => {
   const message = document.createElement("div");
   message.className = "floating-message";
   message.dataset.commentKey = commentKey(comment);
   message.style.setProperty("--message-lane", String(lane));
-  message.style.setProperty("--message-duration", `${18 + Math.floor(Math.random() * 5)}s`);
+  message.style.setProperty("--message-duration", `${duration}s`);
   message.style.setProperty("--message-delay", `${delay}s`);
 
   const avatar = document.createElement("span");
@@ -86,14 +70,14 @@ const createMessage = (comment: HaloComment, lane: number, delay: number) => {
     image.loading = "lazy";
     avatar.append(image);
   } else {
-    avatar.textContent = (comment.owner?.displayName || "访").slice(0, 1);
+    avatar.textContent = (comment.owner?.displayName || messages.message.guest).slice(0, 1);
   }
 
   const body = document.createElement("span");
   body.className = "floating-message-body";
 
   const owner = document.createElement("strong");
-  owner.textContent = comment.owner?.displayName || "访客";
+  owner.textContent = comment.owner?.displayName || messages.message.guest;
 
   const content = document.createElement("span");
   content.textContent = getCommentText(comment);
@@ -141,18 +125,36 @@ const setupMessageWall = () => {
     }
   };
 
+  const setStatus = (text: string) => {
+    stage.replaceChildren(status);
+    status.hidden = false;
+    // 模板结构可能变化，这里不假定一定存在 span。
+    const label = status.querySelector("span");
+    if (label) {
+      label.textContent = text;
+    } else {
+      status.textContent = text;
+    }
+  };
+
+  // 轮播用的定时器，刷新列表时统一清理，避免旧定时器替换掉已经不在舞台上的留言。
+  const timers = new Set<number>();
+  const clearTimers = () => {
+    timers.forEach((timer) => window.clearTimeout(timer));
+    timers.clear();
+  };
+
   let signature = "";
 
   const refresh = async () => {
     try {
       const comments = await fetchComments(name);
-      setCount(String(comments.length), "条留言");
+      setCount("", formatMessage(messages.message.count, comments.length));
 
       if (!comments.length) {
         signature = "";
-        stage.replaceChildren(status);
-        status.hidden = false;
-        status.querySelector("span")!.textContent = "还没有留言，来写下第一条吧。";
+        clearTimers();
+        setStatus(messages.message.empty);
         return;
       }
 
@@ -165,48 +167,49 @@ const setupMessageWall = () => {
       }
 
       signature = nextSignature;
+      clearTimers();
       const messageCount = comments.length === 1 ? 1 : Math.min(4, comments.length - 1);
       const initialComments = [...comments].sort(() => Math.random() - 0.5).slice(0, messageCount);
       const createLoopingMessage = (comment: HaloComment, index: number): HTMLElement => {
         const lane =
           messageCount === 1 ? 2 : Math.round((index * 5) / Math.max(1, messageCount - 1));
-        const message = createMessage(comment, lane, index * 2.5);
+        const duration = 18 + Math.floor(Math.random() * 5);
+        const message = createMessage(comment, lane, index * 2.5, duration);
 
-        message.addEventListener("animationend", () => {
-          const activeKeys = new Set(
-            Array.from(stage.querySelectorAll<HTMLElement>("[data-comment-key]"))
-              .filter((item) => item !== message)
-              .map((item) => item.dataset.commentKey || ""),
-          );
-          const nextComment = randomComment(comments, activeKeys);
-          message.replaceWith(createLoopingMessage(nextComment, index));
-        });
+        // 轮播由定时器驱动，不挂在 CSS 的 animationend 事件上：
+        // 「减少动效」模式会把动画置为 none，事件永不触发，留言墙会退化成一次性静态列表。
+        if (!prefersReducedMotion()) {
+          const timer = window.setTimeout(() => {
+            timers.delete(timer);
+            const activeKeys = new Set(
+              Array.from(stage.querySelectorAll<HTMLElement>("[data-comment-key]"))
+                .filter((item) => item !== message)
+                .map((item) => item.dataset.commentKey || ""),
+            );
+            const nextComment = randomComment(comments, activeKeys);
+            message.replaceWith(createLoopingMessage(nextComment, index));
+          }, duration * 1000);
+
+          timers.add(timer);
+        }
 
         return message;
       };
-      const messages = initialComments.map((comment, index) =>
+      const wallMessages = initialComments.map((comment, index) =>
         createLoopingMessage(comment, index),
       );
-      stage.replaceChildren(...messages);
+      stage.replaceChildren(...wallMessages);
     } catch {
-      setCount("", "留言暂不可用");
-      stage.replaceChildren(status);
-      status.hidden = false;
-      status.querySelector("span")!.textContent = "留言加载失败，请稍后重试。";
+      setCount("", messages.message.failed);
+      clearTimers();
+      setStatus(messages.message.failed);
     }
   };
 
   void refresh();
-  window.setInterval(() => {
-    if (!document.hidden) {
-      void refresh();
-    }
-  }, 30_000);
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-      void refresh();
-    }
-  });
+
+  // 后台标签页不轮询，回到前台时立即补一次。
+  createPolling(() => void refresh(), 30_000);
 };
 
 setupMessageWall();

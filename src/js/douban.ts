@@ -1,5 +1,8 @@
 import "iconify-icon";
+import { scrollBehavior } from "./shared/dom";
+import { messages, formatMessage } from "./shared/i18n";
 import { setupRepositoryFilters } from "./shared/repository-filters";
+import { safeHref, safeSrc } from "./shared/url";
 
 type DoubanType = {
   key: string;
@@ -33,9 +36,9 @@ type DoubanList = {
 const apiBase = "/apis/api.douban.moony.la/v1alpha1/doubanmovies";
 
 const statusLabels: Record<string, string> = {
-  mark: "想看",
-  doing: "在看",
-  done: "看过",
+  mark: messages.douban.statusWant,
+  doing: messages.douban.statusDoing,
+  done: messages.douban.statusDone,
 };
 
 const statusOrder = ["mark", "doing", "done"];
@@ -43,11 +46,11 @@ const statusOrder = ["mark", "doing", "done"];
 // 插件 DoubanRequest.DoubanType 支持的完整分类维度。
 // 接口只返回有数据的分类，这里补齐其余分类，保证分类维度完整。
 const typeCatalog: DoubanType[] = [
-  { key: "movie", name: "电影" },
-  { key: "book", name: "图书" },
-  { key: "music", name: "音乐" },
-  { key: "game", name: "游戏" },
-  { key: "drama", name: "舞台剧" },
+  { key: "movie", name: messages.douban.movie },
+  { key: "book", name: messages.douban.book },
+  { key: "music", name: messages.douban.music },
+  { key: "game", name: messages.douban.genreGame },
+  { key: "drama", name: messages.douban.genreDrama },
 ];
 
 const pageSize = 12;
@@ -142,8 +145,14 @@ const createStars = (score?: string) => {
   const value = Number.parseInt(score || "", 10);
   const filled = Number.isFinite(value) ? Math.min(Math.max(value, 0), 5) : 0;
 
-  wrapper.setAttribute("title", filled ? `我的评分 ${filled} 星` : "未评分");
-  wrapper.setAttribute("aria-label", filled ? `我的评分 ${filled} 星` : "未评分");
+  wrapper.setAttribute(
+    "title",
+    filled ? formatMessage(messages.douban.myRating, filled) : messages.douban.unrated,
+  );
+  wrapper.setAttribute(
+    "aria-label",
+    filled ? formatMessage(messages.douban.myRating, filled) : messages.douban.unrated,
+  );
 
   for (let index = 1; index <= 5; index += 1) {
     const icon = createIcon(index <= filled ? "octicon:star-fill-16" : "octicon:star-16");
@@ -164,7 +173,8 @@ const createListItem = (item: DoubanItem) => {
 
   const cover = document.createElement("a");
   cover.className = "douban-list-cover";
-  cover.href = item.link || "#";
+  // 条目链接来自豆瓣插件，赋值前先做协议校验，避免 javascript: 之类的地址被点击执行。
+  cover.href = safeHref(item.link);
   cover.target = "_blank";
   cover.rel = "noreferrer";
   cover.setAttribute("aria-hidden", "true");
@@ -172,7 +182,10 @@ const createListItem = (item: DoubanItem) => {
 
   if (item.poster) {
     const image = document.createElement("img");
-    image.src = item.poster;
+    const poster = safeSrc(item.poster);
+    if (poster) {
+      image.src = poster;
+    }
     image.alt = "";
     image.loading = "lazy";
     cover.append(image);
@@ -183,10 +196,12 @@ const createListItem = (item: DoubanItem) => {
   const title = createElement("h2", "repository-list-title");
 
   const titleLink = document.createElement("a");
-  titleLink.href = item.link || "#";
+  titleLink.href = safeHref(item.link);
   titleLink.target = "_blank";
   titleLink.rel = "noreferrer";
-  titleLink.textContent = (item.name || "未命名").replace(/[\u200e\u200f]/g, "").trim();
+  titleLink.textContent = (item.name || messages.common.noData)
+    .replace(/[\u200e\u200f]/g, "")
+    .trim();
   title.append(titleLink);
   heading.append(title);
 
@@ -203,7 +218,7 @@ const createListItem = (item: DoubanItem) => {
   }
 
   const desc = createElement("p", "repository-list-desc");
-  desc.textContent = (item.favesRemark || item.cardSubtitle || "暂无简介").trim();
+  desc.textContent = (item.favesRemark || item.cardSubtitle || messages.common.noSummary).trim();
   copy.append(heading, desc);
 
   const meta = createElement("div", "repository-list-meta");
@@ -212,7 +227,7 @@ const createListItem = (item: DoubanItem) => {
 
   if (!Number.isNaN(score) && score > 0) {
     const scoreBadge = createElement("span", "douban-list-score", score.toFixed(1));
-    scoreBadge.title = `豆瓣评分 ${score.toFixed(1)}`;
+    scoreBadge.title = formatMessage(messages.douban.scoreLabel, score.toFixed(1));
     meta.append(scoreBadge);
   }
 
@@ -229,7 +244,8 @@ const createListItem = (item: DoubanItem) => {
   const markedAt = formatDate(item.favesCreateTime);
 
   if (markedAt) {
-    meta.append(createElement("span", "", `标记于 ${markedAt}`));
+    // 只显示日期本身，避免为了一个前缀再引入一条需要翻译的文案。
+    meta.append(createElement("span", "", markedAt));
   }
 
   copy.append(meta);
@@ -241,7 +257,7 @@ const createListItem = (item: DoubanItem) => {
     createElement(
       "span",
       `douban-list-status douban-list-status--${status || "mark"}`,
-      statusLabels[status] || "未标记",
+      statusLabels[status] || messages.douban.unmarked,
     ),
   );
 
@@ -338,15 +354,21 @@ const syncFilterMenus = () => {
   );
 
   if (typeButton) {
-    typeButton.textContent = state.type ? `类型：${getTypeName(state.type)}` : "类型";
+    typeButton.textContent = state.type
+      ? `${messages.douban.filterByType}: ${getTypeName(state.type)}`
+      : messages.douban.filterByType;
   }
 
   if (statusButton) {
-    statusButton.textContent = state.status ? `状态：${statusLabels[state.status]}` : "状态";
+    statusButton.textContent = state.status
+      ? `${messages.douban.filterByStatus}: ${statusLabels[state.status]}`
+      : messages.douban.filterByStatus;
   }
 
   if (genreButton) {
-    genreButton.textContent = state.genre ? `题材：${state.genre}` : "题材";
+    genreButton.textContent = state.genre
+      ? `${messages.douban.filterByGenre}: ${state.genre}`
+      : messages.douban.filterByGenre;
   }
 
   filters
@@ -363,18 +385,20 @@ const syncFilterMenus = () => {
 const buildFilters = () => {
   const toolbar = createElement("div", "douban-toolbar");
   const filters = createElement("div", "repository-filters");
-  filters.setAttribute("aria-label", "豆瓣筛选");
+  filters.setAttribute("aria-label", messages.douban.filterLabel);
 
-  filters.append(createFilterButton("douban-type", "类型", Boolean(state.type)));
+  filters.append(
+    createFilterButton("douban-type", messages.douban.filterByType, Boolean(state.type)),
+  );
   filters.append(
     createFilterMenu("douban-type", [
-      { label: "全部类型", value: "" },
+      { label: messages.douban.all, value: "" },
       ...state.types.map((type) => ({ label: type.name, value: type.key })),
     ]),
   );
 
   const counts = getStatusCounts();
-  const statusOptions = [{ label: "全部状态", value: "" }];
+  const statusOptions = [{ label: messages.douban.all, value: "" }];
 
   statusOrder.forEach((status) => {
     const count = counts.get(status) || 0;
@@ -389,13 +413,17 @@ const buildFilters = () => {
     });
   });
 
-  filters.append(createFilterButton("douban-status", "状态", Boolean(state.status)));
+  filters.append(
+    createFilterButton("douban-status", messages.douban.filterByStatus, Boolean(state.status)),
+  );
   filters.append(createFilterMenu("douban-status", statusOptions));
 
-  filters.append(createFilterButton("douban-genre", "题材", Boolean(state.genre)));
+  filters.append(
+    createFilterButton("douban-genre", messages.douban.filterByGenre, Boolean(state.genre)),
+  );
   filters.append(
     createFilterMenu("douban-genre", [
-      { label: "全部题材", value: "" },
+      { label: messages.douban.all, value: "" },
       ...state.genres.map((genre) => ({ label: genre, value: genre })),
     ]),
   );
@@ -426,11 +454,11 @@ const buildPagination = (totalPages: number) => {
 
   // 全站统一的翻页约定：上一页 - 当前页 / 总页数 - 下一页，
   // 没有可翻的一侧保持可见但禁用，而不是直接隐藏
-  nodes.push(createNavButton(state.page - 1, "上一页", state.page <= 1));
+  nodes.push(createNavButton(state.page - 1, messages.pagination.previous, state.page <= 1));
 
   nodes.push(createElement("span", "", `${state.page} / ${totalPages}`));
 
-  nodes.push(createNavButton(state.page + 1, "下一页", state.page >= totalPages));
+  nodes.push(createNavButton(state.page + 1, messages.pagination.next, state.page >= totalPages));
 
   return nodes;
 };
@@ -506,13 +534,13 @@ const renderPanel = () => {
   list.dataset.doubanList = "";
   refs.list = list;
 
-  const empty = createEmptyState("暂无记录", "还没有符合当前筛选条件的豆瓣条目。");
+  const empty = createEmptyState(messages.common.noData, messages.douban.empty);
   empty.hidden = true;
   refs.empty = empty;
 
   // 翻页复用归档页的分页组件，位置也放在面板之外，与其他页面保持一致
   const pagination = createElement("nav", "pagination");
-  pagination.setAttribute("aria-label", "豆瓣记录分页");
+  pagination.setAttribute("aria-label", messages.douban.paginationLabel);
   pagination.hidden = true;
   refs.pagination = pagination;
 
@@ -530,7 +558,7 @@ const renderPanel = () => {
     if (Number.isFinite(page) && page !== state.page) {
       state.page = page;
       renderItems();
-      refs.root?.scrollIntoView({ behavior: "smooth", block: "start" });
+      refs.root?.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
     }
   });
 
@@ -551,20 +579,29 @@ const renderPanel = () => {
   renderItems();
 };
 
+// 每次切换类型都会递增序号：只有最后一次请求的结果才允许写进 state，
+// 否则快速切换时「后发先至」会用旧类型的数据覆盖新类型。
+let loadTypeRequestId = 0;
+
 const loadType = async (type: string) => {
+  const requestId = ++loadTypeRequestId;
+  const [list, genres] = await Promise.all([
+    // 列表请求失败必须往上抛，否则「加载失败」会被显示成「没有数据」。
+    fetchJson<DoubanList>(`${apiBase}?page=0&size=100&type=${encodeURIComponent(type)}`),
+    // 题材只是筛选项，拿不到时退化成「全部题材」，不影响主列表。
+    fetchJson<string[]>(`${apiBase}/-/genres?type=${encodeURIComponent(type)}`).catch(() => []),
+  ]);
+
+  if (requestId !== loadTypeRequestId) {
+    // 过期响应直接丢弃。
+    return;
+  }
+
+  // 类型等筛选状态推迟到请求成功后再写入，避免加载期间就切走了旧筛选。
   state.type = type;
   state.status = "";
   state.genre = "";
   state.page = 1;
-  state.items = [];
-
-  const [list, genres] = await Promise.all([
-    fetchJson<DoubanList>(`${apiBase}?page=0&size=100&type=${encodeURIComponent(type)}`).catch(
-      () => ({ items: [] }) as DoubanList,
-    ),
-    fetchJson<string[]>(`${apiBase}/-/genres?type=${encodeURIComponent(type)}`).catch(() => []),
-  ]);
-
   state.items = (list.items || []).sort((left, right) => {
     const leftTime = left.favesCreateTime || "";
     const rightTime = right.favesCreateTime || "";
@@ -573,7 +610,8 @@ const loadType = async (type: string) => {
   state.genres = (genres || []).filter(Boolean);
 
   if (refs.total) {
-    refs.total.textContent = String(state.items.length);
+    // 接口只返回前 100 条，计数要用接口给的总数，否则超过 100 条时会显示成 100。
+    refs.total.textContent = String(list.total ?? state.items.length);
   }
 
   renderPanel();
@@ -596,7 +634,7 @@ const setupDouban = () => {
     refs.pagination = null;
     refs.paginationHost?.replaceChildren();
     refs.paginationHost = null;
-    root.replaceChildren(createEmptyState("豆瓣记录读取失败", message));
+    root.replaceChildren(createEmptyState(messages.toast.loadFailed, message));
   };
 
   root.addEventListener("click", (event) => {
@@ -610,7 +648,7 @@ const setupDouban = () => {
       if (kind === "douban-type") {
         if (value && value !== state.type) {
           void loadType(value).catch(() => {
-            showError("请稍后重试。");
+            showError(messages.toast.networkError);
           });
         }
 
@@ -648,7 +686,7 @@ const setupDouban = () => {
       });
 
       if (!state.types.length) {
-        showError("未获取到可用的豆瓣类型。");
+        showError(messages.douban.failed);
         return;
       }
 
@@ -679,7 +717,7 @@ const setupDouban = () => {
       syncFilterMenus();
       renderItems();
     } catch {
-      showError("请确认已安装并启用豆瓣插件后重试。");
+      showError(messages.douban.failed);
     }
   })();
 };

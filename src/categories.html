@@ -10,19 +10,23 @@
   showBackToTop="true"
 >
   <template name="head">
-    <title th:text="|分类 - ${site.title}|">分类</title>
+    <title th:text="|#{taxonomy.title} - ${site.title}|">分类</title>
   </template>
 
   <section class="categories-page">
     <header class="page-hero categories-hero">
       <div>
         <p class="eyebrow">Categories</p>
-        <h1>分类</h1>
-        <p>按主题整理文章内容，快速浏览每个分类下的专栏与统计信息。</p>
+        <h1 th:text="#{taxonomy.title}">分类</h1>
+        <p th:text="#{categories.intro}">
+          按主题整理文章内容，快速浏览每个分类下的专栏与统计信息。
+        </p>
       </div>
     </header>
 
     <ul class="category-list" data-taxonomy-page-list data-taxonomy-kind="categories"></ul>
-    <p class="taxonomy-list-empty" data-taxonomy-page-empty hidden>暂无分类。</p>
+    <p class="taxonomy-list-empty" data-taxonomy-page-empty hidden th:text="#{categories.empty}">
+      暂无分类。
+    </p>
   </section>
 </include>

@@ -10,7 +10,7 @@
   showBackToTop="true"
 >
   <template name="head">
-    <title th:text="|${title ?: '图库'} - ${site.title}|">图库</title>
+    <title th:with="pageTitle=${title}" th:text="|${pageTitle} - ${site.title}|">图库</title>
   </template>
 
   <section
@@ -20,19 +20,19 @@
     <header class="page-hero photos-hero">
       <div>
         <p class="eyebrow">Photos</p>
-        <h1 th:text="${title ?: '图库'}">图库</h1>
-        <p>光影、地点与日常。</p>
+        <h1 th:text="${title} ?: #{photos.title}">图库</h1>
+        <p th:text="#{photos.intro}">光影、地点与日常。</p>
       </div>
       <span class="page-hero-count" th:if="${photos != null}">
         <span th:text="${photos.total ?: 0}">0</span>
-        <span>张照片</span>
+        <span th:text="#{common.photoTotal}">张照片</span>
       </span>
     </header>
 
     <section
       class="photo-albums"
       th:if="${photoFinder != null and #lists.isEmpty(param.group)}"
-      aria-label="影集列表"
+      th:attr="aria-label=#{photos.albums}"
     >
       <a
         class="photo-album"
@@ -54,8 +54,8 @@
         </span>
         <span class="photo-album-meta">
           <strong th:text="${group.spec.displayName}">影展名称</strong>
-          <span class="photo-album-kind">影展</span>
-          <span th:text="|${group.status?.photoCount ?: 0} 件作品|">0 件作品</span>
+          <span class="photo-album-kind" th:text="#{photos.albumKind}">影展</span>
+          <span th:text="|${group.status?.photoCount ?: 0} #{common.photoCount}|">0 件作品</span>
         </span>
       </a>
       <a
@@ -73,9 +73,9 @@
           />
         </span>
         <span class="photo-album-meta">
-          <strong>未分组</strong>
-          <span class="photo-album-kind">影展</span>
-          <span th:text="|${#lists.size(ungroupedPhotos)} 件作品|">0 件作品</span>
+          <strong th:text="#{photos.ungrouped}">未分组</strong>
+          <span class="photo-album-kind" th:text="#{photos.albumKind}">影展</span>
+          <span th:text="|${#lists.size(ungroupedPhotos)} #{common.photoCount}|">0 件作品</span>
         </span>
       </a>
     </section>
@@ -86,18 +86,18 @@
     >
       <a class="photo-gallery-back" th:href="@{/photos}">
         <iconify-icon icon="octicon:arrow-left-16" aria-hidden="true"></iconify-icon>
-        <span>全部影集</span>
+        <span th:text="#{photos.allAlbums}">全部影集</span>
       </a>
-      <span>影展作品</span>
+      <span th:text="#{photos.albumWorks}">影展作品</span>
     </nav>
 
     <div
       class="links-empty"
       th:if="${photos == null or #lists.isEmpty(photos.items) or (not #lists.isEmpty(param.ungrouped) and #lists.isEmpty(ungroupedPhotos))}"
     >
-      <iconify-icon icon="octicon:image-16"></iconify-icon>
-      <h2>暂无照片</h2>
-      <p>在图库管理插件里上传照片后，这里会自动显示。</p>
+      <iconify-icon icon="octicon:image-16" aria-hidden="true"></iconify-icon>
+      <h2 th:text="#{photos.emptyTitle}">暂无照片</h2>
+      <p th:text="#{photos.emptyHint}">在图库管理插件里上传照片后，这里会自动显示。</p>
     </div>
 
     <div
@@ -129,10 +129,19 @@
     class="pagination"
     th:if="${photos != null and not #lists.isEmpty(param.group) and #lists.isEmpty(param.ungrouped) and (photos.hasPrevious() || photos.hasNext())}"
   >
-    <a th:if="${photos.hasPrevious()}" th:href="@{${photos.prevUrl}}">上一页</a>
-    <a th:unless="${photos.hasPrevious()}" aria-disabled="true">上一页</a>
+    <a
+      th:if="${photos.hasPrevious()}"
+      th:href="@{${photos.prevUrl}}"
+      th:text="#{pagination.previous}"
+      >上一页</a
+    >
+    <a th:unless="${photos.hasPrevious()}" aria-disabled="true" th:text="#{pagination.previous}"
+      >上一页</a
+    >
     <span th:text="|${photos.page} / ${photos.totalPages}|"></span>
-    <a th:if="${photos.hasNext()}" th:href="@{${photos.nextUrl}}">下一页</a>
-    <a th:unless="${photos.hasNext()}" aria-disabled="true">下一页</a>
+    <a th:if="${photos.hasNext()}" th:href="@{${photos.nextUrl}}" th:text="#{pagination.next}"
+      >下一页</a
+    >
+    <a th:unless="${photos.hasNext()}" aria-disabled="true" th:text="#{pagination.next}">下一页</a>
   </nav>
 </include>

@@ -1,4 +1,5 @@
 @use "tokens" as *;
+@use "mixins" as *;
 
 *,
 *::before,
@@ -10,6 +11,89 @@
    避免各页面再写一遍 [hidden] { display: none } */
 [hidden] {
   display: none !important;
+}
+
+// ---------------------------------------------------------------------------
+// 颜色模式优先级链
+//
+// 全站只有四层颜色模式，后面的覆盖前面的：
+//   1) :root                                    浅色默认值
+//   2) @media (prefers-color-scheme: dark)
+//      + html:not([data-color-scheme="light"])  跟随系统暗色
+//   3) html[data-color-scheme="dark"]           用户显式选择暗色
+//   4) html[data-color-scheme="light"]          用户显式选择亮色
+//
+// 两个关键设计：
+//
+// (1) 第 2 层与第 3 层的选择器特异性完全相同
+//     （html:not([attr]) = 0,1,1，html[attr] = 0,1,1），
+//     所以第 3 层必须写在第 2 层之后，靠「源码顺序在后」胜出，
+//     用户显式选择暗色时永远压过系统暗色。
+//
+// (2) 第 2 层用 :not([data-color-scheme="light"]) 排除「显式亮色」，
+//     于是系统是暗色、用户选了亮色时，第 2 层整块不生效，
+//     页面仍然是浅色；反过来系统是浅色、用户选了暗色时，
+//     第 3 层生效，得到暗色。
+//
+// (3) 前端会把「当前实际生效的配色」始终写到 <html data-color-scheme> 上，
+//     跟随系统时也写（第 2 层因此主要服务于没有 JS 的访客）。
+//     站点里的插件（代码高亮、文章摘要、评论组件……）都以这个属性判断暗色，
+//     属性缺失时它们会按浅色渲染，在暗色页面上浮出白色卡片。
+//
+// --page-bg / --accent 必须定义在 body 上：
+// 用户在后台配置的背景色与强调色以内联 style 写在 <body> 元素上
+// （--configured-page-bg / --configured-accent），只有 body 及其后代读得到。
+// 因此暗色层也定义在 body 上，用 color-mix() 把用户配置色掺进暗色底色，
+// 而不是像以前那样直接丢弃用户配置。
+// ---------------------------------------------------------------------------
+
+/* 暗色变量表：系统暗色与显式暗色共用同一份声明，避免两处走样 */
+@mixin dark-scheme {
+  /* 页面底色：用户配置的背景色以极低比例掺进 GitHub 暗色基色。
+     掺入比例取 4% 是有意的：默认值是白色，10% 会把底色拉到 #25292e，
+     明显偏离 Primer 的 #0d1117；4% 时白色落到 #14181e，贴近原生，
+     同时「用户确实配过背景色」这一信息没有丢失。 */
+  --page-bg: color-mix(in srgb, var(--configured-page-bg, #0d1117) 4%, #0d1117);
+  /* 强调色：用户配置的强调色与 GitHub 暗色强调色混合 */
+  --accent: color-mix(in srgb, var(--configured-accent, #58a6ff) 85%, #58a6ff);
+  /* 强调色悬停态（文字 / 图标）：暗色下向白色方向提亮一档 */
+  --accent-hover: color-mix(in srgb, var(--accent) 85%, #79c0ff);
+  /* 卡片底色与页面底色一致（GitHub 暗色下 canvas 即 page bg） */
+  --canvas: color-mix(in srgb, var(--configured-page-bg, #0d1117) 4%, #0d1117);
+  /* 次级底色比卡片略亮，保持 GitHub 暗色的层次关系 */
+  --canvas-subtle: color-mix(in srgb, var(--configured-page-bg, #161b22) 4%, #161b22);
+  /* 暗色下边框用 Primer 新版取值：比 #30363d 亮一档，
+     否则它与 canvas-subtle 的对比度只有 1.05:1，分隔线几乎看不见 */
+  --border: #3d444d;
+  --border-muted: #21262d;
+  --fg: #e6edf3;
+  --fg-muted: #8b949e;
+  --fg-subtle: #6e7681;
+  --button-bg: #21262d;
+  --button-hover: #30363d;
+  --counter-bg: #21262d;
+  --overlay-bg: rgb(13 17 23 / 0.8);
+  --green-0: #161b22;
+  --green-1: #0e4429;
+  --green-2: #006d32;
+  --green-3: #26a641;
+  --green-4: #39d353;
+  --green-primary: #238636;
+  --green-primary-hover: #2ea043;
+  --star-color: #e3b341;
+  /* 危险 / 成功提示：GitHub 暗色档 */
+  --danger-fg: #f85149;
+  --danger-bg: #490202;
+  --danger-border: #f85149;
+  --success-fg: #3fb950;
+  --success-bg: #0e4429;
+  --success-border: #2ea043;
+  /* 阴影：暗色下改用近黑色投影，否则亮色阴影落在深底上完全看不见 */
+  --shadow-sm: 0 1px 2px rgb(1 4 9 / 0.3);
+  --shadow-md: 0 8px 24px rgb(1 4 9 / 0.5);
+  --shadow-lg: 0 20px 60px rgb(1 4 9 / 0.8);
+  /* 恩爱计时 / 页脚爱心：暗色下提亮一档 */
+  --love-accent: #e88aa2;
 }
 
 :root {
@@ -47,46 +131,83 @@
   --button-primary-weight: 600;
   /* GitHub 星标强调色：豆瓣个人评分星级 */
   --star-color: #e3b341;
-  /* 页面主栅格：内容列宽度与左右内边距 */
-  --shell-max-width: 1280px;
+  /* 阴影：亮色下是低透明度的近黑投影，暗色下换成近黑投影（见 dark-scheme） */
+  --shadow-sm: 0 1px 2px rgb(31 35 40 / 0.06);
+  --shadow-md: 0 8px 24px rgb(31 35 40 / 0.12);
+  --shadow-lg: 0 20px 60px rgb(31 35 40 / 0.22);
+  /* 恩爱计时 / 页脚爱心的主题色 */
+  --love-accent: #cf4d6f;
+  /* 页面主栅格：内容列宽度与左右内边距。
+     1360px 是「宽屏」与「常规屏」的分界：宽屏用 1360px 的栅格 + 296px 侧栏，
+     常规屏在 _responsive.scss 里收成 1280px + 256px。 */
+  --shell-max-width: 1360px;
   --shell-pad-x: 24px;
+  /* 危险 / 成功提示：GitHub 浅色档 */
+  --danger-fg: #cf222e;
+  --danger-bg: #ffebe9;
+  --danger-border: #cf222e;
+  --success-fg: #1a7f37;
+  --success-bg: #dafbe1;
+  --success-border: #1a7f37;
+  /* 强调色悬停态的兜底值（body 上会按实际强调色重新派生） */
+  --accent-hover: #0550ae;
+  /* 模态遮罩：压暗底层内容的深色半透明层 */
+  --scrim: rgb(31 35 40 / 0.42);
+  /* 禁用态透明度：全站统一一档，不再各写各的 */
+  --fg-disabled-opacity: 0.55;
+  /* 键盘焦点环的粗细与偏移 */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
 }
+
+/* 第 2 层：跟随系统暗色。显式选择亮色时不生效。 */
+@media (prefers-color-scheme: dark) {
+  html:not([data-color-scheme="light"]) {
+    color-scheme: dark;
+  }
+
+  html:not([data-color-scheme="light"]) body {
+    @include dark-scheme;
+  }
+}
+
+/* 第 3 层：用户显式选择暗色。与第 2 层特异性相同，靠源码顺序胜出。 */
 html[data-color-scheme="dark"] {
   color-scheme: dark;
 }
+
 html[data-color-scheme="dark"] body {
-  --page-bg: #0d1117;
-  --accent: #58a6ff;
-  --canvas: #0d1117;
-  --canvas-subtle: #161b22;
-  --border: #30363d;
-  --border-muted: #21262d;
-  --fg: #e6edf3;
-  --fg-muted: #8b949e;
-  --fg-subtle: #6e7681;
-  --button-bg: #21262d;
-  --button-hover: #30363d;
-  --counter-bg: #21262d;
-  --overlay-bg: rgb(13 17 23 / 0.8);
-  --green-0: #161b22;
-  --green-1: #0e4429;
-  --green-2: #006d32;
-  --green-3: #26a641;
-  --green-4: #39d353;
-  --green-primary: #238636;
-  --green-primary-hover: #2ea043;
-  --star-color: #e3b341;
+  @include dark-scheme;
 }
+
+/* 第 4 层：用户显式选择亮色，系统是暗色也强制浅色 */
+html[data-color-scheme="light"] {
+  color-scheme: light;
+}
+
 body {
+  /* 用户配置的背景色 / 强调色：内联变量写在 <body> 上，只能在这里消费。
+     暗色模式下由上面的暗色层接管（同样在 body 上），并保留配置色。 */
   --page-bg: var(--configured-page-bg, #ffffff);
   --accent: var(--configured-accent, #0969da);
-  min-width: 320px;
+  /* 强调色悬停态（文字 / 图标 / 描边）：亮色下向黑色方向压暗一档。
+     由 --accent 派生，用户自定义强调色也能拿到配套的悬停色。 */
+  --accent-hover: color-mix(in srgb, var(--accent) 86%, #000);
+  /* 强调色作「填充底 + 白字」时的悬停态：同样压暗，但只作用于背景。
+     取代原来的 filter: brightness() —— brightness() 会连同文字和边框一起压暗，
+     白字因此掉到不可读；这里只换背景色，文字始终是纯白。 */
+  --accent-strong: color-mix(in srgb, var(--accent) 92%, #000);
+  min-width: 0;
   margin: 0;
   background: var(--page-bg);
   color: var(--fg);
   font-family: $font-sans;
-  font-size: 14px;
+  font-size: $text-14;
   line-height: 1.5;
+  /* 全局长串保护：URL、无空格长单词不再撑破卡片。
+     overflow-wrap 是继承属性，写在 body 上即可覆盖全部后代；
+     各组件里更激进的 overflow-wrap: anywhere 会覆盖这里的取值。 */
+  overflow-wrap: break-word;
 }
 body.is-prayer-mode {
   filter: grayscale(1);
@@ -95,10 +216,22 @@ a {
   color: var(--accent);
   text-decoration: none;
 }
+/* 链接悬停：统一换到 --accent-hover（亮色下更深、暗色下更亮）。
+   组件自身的 hover 规则特异性更高，可以覆盖这里的取值。 */
 a:hover {
+  color: var(--accent-hover);
   text-decoration: underline;
 }
+/* 只统一块级化，不在这里统一 fill：
+   裸 svg 规则会命中全站每个 svg，覆盖 svg 自身的 fill 表现属性。
+   需要 currentColor 的图标类各自声明（见 _header.scss / _footer.scss）。 */
 svg {
   display: block;
-  fill: currentColor;
+}
+
+/* 全局键盘焦点基线：只在键盘操作时出现焦点环，鼠标点击不打扰视觉。
+   :where() 把选择器特异性压到 0，组件自身的 :focus-visible 规则
+   （更高特异性）依然可以覆盖这里的样式。 */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  @include focus-ring;
 }

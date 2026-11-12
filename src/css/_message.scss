@@ -10,7 +10,7 @@
 }
 .message-stage {
   position: relative;
-  height: 340px;
+  height: $message-stage-height;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: $radius-md;
@@ -39,12 +39,12 @@
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 8px;
+  gap: $space-8;
   color: var(--fg-muted);
-  font-size: 14px;
+  font-size: $text-14;
 }
 .message-stage-status iconify-icon {
-  font-size: 28px;
+  font-size: $text-28;
 }
 .floating-message {
   --message-lane: 0;
@@ -58,7 +58,7 @@
   max-width: min(460px, 80%);
   height: 40px;
   align-items: center;
-  gap: 8px;
+  gap: $space-8;
   animation: message-drift var(--message-duration) linear var(--message-delay) 1 both;
   white-space: nowrap;
   will-change: left, transform;
@@ -75,7 +75,7 @@
   border-radius: $radius-circle;
   background: var(--canvas);
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 600;
 }
 .floating-message-avatar img {
@@ -87,18 +87,18 @@
   display: flex;
   min-width: 0;
   height: 36px;
-  padding: 0 10px;
+  padding: 0 $space-10;
   align-items: center;
-  gap: 8px;
+  gap: $space-8;
   overflow: hidden;
   @extend %surface-card;
-  box-shadow: 0 1px 2px rgb(31 35 40 / 6%);
-  font-size: 13px;
+  box-shadow: var(--shadow-sm);
+  font-size: $text-13;
 }
 .floating-message-body strong {
   flex: 0 0 auto;
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
 }
 .floating-message-body > span {
   overflow: hidden;
@@ -107,7 +107,7 @@
 .floating-message-body time {
   flex: 0 0 auto;
   color: var(--fg-muted);
-  font-size: 11px;
+  font-size: $text-12;
 }
 .message-stage:hover .floating-message {
   animation-play-state: paused;
@@ -124,9 +124,9 @@
   }
 }
 .message-intro {
-  margin-top: 24px;
+  margin-top: $space-24;
 }
 .message-comments-disabled {
   color: var(--fg-muted);
-  font-size: 14px;
+  font-size: $text-14;
 }

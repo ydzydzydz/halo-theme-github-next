@@ -30,8 +30,8 @@
   </section>
 
   <section class="section-heading">
-    <h2>最新文章</h2>
-    <a th:href="@{/archives}">更多文章</a>
+    <h2 th:text="#{index.latestPosts}">最新文章</h2>
+    <a th:href="@{/archives}" th:text="#{index.morePosts}">更多文章</a>
   </section>
 
   <ul class="repo-grid pinned-repos">
@@ -41,19 +41,14 @@
   <div
     class="contrib-layout"
     data-contribution-root
-    th:attr="data-activity-limit=${theme.config.basic.activity_limit ?: 6}, data-contribution-language=${theme.config.basic.contribution_graph_english == true ? 'en' : 'zh-CN'}"
+    th:attr="data-activity-limit=${theme.config.basic.activity_limit ?: 6}"
   >
     <section class="contribution-area">
       <div class="section-heading compact">
-        <h2
-          data-contribution-total
-          th:text="${theme.config.basic.contribution_graph_english == true ? 'Loading contributions...' : '正在加载贡献图...'}"
-        >
+        <h2 data-contribution-total th:text="#{index.contributionLoading}">
           Loading contributions...
         </h2>
-        <span
-          class="contribution-source"
-          th:text="${theme.config.basic.contribution_graph_english == true ? 'Posts, moments, tags, categories, and photos' : '文章、瞬间、标签、分类和图库'}"
+        <span class="contribution-source" th:text="#{index.activitySubtitle}"
           >Posts, moments, tags, categories, and photos</span
         >
       </div>
@@ -62,45 +57,28 @@
           <div class="contribution-months" data-contribution-months></div>
           <div class="contribution-body">
             <div class="contribution-weekdays" aria-hidden="true">
-              <span
-                th:text="${theme.config.basic.contribution_graph_english == true ? 'Mon' : '周一'}"
-                >Mon</span
-              >
-              <span
-                th:text="${theme.config.basic.contribution_graph_english == true ? 'Wed' : '周三'}"
-                >Wed</span
-              >
-              <span
-                th:text="${theme.config.basic.contribution_graph_english == true ? 'Fri' : '周五'}"
-                >Fri</span
-              >
+              <span th:text="#{weekday.mon}">Mon</span>
+              <span th:text="#{weekday.wed}">Wed</span>
+              <span th:text="#{weekday.fri}">Fri</span>
             </div>
             <div
               class="contribution-graph"
               data-contribution-graph
               role="grid"
-              th:attr="aria-label=${theme.config.basic.contribution_graph_english == true ? 'Site contribution graph' : '站点动态贡献图'}"
+              th:attr="aria-label=#{index.contributionTitle}"
             ></div>
           </div>
         </div>
         <div class="contribution-footer">
-          <a
-            th:href="@{/archives}"
-            th:text="${theme.config.basic.contribution_graph_english == true ? 'View all posts' : '查看全部文章'}"
-            >View all posts</a
-          >
+          <a th:href="@{/archives}" th:text="#{activity.heading}">View all posts</a>
           <div class="contribution-legend">
-            <span th:text="${theme.config.basic.contribution_graph_english == true ? 'Less' : '少'}"
-              >Less</span
-            >
+            <span th:text="#{index.contributionLess}">Less</span>
             <span class="day level-0"></span>
             <span class="day level-1"></span>
             <span class="day level-2"></span>
             <span class="day level-3"></span>
             <span class="day level-4"></span>
-            <span th:text="${theme.config.basic.contribution_graph_english == true ? 'More' : '多'}"
-              >More</span
-            >
+            <span th:text="#{index.contributionMore}">More</span>
           </div>
         </div>
       </div>
@@ -108,40 +86,20 @@
     <aside
       class="year-nav"
       data-contribution-years
-      th:attr="aria-label=${theme.config.basic.contribution_graph_english == true ? 'Contribution years' : '贡献年份'}"
+      th:attr=" aria-label=#{index.contributionYears}"
     ></aside>
 
     <section class="activity-section">
-      <h2
-        data-activity-heading
-        th:text="${theme.config.basic.contribution_graph_english == true ? 'Site activity' : '站点动态'}"
-      >
-        Site activity
-      </h2>
+      <h2 data-activity-heading th:text="#{activity.heading}">Site activity</h2>
       <div data-contribution-activity>
-        <p
-          class="activity-empty"
-          th:text="${theme.config.basic.contribution_graph_english == true ? 'Loading activity...' : '正在加载站点动态...'}"
-        >
-          Loading activity...
-        </p>
+        <p class="activity-empty" th:text="#{activity.loading}">Loading activity...</p>
       </div>
       <nav class="pagination activity-pagination" data-activity-pagination hidden>
-        <button
-          type="button"
-          data-activity-previous
-          th:text="${theme.config.basic.contribution_graph_english == true ? 'Previous' : '上一页'}"
-        >
+        <button type="button" data-activity-previous th:text="#{pagination.previous}">
           Previous
         </button>
         <span data-activity-page></span>
-        <button
-          type="button"
-          data-activity-next
-          th:text="${theme.config.basic.contribution_graph_english == true ? 'Next' : '下一页'}"
-        >
-          Next
-        </button>
+        <button type="button" data-activity-next th:text="#{pagination.next}">Next</button>
       </nav>
     </section>
   </div>

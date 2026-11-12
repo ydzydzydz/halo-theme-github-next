@@ -1,3 +1,29 @@
+@use "tokens" as *;
+
+// ---------------------------------------------------------------------------
+// 动效降级
+//
+// 全局兜底放在文件最前面：prefers-reduced-motion: reduce 时，
+// 所有动画与过渡都被压到 0.01ms（视觉上等同于关闭），
+// 覆盖全站此前没有降级处理的 transition（链接卡片、仓库列表、
+// 页面骨架、音乐播放器、图库等）。
+//
+// 后面各模块的精细豁免规则写在同一个媒体查询里、位置更靠后，
+// 需要放开或改写某个特例时，用 !important 覆盖全局兜底即可
+// （同权重下后写的声明胜出）。
+// ---------------------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @keyframes links-fade-up {
   from {
     opacity: 0;
@@ -22,12 +48,13 @@
     transition: none;
   }
 
+  /* 降级后改成纵向滚动的列表，舞台高度沿用 _tokens.scss 的同一份定义 */
   .message-stage {
     display: grid;
-    height: 340px;
-    padding: 12px;
+    height: $message-stage-height;
+    padding: $space-12;
     align-content: start;
-    gap: 8px;
+    gap: $space-8;
     overflow-y: auto;
   }
 

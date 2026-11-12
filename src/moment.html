@@ -9,14 +9,14 @@
   contentClass=""
 >
   <template name="head">
-    <title th:text="|${title ?: '瞬间'} - ${site.title}|">瞬间</title>
+    <title th:with="pageTitle=${title}" th:text="|${pageTitle} - ${site.title}|">瞬间</title>
   </template>
 
   <article class="moment-detail">
     <header class="article-header moment-detail-header">
       <a class="moment-back-link" th:href="@{/moments}">
-        <iconify-icon icon="octicon:arrow-left-16"></iconify-icon>
-        <span>返回瞬间</span>
+        <iconify-icon icon="octicon:arrow-left-16" aria-hidden="true"></iconify-icon>
+        <span th:text="#{moment.backToMoments}">返回瞬间</span>
       </a>
       <div class="moment-detail-author">
         <img
@@ -78,7 +78,7 @@
           target="_blank"
           rel="noreferrer"
         >
-          <iconify-icon icon="octicon:link-16"></iconify-icon>
+          <iconify-icon icon="octicon:link-16" aria-hidden="true"></iconify-icon>
           <span th:text="${medium.url}">相关链接</span>
         </a>
       </th:block>
@@ -89,15 +89,13 @@
         class="moment-upvote"
         type="button"
         th:if="${moment.stats != null}"
-        th:attr="data-moment-upvote=${moment.metadata.name}"
-        aria-label="点赞瞬间"
-        title="点赞"
+        th:attr="data-moment-upvote=${moment.metadata.name}, aria-label=#{moment.upvote}, title=#{repository.upvote}"
       >
-        <iconify-icon icon="octicon:thumbsup-16"></iconify-icon>
+        <iconify-icon icon="octicon:thumbsup-16" aria-hidden="true"></iconify-icon>
         <span data-moment-upvote-count th:text="${moment.stats.upvote ?: 0}">0</span>
       </button>
       <span th:if="${moment.stats != null}">
-        <iconify-icon icon="octicon:comment-16"></iconify-icon>
+        <iconify-icon icon="octicon:comment-16" aria-hidden="true"></iconify-icon>
         <span th:text="${moment.stats.approvedComment ?: 0}">0</span>
       </span>
       <span class="moment-tag-list" th:if="${not #lists.isEmpty(moment.spec.tags)}">
@@ -110,10 +108,15 @@
     </footer>
   </article>
 
-  <section class="post-comments" id="comments" aria-label="评论区" th:if="${haloCommentEnabled}">
+  <section
+    class="post-comments"
+    id="comments"
+    th:attr="aria-label=#{post.commentArea}"
+    th:if="${haloCommentEnabled}"
+  >
     <header class="post-comments-header">
       <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
-      <strong>评论</strong>
+      <strong th:text="#{comment.title}">评论</strong>
     </header>
     <div class="post-comments-body">
       <halo:comment group="moment.halo.run" kind="Moment" th:attr="name=${moment.metadata.name}" />

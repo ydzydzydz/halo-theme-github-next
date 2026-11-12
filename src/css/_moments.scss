@@ -3,7 +3,7 @@
 @use "mixins" as *;
 .moments-page {
   display: grid;
-  gap: 16px;
+  gap: $space-16;
 }
 .moments-hero {
   @extend %hero-gap-tight;
@@ -11,11 +11,11 @@
 .moment-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: $space-8;
 }
 .moments-list {
   display: grid;
-  gap: 12px;
+  gap: $space-12;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -23,7 +23,7 @@
 .moment-card {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr);
-  gap: 12px;
+  gap: $space-12;
 }
 .moment-avatar {
   width: 40px;
@@ -40,22 +40,25 @@
   height: 100%;
   object-fit: cover;
 }
+/* 动态正文卡片：<article class="moment-body">。
+   这里的 padding 与卡片描边是唯一的来源——全局的裸 article 规则
+   已经改成 .post-article，不再参与这里的样式。 */
 .moment-body {
   min-width: 0;
-  padding: 14px;
+  padding: $space-14;
   @extend %surface-card;
 }
 .moment-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: $space-12;
+  margin-bottom: $space-10;
 }
 .moment-header > div {
   display: grid;
   min-width: 0;
-  gap: 2px;
+  gap: $space-2;
 }
 .moment-author {
   color: var(--fg);
@@ -63,12 +66,13 @@
 }
 .moment-header time {
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
 }
 .moment-permalink {
+  position: relative;
   display: inline-flex;
   width: 28px;
-  height: 28px;
+  height: $control-sm;
   flex: none;
   align-items: center;
   justify-content: center;
@@ -76,13 +80,16 @@
   border-radius: $radius-md;
   color: var(--fg-muted);
   background: var(--button-bg);
+
+  /* 视觉仍是 28px，热区扩到 44px */
+  @include touch-target;
 }
 .moment-permalink:hover {
-  color: var(--accent);
+  color: var(--accent-hover);
   text-decoration: none;
 }
 .moment-content {
-  font-size: 14px;
+  font-size: $text-14;
   line-height: 1.65;
 }
 .moment-content > :first-child {
@@ -95,8 +102,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 260px));
   justify-content: start;
-  gap: 8px;
-  margin-top: 12px;
+  gap: $space-8;
+  margin-top: $space-12;
 }
 .moment-media-grid img,
 .moment-media-grid video {
@@ -125,7 +132,7 @@
   position: fixed;
   z-index: 70;
   place-items: center;
-  padding: 24px;
+  padding: $space-24;
   background: rgba(13, 17, 23, 0.86);
   inset: 0;
 }
@@ -141,7 +148,7 @@
   top: 16px;
   right: 16px;
   width: 36px;
-  height: 36px;
+  height: $control-lg;
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.35);
@@ -149,6 +156,9 @@
   background: rgba(13, 17, 23, 0.65);
   color: #ffffff;
   cursor: pointer;
+
+  /* 视觉仍是 36px，热区扩到 44px */
+  @include touch-target;
 }
 .image-preview-close iconify-icon {
   @include icon-size(20px);
@@ -162,8 +172,8 @@
   min-width: 0;
   min-height: 44px;
   align-items: center;
-  gap: 8px;
-  padding: 10px;
+  gap: $space-8;
+  padding: $space-10;
   border: 1px solid var(--border);
   border-radius: $radius-md;
   background: var(--canvas-subtle);
@@ -176,17 +186,17 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  margin-top: 12px;
+  gap: $space-10;
+  margin-top: $space-12;
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
 }
 .moment-footer > span,
 .moment-footer > a,
 .moment-upvote {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: $space-4;
   color: var(--fg-muted);
 }
 .moment-upvote {
@@ -204,13 +214,13 @@
 }
 .moment-upvote:disabled {
   cursor: wait;
-  opacity: 0.65;
+  opacity: var(--fg-disabled-opacity);
 }
 .moment-footer iconify-icon {
   @include icon-size(14px);
 }
 .moment-tag-list {
-  gap: 6px;
+  gap: $space-6;
 }
 .moment-tag-list a {
   color: var(--accent);
@@ -220,21 +230,21 @@
 }
 .moment-detail-header {
   display: grid;
-  gap: 16px;
+  gap: $space-16;
 }
 .moment-back-link {
   display: inline-flex;
   width: max-content;
   align-items: center;
-  gap: 6px;
+  gap: $space-6;
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 600;
 }
 .moment-detail-author {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: $space-12;
 }
 .moment-detail-author img {
   width: 48px;
@@ -245,7 +255,7 @@
   background: var(--canvas-subtle);
 }
 .moment-media-grid-detail {
-  margin-top: 16px;
+  margin-top: $space-16;
 }
 .moment-media-grid-detail img,
 .moment-media-grid-detail video {
@@ -253,6 +263,6 @@
   object-fit: contain;
 }
 .moment-detail-footer {
-  padding-top: 16px;
+  padding-top: $space-16;
   border-top: 1px solid var(--border);
 }

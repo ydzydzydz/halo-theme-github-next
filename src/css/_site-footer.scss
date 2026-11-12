@@ -1,5 +1,7 @@
+@use "tokens" as *;
+
 .site-footer {
   border-top: 1px solid var(--border);
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
 }

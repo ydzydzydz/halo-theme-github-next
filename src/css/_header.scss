@@ -7,15 +7,15 @@
 .header-inner {
   display: flex;
   height: 64px;
-  padding: 16px;
+  padding: $space-16;
   align-items: center;
-  gap: 12px;
+  gap: $space-12;
 }
 .icon-button {
   position: relative;
   display: inline-flex;
   width: 32px;
-  height: 32px;
+  height: $control-md;
   padding: 0;
   align-items: center;
   justify-content: center;
@@ -24,20 +24,27 @@
   background: var(--canvas-subtle);
   color: var(--fg-muted);
   font: inherit;
-  font-size: 14px;
+  font-size: $text-14;
   cursor: default;
+
+  /* 视觉仍是 32px，热区扩到 44px */
+  @include touch-target;
 }
 .icon-button svg,
 .icon-button > iconify-icon {
   width: 16px;
   height: 16px;
 }
+/* 只给需要的图标类上 currentColor，避免裸 svg 规则覆盖 svg 自身的 fill */
+.icon-button svg {
+  fill: currentColor;
+}
 .icon-button > iconify-icon {
-  font-size: 16px;
+  font-size: $text-16;
 }
 .wide-icon {
   width: 44px;
-  gap: 6px;
+  gap: $space-6;
 }
 .chevron {
   width: 0;
@@ -60,7 +67,7 @@
 }
 .site-title {
   color: var(--fg);
-  font-size: 14px;
+  font-size: $text-14;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -73,12 +80,13 @@
   min-width: 0;
   margin-left: auto;
   align-items: center;
-  gap: 8px;
+  gap: $space-8;
 }
 .search-box {
+  position: relative;
   display: flex;
   width: 32px;
-  height: 32px;
+  height: $control-md;
   margin-left: 0;
   padding: 0;
   align-items: center;
@@ -89,6 +97,9 @@
   color: var(--fg-muted);
   cursor: pointer;
   order: 1;
+
+  /* 视觉仍是 32px，热区扩到 44px */
+  @include touch-target;
 }
 .search-box:hover {
   color: var(--fg-muted);
@@ -96,15 +107,15 @@
 }
 .weather-widget {
   display: inline-flex;
-  height: 32px;
-  padding: 0 8px;
+  height: $control-md;
+  padding: 0 $space-8;
   align-items: center;
-  gap: 5px;
+  gap: $space-5;
   border: 1px solid var(--border);
   border-radius: $radius-md;
   background: var(--canvas-subtle);
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
   order: 3;
   white-space: nowrap;
 }
@@ -114,20 +125,20 @@
 }
 .weather-widget strong {
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
 .header-clock {
   display: inline-flex;
-  height: 32px;
-  padding: 0 8px;
+  height: $control-md;
+  padding: 0 $space-8;
   align-items: center;
   border: 1px solid var(--border);
   border-radius: $radius-md;
   background: var(--canvas-subtle);
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   order: 4;
@@ -140,7 +151,7 @@
   position: fixed;
   inset: 0;
   z-index: 60;
-  padding: 72px 16px 16px;
+  padding: $space-72 $space-16 $space-16;
   background: var(--overlay-bg);
   backdrop-filter: blur(1px);
 }
@@ -151,44 +162,47 @@
   border: 1px solid var(--border);
   border-radius: $radius-xl;
   background: var(--canvas);
-  box-shadow: 0 16px 48px rgb(31 35 40 / 0.2);
+  box-shadow: var(--shadow-lg);
 }
 .search-dialog-form {
   display: grid;
   grid-template-columns: 16px minmax(0, 1fr) auto;
   min-height: 54px;
-  padding: 0 12px;
+  padding: 0 $space-12;
   align-items: center;
-  gap: 10px;
+  gap: $space-10;
   border-bottom: 1px solid var(--border);
 }
 .search-dialog-form svg {
   width: 16px;
   height: 16px;
   color: var(--fg-muted);
+  fill: currentColor;
 }
 .search-dialog-form input {
   width: 100%;
   border: 0;
-  outline: 0;
   color: var(--fg);
   font: inherit;
 }
+.search-dialog-form input:focus-visible {
+  @include focus-ring;
+}
 .search-dialog-form button {
-  height: 28px;
-  padding: 0 8px;
+  height: $control-sm;
+  padding: 0 $space-8;
   border: 1px solid var(--border);
   border-radius: $radius-md;
   background: var(--canvas-subtle);
   color: var(--fg-muted);
   font: inherit;
-  font-size: 12px;
+  font-size: $text-12;
 }
 .search-status {
-  padding: 10px 12px;
+  padding: $space-10 $space-12;
   border-bottom: 1px solid var(--border-muted);
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
 }
 .search-results {
   max-height: min(56vh, 520px);
@@ -196,8 +210,8 @@
 }
 .search-result-item {
   display: grid;
-  padding: 12px;
-  gap: 4px;
+  padding: $space-12;
+  gap: $space-4;
   border-bottom: 1px solid var(--border-muted);
 }
 .search-result-item:last-child {
@@ -209,20 +223,21 @@
 }
 .search-result-title {
   color: var(--accent);
-  font-size: 14px;
+  font-size: $text-14;
   font-weight: 600;
 }
 .search-result-desc {
   display: -webkit-box;
   overflow: hidden;
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 .search-box svg {
   width: 16px;
   height: 16px;
+  fill: currentColor;
 }
 .search-box kbd {
   display: inline-flex;
@@ -240,7 +255,7 @@
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: $space-8;
   order: 5;
 }
 .theme-toggle {
@@ -259,14 +274,14 @@
   z-index: 50;
   display: grid;
   width: 136px;
-  padding: 6px 0;
+  padding: $space-6 0;
   @extend %surface-card;
-  box-shadow: 0 8px 24px rgb(31 35 40 / 0.12);
+  box-shadow: var(--shadow-md);
 }
 .publish-menu-list a {
   display: flex;
-  min-height: 32px;
-  padding: 6px 12px;
+  min-height: $control-md;
+  padding: $space-6 $space-12;
   align-items: center;
   color: var(--fg);
   white-space: nowrap;
@@ -275,7 +290,9 @@
 .publish-menu-list a:focus-visible {
   background: var(--canvas-subtle);
   text-decoration: none;
-  outline: none;
+}
+.publish-menu-list a:focus-visible {
+  @include focus-ring;
 }
 .user-menu {
   position: relative;
@@ -284,7 +301,7 @@
   position: relative;
   display: block;
   width: 32px;
-  height: 32px;
+  height: $control-md;
   padding: 0;
   border: 0;
   border-radius: $radius-circle;
@@ -294,7 +311,7 @@
 .header-avatar img {
   display: block;
   width: 32px;
-  height: 32px;
+  height: $control-md;
   border: 1px solid var(--border);
   border-radius: $radius-circle;
   object-fit: cover;
@@ -316,14 +333,14 @@
   z-index: 50;
   display: grid;
   width: 112px;
-  padding: 6px 0;
+  padding: $space-6 0;
   @extend %surface-card;
-  box-shadow: 0 8px 24px rgb(31 35 40 / 0.12);
+  box-shadow: var(--shadow-md);
 }
 .user-menu-list a {
   display: flex;
-  min-height: 32px;
-  padding: 6px 12px;
+  min-height: $control-md;
+  padding: $space-6 $space-12;
   align-items: center;
   color: var(--fg);
   white-space: nowrap;
@@ -332,7 +349,9 @@
 .user-menu-list a:focus-visible {
   background: var(--canvas-subtle);
   text-decoration: none;
-  outline: none;
+}
+.user-menu-list a:focus-visible {
+  @include focus-ring;
 }
 .notification-dot {
   position: absolute;
@@ -342,7 +361,7 @@
   height: 10px;
   border: 2px solid var(--canvas-subtle);
   border-radius: $radius-circle;
-  background: #1f883d;
+  background: var(--green-primary);
 }
 .notification-link {
   cursor: pointer;
@@ -357,9 +376,9 @@
 .profile-tabs {
   display: flex;
   height: 48px;
-  padding: 0 16px;
+  padding: 0 $space-16;
   align-items: stretch;
-  gap: 8px;
+  gap: $space-8;
   border-bottom: 1px solid var(--border);
   background: var(--canvas-subtle);
   overflow-x: auto;
@@ -368,11 +387,11 @@
   position: relative;
   display: inline-flex;
   min-width: max-content;
-  padding: 0 12px;
+  padding: 0 $space-12;
   align-items: center;
-  gap: 8px;
+  gap: $space-8;
   color: var(--fg);
-  font-size: 14px;
+  font-size: $text-14;
   font-weight: 400;
 }
 .profile-tabs a:hover {
@@ -397,19 +416,19 @@
 }
 .site-announcement-inner {
   display: flex;
-  max-width: 1280px;
+  max-width: var(--shell-max-width);
   min-height: 42px;
   margin: 0 auto;
-  padding: 10px 24px;
+  padding: $space-10 var(--shell-pad-x);
   align-items: center;
-  gap: 10px;
+  gap: $space-10;
   color: var(--fg);
-  font-size: 13px;
+  font-size: $text-13;
 }
 .site-announcement iconify-icon {
   flex: 0 0 auto;
   color: var(--accent);
-  font-size: 16px;
+  font-size: $text-16;
 }
 .site-announcement p {
   margin: 0;
@@ -425,12 +444,12 @@
   display: inline-flex;
   min-width: 20px;
   height: 20px;
-  padding: 0 6px;
+  padding: 0 $space-6;
   align-items: center;
   justify-content: center;
   border-radius: $radius-pill;
   background: var(--counter-bg);
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 600;
 }

@@ -1,7 +1,13 @@
 <nav class="pagination" th:if="${posts.hasPrevious() || posts.hasNext()}">
-  <a th:if="${posts.hasPrevious()}" th:href="@{${posts.prevUrl}}">上一页</a>
-  <a th:unless="${posts.hasPrevious()}" aria-disabled="true">上一页</a>
+  <a th:if="${posts.hasPrevious()}" th:href="@{${posts.prevUrl}}" th:text="#{pagination.previous}"
+    >上一页</a
+  >
+  <a th:unless="${posts.hasPrevious()}" aria-disabled="true" th:text="#{pagination.previous}"
+    >上一页</a
+  >
   <span th:text="|${posts.page} / ${posts.totalPages}|"></span>
-  <a th:if="${posts.hasNext()}" th:href="@{${posts.nextUrl}}">下一页</a>
-  <a th:unless="${posts.hasNext()}" aria-disabled="true">下一页</a>
+  <a th:if="${posts.hasNext()}" th:href="@{${posts.nextUrl}}" th:text="#{pagination.next}"
+    >下一页</a
+  >
+  <a th:unless="${posts.hasNext()}" aria-disabled="true" th:text="#{pagination.next}">下一页</a>
 </nav>

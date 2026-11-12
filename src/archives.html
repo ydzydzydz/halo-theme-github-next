@@ -10,7 +10,7 @@
   showBackToTop="true"
 >
   <template name="head">
-    <title th:text="|文章 - ${site.title}|">文章</title>
+    <title th:text="|#{archives.title} - ${site.title}|">文章</title>
   </template>
 
   <section class="repositories-page">
@@ -61,22 +61,26 @@
                   class="repository-search"
                   type="button"
                   data-search-trigger
-                  aria-label="搜索文章"
+                  th:attr="aria-label=#{search.open}"
                 >
                   Find an article...
                 </button>
-                <div class="repository-filters" aria-label="文章筛选">
+                <div class="repository-filters" th:attr="aria-label=#{archives.filterLabel}">
                   <button
                     class="repository-filter-button"
                     type="button"
                     data-repository-filter="category"
                     th:classappend="${categoryName != null} ? 'is-active'"
-                    data-repository-filter-default="分类"
+                    data-repository-filter-default="#{archives.filterCategoryShort}"
                     aria-expanded="false"
                     aria-haspopup="true"
                   >
                     <span data-repository-filter-label>
-                      <th:block th:if="${categoryName == null}">分类</th:block>
+                      <th:block
+                        th:if="${categoryName == null}"
+                        th:text="#{archives.filterCategoryShort}"
+                        >分类</th:block
+                      >
                       <th:block
                         th:each="cat : ${categoryFinder.listAll()}"
                         th:if="${cat.metadata.name == categoryName}"
@@ -89,7 +93,7 @@
                     class="repository-filter-menu"
                     data-repository-filter-menu="category"
                     role="menu"
-                    aria-label="按分类筛选"
+                    th:attr="aria-label=#{archives.filterByCategory}"
                     hidden
                   >
                     <a
@@ -97,7 +101,7 @@
                       th:classappend="${categoryName == null} ? 'is-active'"
                       th:href="@{/archives} + ${qNoCat}"
                     >
-                      全部分类
+                      th:text="#{archives.allCategories}"
                     </a>
                     <a
                       class="repository-filter-option"
@@ -113,12 +117,14 @@
                     type="button"
                     data-repository-filter="tag"
                     th:classappend="${tagName != null} ? 'is-active'"
-                    data-repository-filter-default="标签"
+                    data-repository-filter-default="#{archives.filterTagShort}"
                     aria-expanded="false"
                     aria-haspopup="true"
                   >
                     <span data-repository-filter-label>
-                      <th:block th:if="${tagName == null}">标签</th:block>
+                      <th:block th:if="${tagName == null}" th:text="#{archives.filterTagShort}"
+                        >标签</th:block
+                      >
                       <th:block
                         th:each="tg : ${tagFinder.listAll()}"
                         th:if="${tg.metadata.name == tagName}"
@@ -131,7 +137,7 @@
                     class="repository-filter-menu"
                     data-repository-filter-menu="tag"
                     role="menu"
-                    aria-label="按标签筛选"
+                    th:attr="aria-label=#{archives.filterByTag}"
                     hidden
                   >
                     <a
@@ -139,7 +145,7 @@
                       th:classappend="${tagName == null} ? 'is-active'"
                       th:href="@{/archives} + ${qNoTag}"
                     >
-                      全部标签
+                      th:text="#{archives.allTags}"
                     </a>
                     <a
                       class="repository-filter-option"
@@ -155,14 +161,20 @@
                     type="button"
                     data-repository-filter="sort"
                     th:classappend="${sortKey != 'newest'} ? 'is-active'"
-                    data-repository-filter-default="排序"
+                    data-repository-filter-default="#{archives.filterSortShort}"
                     aria-expanded="false"
                     aria-haspopup="true"
                   >
                     <span data-repository-filter-label>
-                      <th:block th:if="${sortKey == 'newest'}">排序</th:block>
-                      <th:block th:if="${sortKey == 'oldest'}">最早发布</th:block>
-                      <th:block th:if="${sortKey == 'title'}">标题 A-Z</th:block>
+                      <th:block th:if="${sortKey == 'newest'}" th:text="#{archives.filterSortShort}"
+                        >排序</th:block
+                      >
+                      <th:block th:if="${sortKey == 'oldest'}" th:text="#{archives.sortOldest}"
+                        >最早发布</th:block
+                      >
+                      <th:block th:if="${sortKey == 'title'}" th:text="#{archives.sortTitle}"
+                        >标题 A-Z</th:block
+                      >
                     </span>
                     <span class="chevron"></span>
                   </button>
@@ -170,7 +182,7 @@
                     class="repository-filter-menu"
                     data-repository-filter-menu="sort"
                     role="menu"
-                    aria-label="排序方式"
+                    th:attr="aria-label=#{archives.filterBySort}"
                     hidden
                   >
                     <a
@@ -178,21 +190,21 @@
                       th:classappend="${sortKey == 'newest'} ? 'is-active'"
                       th:href="@{/archives} + ${qNoSort}"
                     >
-                      最新发布
+                      th:text="#{archives.sortNewest}"
                     </a>
                     <a
                       class="repository-filter-option"
                       th:classappend="${sortKey == 'oldest'} ? 'is-active'"
                       th:href="@{/archives} + ${sortHead} + 'sort=oldest'"
                     >
-                      最早发布
+                      th:text="#{archives.sortOldest}"
                     </a>
                     <a
                       class="repository-filter-option"
                       th:classappend="${sortKey == 'title'} ? 'is-active'"
                       th:href="@{/archives} + ${sortHead} + 'sort=title'"
                     >
-                      标题 A-Z
+                      th:text="#{archives.sortTitle}"
                     </a>
                   </div>
                 </div>
@@ -201,22 +213,39 @@
               <ul class="repository-list">
                 <include src="repository-post-item.html"></include>
                 <li class="repository-empty" th:if="${posts.total == 0}">
-                  <span>没有符合条件的文章</span>
+                  <span th:text="#{archives.noMatch}">没有符合条件的文章</span>
                   <a
                     th:if="${categoryName != null or tagName != null}"
                     th:href="@{/archives} + ${qOnlySort}"
                   >
-                    清除筛选
+                    th:text="#{archives.clearFilters}"
                   </a>
                 </li>
               </ul>
 
               <nav class="pagination" th:if="${posts.hasPrevious() || posts.hasNext()}">
-                <a th:if="${posts.hasPrevious()}" th:href="@{/archives} + ${prevQuery}">上一页</a>
-                <a th:unless="${posts.hasPrevious()}" aria-disabled="true">上一页</a>
+                <a
+                  th:if="${posts.hasPrevious()}"
+                  th:href="@{/archives} + ${prevQuery}"
+                  th:text="#{pagination.previous}"
+                  >上一页</a
+                >
+                <a
+                  th:unless="${posts.hasPrevious()}"
+                  aria-disabled="true"
+                  th:text="#{pagination.previous}"
+                  >上一页</a
+                >
                 <span th:text="|${posts.page} / ${posts.totalPages}|"></span>
-                <a th:if="${posts.hasNext()}" th:href="@{/archives} + ${nextQuery}">下一页</a>
-                <a th:unless="${posts.hasNext()}" aria-disabled="true">下一页</a>
+                <a
+                  th:if="${posts.hasNext()}"
+                  th:href="@{/archives} + ${nextQuery}"
+                  th:text="#{pagination.next}"
+                  >下一页</a
+                >
+                <a th:unless="${posts.hasNext()}" aria-disabled="true" th:text="#{pagination.next}"
+                  >下一页</a
+                >
               </nav>
             </th:block>
           </th:block>

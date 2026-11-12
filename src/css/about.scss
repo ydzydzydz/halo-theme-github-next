@@ -1,13 +1,16 @@
+@use "tokens" as *;
+@use "mixins" as *;
+
 .about-page {
   width: 100%;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: $radius-md;
   background: var(--canvas);
 }
 
 .about-section {
-  padding: 28px 32px;
+  padding: $space-28 $space-32;
   border-bottom: 1px solid var(--border);
 }
 
@@ -17,9 +20,9 @@
 
 .about-section-heading {
   display: flex;
-  margin-bottom: 16px;
+  margin-bottom: $space-16;
   align-items: center;
-  gap: 8px;
+  gap: $space-8;
 }
 
 .about-section-heading iconify-icon {
@@ -27,14 +30,14 @@
   height: 18px;
   flex: 0 0 auto;
   color: var(--fg-muted);
-  font-size: 18px;
+  font-size: $text-18;
 }
 
 .about-section h2,
 .about-promise-heading h2 {
   margin: 0;
   color: var(--fg);
-  font-size: 18px;
+  font-size: $text-18;
   line-height: 1.4;
   font-weight: 600;
 }
@@ -44,14 +47,14 @@
 }
 
 .about-content {
-  font-size: 15px;
+  font-size: $text-14;
 }
 
 .about-config-text {
   margin: 0;
   color: var(--fg);
   white-space: pre-line;
-  font-size: 15px;
+  font-size: $text-14;
   line-height: 1.75;
 }
 
@@ -66,19 +69,19 @@
 .about-tag-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: $space-8;
 }
 
 .about-tag-list span {
   display: inline-flex;
-  min-height: 28px;
-  padding: 4px 10px;
+  min-height: $control-sm;
+  padding: $space-4 $space-10;
   align-items: center;
   border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
-  border-radius: 999px;
+  border-radius: $radius-pill;
   background: color-mix(in srgb, var(--accent) 8%, var(--canvas));
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
 }
 
 .about-skill-grid {
@@ -91,12 +94,12 @@
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr) minmax(80px, 22%);
   min-height: 50px;
-  padding: 10px 0;
+  padding: $space-10 0;
   align-items: center;
-  gap: 10px;
+  gap: $space-10;
   border-bottom: 1px solid var(--border);
   color: var(--fg);
-  font-size: 13px;
+  font-size: $text-13;
   font-weight: 500;
 }
 
@@ -117,7 +120,7 @@
   width: 18px;
   height: 18px;
   color: var(--fg-muted);
-  font-size: 18px;
+  font-size: $text-18;
 }
 
 .about-promise {
@@ -127,27 +130,27 @@
 .about-promise-heading {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: $space-12;
 }
 
 .about-promise-heading > iconify-icon {
   width: 28px;
   height: 28px;
   color: var(--accent);
-  font-size: 28px;
+  font-size: $text-28;
 }
 
 .about-promise-heading p {
-  margin: 3px 0 0;
+  margin: $space-3 0 0;
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
 }
 
 .about-progress {
   height: 8px;
-  margin-top: 22px;
+  margin-top: $space-22;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: $radius-sm;
   background: var(--border-muted);
 }
 
@@ -157,16 +160,16 @@
   height: 100%;
   border-radius: inherit;
   background: var(--accent);
-  transition: width 0.4s ease;
+  transition: width 0.4s $ease-standard;
 }
 
 .about-progress-meta {
   display: flex;
-  margin-top: 8px;
+  margin-top: $space-8;
   justify-content: space-between;
-  gap: 16px;
+  gap: $space-16;
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
 }
 
 .about-progress-meta strong {
@@ -176,20 +179,20 @@
 .about-contact-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: $space-8;
 }
 
 .about-contact-list a {
   display: inline-flex;
-  min-height: 32px;
-  padding: 5px 10px;
+  min-height: $control-md;
+  padding: $space-5 $space-10;
   align-items: center;
-  gap: 7px;
+  gap: $space-7;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: $radius-md;
   background: var(--button-bg);
   color: var(--fg);
-  font-size: 13px;
+  font-size: $text-13;
   font-weight: 500;
 }
 
@@ -202,16 +205,16 @@
   width: 16px;
   height: 16px;
   color: var(--fg-muted);
-  font-size: 16px;
+  font-size: $text-16;
 }
 
-@media (max-width: 720px) {
+@include below($breakpoint-md) {
   .about-section {
-    padding: 24px 16px;
+    padding: $space-24 $space-16;
   }
 }
 
-@media (max-width: 440px) {
+@include below($breakpoint-xs) {
   .about-skill {
     grid-template-columns: 22px minmax(0, 1fr);
   }

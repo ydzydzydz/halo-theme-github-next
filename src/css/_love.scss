@@ -19,7 +19,7 @@
   z-index: 1;
   display: grid;
   min-height: inherit;
-  padding: clamp(32px, 6vh, 72px) 20px;
+  padding: clamp(32px, 6vh, 72px) $space-20;
   place-items: center;
 }
 .love-waves {
@@ -71,7 +71,7 @@
   display: grid;
   min-width: 0;
   justify-items: center;
-  gap: 8px;
+  gap: $space-8;
 }
 .love-avatar-link {
   display: block;
@@ -89,8 +89,8 @@
 }
 .love-avatar-link .love-avatar {
   transition:
-    transform 200ms ease,
-    box-shadow 200ms ease;
+    transform $dur-slow $ease-standard,
+    box-shadow $dur-slow $ease-standard;
 }
 .love-avatar-link:hover .love-avatar {
   box-shadow: 0 9px 22px rgb(47 58 47 / 24%);
@@ -112,11 +112,11 @@
   aspect-ratio: 1;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid rgb(207 77 111 / 42%);
+  border: 1px solid color-mix(in srgb, var(--love-accent) 42%, transparent);
   border-radius: $radius-circle;
-  background: rgb(207 77 111 / 14%);
-  color: #cf4d6f;
-  box-shadow: 0 3px 10px rgb(207 77 111 / 18%);
+  background: color-mix(in srgb, var(--love-accent) 14%, transparent);
+  color: var(--love-accent);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--love-accent) 18%, transparent);
   animation: love-heart-beat 1.35s ease-in-out infinite;
 }
 .love-page-heart iconify-icon {
@@ -125,7 +125,7 @@
   font-size: clamp(22px, 2.6vw, 28px);
 }
 .love-timer-panel {
-  padding: clamp(28px, 5vh, 56px) 20px;
+  padding: clamp(28px, 5vh, 56px) $space-20;
   background-color: var(--canvas);
   background-image:
     linear-gradient(90deg, rgb(37 82 110 / 10%) 1px, transparent 1px),
@@ -160,7 +160,7 @@
   font-size: clamp(30px, 5vw, 58px);
 }
 .love-timer small {
-  margin-left: 3px;
+  margin-left: $space-3;
   font-family: inherit;
   font-size: 0.56em;
   font-weight: 400;

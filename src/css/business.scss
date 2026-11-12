@@ -1,3 +1,7 @@
+@use "components" as *;
+@use "tokens" as *;
+@use "mixins" as *;
+
 .business-page {
   width: 100%;
   overflow: visible;
@@ -7,10 +11,10 @@
 .business-hero {
   display: flex;
   min-height: 176px;
-  padding: 40px 44px 36px;
+  padding: $space-40 $space-44 $space-36;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 24px;
+  gap: $space-24;
   border-bottom: 1px solid var(--border);
   background: transparent;
 }
@@ -22,9 +26,9 @@
 .business-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: $space-6;
   color: var(--accent);
-  font-size: 11px;
+  font-size: $text-12;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -32,11 +36,11 @@
 .business-eyebrow iconify-icon {
   width: 14px;
   height: 14px;
-  font-size: 14px;
+  font-size: $text-14;
 }
 
 .business-hero h1 {
-  margin: 10px 0 8px;
+  margin: $space-10 0 $space-8;
   color: var(--fg);
   font-size: clamp(24px, 4vw, 34px);
   line-height: 1.2;
@@ -46,28 +50,31 @@
   max-width: 680px;
   margin: 0;
   color: var(--fg-muted);
-  font-size: 14px;
+  font-size: $text-14;
   white-space: pre-line;
 }
 
 .business-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  padding: 28px 0 40px;
+  gap: $space-14;
+  padding: $space-28 0 $space-40;
 }
 
 .business-card {
   position: relative;
   min-width: 0;
+  /* 卡片自身不额外撑内边距：内容由 .business-card-trigger 控制，
+     不依赖任何全局的裸元素规则 */
+  padding: 0;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: $radius-md;
   background: var(--canvas);
   transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease;
+    border-color 0.18s $ease-standard,
+    box-shadow 0.18s $ease-standard,
+    transform 0.18s $ease-standard;
 }
 
 .business-card--image::before,
@@ -91,7 +98,7 @@
 .business-card:hover,
 .business-card:focus-within {
   border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-  box-shadow: 0 6px 18px rgb(31 35 40 / 0.08);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
@@ -101,7 +108,7 @@
   display: block;
   width: 100%;
   min-height: 212px;
-  padding: 18px 18px 20px;
+  padding: $space-18 $space-18 $space-20;
   border: 0;
   background: transparent;
   color: inherit;
@@ -113,19 +120,19 @@
 .business-card-topline {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: $space-8;
 }
 
 .business-card-index {
   color: var(--accent);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 700;
 }
 
 .business-card-kicker {
   color: var(--fg-muted);
-  font-size: 10px;
+  font-size: $text-10;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -136,9 +143,9 @@
 
 .business-card-main {
   display: flex;
-  margin-top: 25px;
+  margin-top: $space-25;
   align-items: center;
-  gap: 12px;
+  gap: $space-12;
 }
 
 .business-card-icon,
@@ -149,7 +156,7 @@
   align-items: center;
   justify-content: center;
   border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
-  border-radius: 6px;
+  border-radius: $radius-md;
   background: color-mix(in srgb, var(--accent) 9%, var(--canvas));
   color: var(--accent);
 }
@@ -158,19 +165,19 @@
 .business-modal-icon iconify-icon {
   width: 21px;
   height: 21px;
-  font-size: 21px;
+  font-size: $text-20;
 }
 
 .business-card-copy {
   display: grid;
   min-width: 0;
-  gap: 6px;
+  gap: $space-6;
 }
 
 .business-card-copy strong {
   overflow: hidden;
   color: var(--fg);
-  font-size: 17px;
+  font-size: $text-16;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -178,18 +185,18 @@
 .business-card-tags {
   display: flex;
   flex-wrap: wrap;
-  margin-top: 22px;
-  gap: 6px;
+  margin-top: $space-22;
+  gap: $space-6;
 }
 
 .business-card-tags span {
   max-width: 100%;
   overflow: hidden;
-  padding: 3px 7px;
+  padding: $space-3 $space-7;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: $radius-pill;
   color: var(--fg-muted);
-  font-size: 11px;
+  font-size: $text-12;
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -197,7 +204,7 @@
 
 .business-card-copy span {
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: $text-13;
   line-height: 1.6;
 }
 
@@ -206,8 +213,8 @@
   height: 16px;
   color: var(--fg-muted);
   transition:
-    color 0.18s ease,
-    transform 0.18s ease;
+    color 0.18s $ease-standard,
+    transform 0.18s $ease-standard;
 }
 
 .business-card:hover .business-card-arrow,
@@ -218,14 +225,9 @@
 
 .business-empty,
 .business-disabled {
-  display: grid;
+  @extend %empty-state;
   min-height: 220px;
-  padding: 48px 32px;
-  place-items: center;
-  align-content: center;
-  gap: 8px;
-  color: var(--fg-muted);
-  text-align: center;
+  padding: $space-48 $space-32;
 }
 
 .business-empty iconify-icon,
@@ -233,7 +235,7 @@
   width: 24px;
   height: 24px;
   color: var(--accent);
-  font-size: 24px;
+  font-size: $text-24;
 }
 
 .business-empty p,
@@ -244,7 +246,7 @@
 
 .business-disabled h2 {
   color: var(--fg);
-  font-size: 18px;
+  font-size: $text-18;
 }
 
 .business-modal {
@@ -252,14 +254,14 @@
   z-index: 100;
   inset: 0;
   display: grid;
-  padding: 24px;
+  padding: $space-24;
   place-items: center;
 }
 
 .business-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgb(31 35 40 / 0.42);
+  background: var(--scrim);
   backdrop-filter: blur(2px);
 }
 
@@ -269,11 +271,11 @@
   width: min(560px, 100%);
   max-height: min(680px, calc(100dvh - 48px));
   overflow: auto;
-  padding: 30px;
+  padding: $space-30;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: $radius-lg;
   background: var(--canvas);
-  box-shadow: 0 20px 60px rgb(31 35 40 / 0.22);
+  box-shadow: var(--shadow-lg);
   animation: business-modal-in 0.2s ease both;
 }
 
@@ -283,15 +285,18 @@
   right: 16px;
   display: inline-flex;
   width: 32px;
-  height: 32px;
+  height: $control-md;
   padding: 0;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: $radius-md;
   background: var(--button-bg);
   color: var(--fg-muted);
   cursor: pointer;
+
+  /* 视觉仍是 32px，热区扩到 44px */
+  @include touch-target;
 }
 
 .business-modal-close:hover {
@@ -300,49 +305,49 @@
 
 .business-modal-heading {
   display: flex;
-  padding-right: 38px;
+  padding-right: $space-38;
   align-items: center;
-  gap: 14px;
+  gap: $space-14;
 }
 
 .business-modal-heading h2 {
-  margin: 4px 0 0;
+  margin: $space-4 0 0;
   color: var(--fg);
-  font-size: 23px;
+  font-size: $text-24;
   line-height: 1.3;
 }
 
 .business-modal-description {
-  margin: 24px 0 0;
+  margin: $space-24 0 0;
   color: var(--fg);
-  font-size: 14px;
+  font-size: $text-14;
   line-height: 1.75;
   white-space: pre-line;
 }
 
 .business-modal-section {
-  margin-top: 24px;
+  margin-top: $space-24;
 }
 
 .business-modal-section h3 {
-  margin: 0 0 10px;
+  margin: 0 0 $space-10;
   color: var(--fg);
-  font-size: 14px;
+  font-size: $text-14;
 }
 
 .business-modal-section ul {
   display: grid;
   margin: 0;
   padding: 0;
-  gap: 8px;
+  gap: $space-8;
   list-style: none;
 }
 
 .business-modal-section li {
   position: relative;
-  padding-left: 18px;
+  padding-left: $space-18;
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: $text-13;
 }
 
 .business-modal-section li::before {
@@ -351,20 +356,20 @@
   left: 2px;
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: $radius-circle;
   background: var(--accent);
   content: "";
 }
 
 .business-modal-meta {
   display: flex;
-  margin-top: 24px;
-  padding-top: 16px;
+  margin-top: $space-24;
+  padding-top: $space-16;
   justify-content: space-between;
-  gap: 16px;
+  gap: $space-16;
   border-top: 1px solid var(--border);
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: $text-13;
 }
 
 .business-modal-meta strong {
@@ -374,29 +379,29 @@
 
 .business-contact-list {
   display: grid;
-  margin-top: 18px;
-  gap: 8px;
+  margin-top: $space-18;
+  gap: $space-8;
 }
 
 .business-contact-item {
   display: grid;
   grid-template-columns: 18px 42px minmax(0, 1fr);
   min-height: 34px;
-  padding: 6px 10px;
+  padding: $space-6 $space-10;
   align-items: center;
-  gap: 8px;
+  gap: $space-8;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: $radius-md;
   background: var(--button-bg);
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: $text-13;
 }
 
 .business-contact-item iconify-icon {
   width: 16px;
   height: 16px;
   color: var(--accent);
-  font-size: 16px;
+  font-size: $text-16;
 }
 
 .business-contact-item strong {
@@ -409,22 +414,22 @@
 
 .business-contact-button {
   display: inline-flex;
-  min-height: 36px;
-  margin-top: 26px;
-  padding: 7px 14px;
+  min-height: $control-lg;
+  margin-top: $space-26;
+  padding: $space-7 $space-14;
   align-items: center;
   border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
-  border-radius: 6px;
+  border-radius: $radius-md;
   background: var(--accent);
   color: #fff;
-  font-size: 13px;
+  font-size: $text-13;
   font-weight: 600;
 }
 
 .business-contact-button:hover {
+  background: var(--accent-strong);
   color: #fff;
   text-decoration: none;
-  filter: brightness(0.94);
 }
 
 .business-modal-open {
@@ -442,15 +447,15 @@
   }
 }
 
-@media (max-width: 720px) {
+@include below($breakpoint-md) {
   .business-hero {
     min-height: 0;
-    padding: 28px 20px 24px;
+    padding: $space-28 $space-20 $space-24;
   }
 
   .business-grid {
     grid-template-columns: 1fr;
-    padding: 20px 0 24px;
+    padding: $space-20 0 $space-24;
   }
 
   .business-card-trigger {
@@ -458,22 +463,27 @@
   }
 
   .business-modal {
-    padding: 12px;
+    padding: $space-12;
   }
 
   .business-modal-panel {
     max-height: calc(100dvh - 24px);
-    padding: 24px 20px;
+    padding: $space-24 $space-20;
   }
 }
 
-@media (min-width: 721px) and (max-width: 1040px) {
-  .business-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding-inline: 0;
-  }
+/* 平板区间：$breakpoint-md 以上（769px 起）到 $breakpoint-lg 为止。
+   用 not (max-width: $breakpoint-md) 表达「不低于手机断点」，
+   避免出现 768 / 769 两个写死的数字中间留下 1px 缝隙。 */
+@media (not (max-width: $breakpoint-md)) {
+  @include below($breakpoint-lg) {
+    .business-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding-inline: 0;
+    }
 
-  .business-hero {
-    padding-inline: 28px;
+    .business-hero {
+      padding-inline: $space-28;
+    }
   }
 }

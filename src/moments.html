@@ -9,24 +9,24 @@
   contentClass=""
 >
   <template name="head">
-    <title th:text="|${title ?: '瞬间'} - ${site.title}|">瞬间</title>
+    <title th:with="pageTitle=${title}" th:text="|${pageTitle} - ${site.title}|">瞬间</title>
   </template>
 
   <section class="moments-page">
     <header class="page-hero moments-hero">
       <div>
         <p class="eyebrow">Moments</p>
-        <h1 th:text="${title ?: '瞬间'}">瞬间</h1>
-        <p>把轻量的想法、照片和日常记录放在这里。</p>
+        <h1 th:text="${title} ?: #{moments.title}">瞬间</h1>
+        <p th:text="#{moments.intro}">把轻量的想法、照片和日常记录放在这里。</p>
       </div>
       <span class="page-hero-count" th:if="${moments != null}">
         <span th:text="${moments.total ?: 0}">0</span>
-        <span>条瞬间</span>
+        <span th:text="#{common.momentCount}">条瞬间</span>
       </span>
     </header>
 
     <nav class="moment-tags" th:if="${tags != null and not #lists.isEmpty(tags)}">
-      <a class="tag" th:href="@{/moments}">全部</a>
+      <a class="tag" th:href="@{/moments}" th:text="#{moments.all}">全部</a>
       <a
         class="tag"
         th:each="tag : ${tags}"
@@ -36,9 +36,9 @@
     </nav>
 
     <div class="links-empty" th:if="${moments == null or #lists.isEmpty(moments.items)}">
-      <iconify-icon icon="octicon:comment-discussion-16"></iconify-icon>
-      <h2>暂无瞬间</h2>
-      <p>在瞬间插件里发布内容后，这里会自动显示。</p>
+      <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
+      <h2 th:text="#{moments.emptyTitle}">暂无瞬间</h2>
+      <p th:text="#{moments.emptyHint}">在瞬间插件里发布内容后，这里会自动显示。</p>
     </div>
 
     <ol class="moments-list" th:if="${moments != null and not #lists.isEmpty(moments.items)}">
@@ -70,9 +70,9 @@
             <a
               class="moment-permalink"
               th:href="@{|/moments/${item.metadata.name}|}"
-              aria-label="打开瞬间"
+              th:attr="aria-label=#{moments.open}"
             >
-              <iconify-icon icon="octicon:link-external-16"></iconify-icon>
+              <iconify-icon icon="octicon:link-external-16" aria-hidden="true"></iconify-icon>
             </a>
           </header>
 
@@ -112,7 +112,7 @@
                 target="_blank"
                 rel="noreferrer"
               >
-                <iconify-icon icon="octicon:link-16"></iconify-icon>
+                <iconify-icon icon="octicon:link-16" aria-hidden="true"></iconify-icon>
                 <span th:text="${medium.url}">相关链接</span>
               </a>
             </th:block>
@@ -123,15 +123,13 @@
               class="moment-upvote"
               type="button"
               th:if="${item.stats != null}"
-              th:attr="data-moment-upvote=${item.metadata.name}"
-              aria-label="点赞瞬间"
-              title="点赞"
+              th:attr="data-moment-upvote=${item.metadata.name}, aria-label=#{moments.upvote}, title=#{repository.upvote}"
             >
-              <iconify-icon icon="octicon:thumbsup-16"></iconify-icon>
+              <iconify-icon icon="octicon:thumbsup-16" aria-hidden="true"></iconify-icon>
               <span data-moment-upvote-count th:text="${item.stats.upvote ?: 0}">0</span>
             </button>
             <a th:href="@{|/moments/${item.metadata.name}#comments|}">
-              <iconify-icon icon="octicon:comment-16"></iconify-icon>
+              <iconify-icon icon="octicon:comment-16" aria-hidden="true"></iconify-icon>
               <span th:text="${item.stats?.approvedComment ?: 0}">0</span>
             </a>
             <span class="moment-tag-list" th:if="${not #lists.isEmpty(item.spec.tags)}">
@@ -151,10 +149,19 @@
     class="pagination"
     th:if="${moments != null and (moments.hasPrevious() || moments.hasNext())}"
   >
-    <a th:if="${moments.hasPrevious()}" th:href="@{${moments.prevUrl}}">上一页</a>
-    <a th:unless="${moments.hasPrevious()}" aria-disabled="true">上一页</a>
+    <a
+      th:if="${moments.hasPrevious()}"
+      th:href="@{${moments.prevUrl}}"
+      th:text="#{pagination.previous}"
+      >上一页</a
+    >
+    <a th:unless="${moments.hasPrevious()}" aria-disabled="true" th:text="#{pagination.previous}"
+      >上一页</a
+    >
     <span th:text="|${moments.page} / ${moments.totalPages}|"></span>
-    <a th:if="${moments.hasNext()}" th:href="@{${moments.nextUrl}}">下一页</a>
-    <a th:unless="${moments.hasNext()}" aria-disabled="true">下一页</a>
+    <a th:if="${moments.hasNext()}" th:href="@{${moments.nextUrl}}" th:text="#{pagination.next}"
+      >下一页</a
+    >
+    <a th:unless="${moments.hasNext()}" aria-disabled="true" th:text="#{pagination.next}">下一页</a>
   </nav>
 </include>

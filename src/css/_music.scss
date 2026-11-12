@@ -10,13 +10,13 @@
   width: min(300px, calc(100vw - 32px));
   grid-template-columns: 36px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px;
-  padding: 8px;
+  gap: $space-8;
+  padding: $space-8;
   @extend %surface-card;
-  box-shadow: 0 8px 24px rgb(31 35 40 / 14%);
+  box-shadow: var(--shadow-md);
   transition:
-    left 200ms ease,
-    top 200ms ease;
+    left $dur-slow $ease-standard,
+    top $dur-slow $ease-standard;
 }
 /* 悬浮播放器可拖拽，拖拽时关闭过渡以便跟手 */
 .music-player.is-dragging {
@@ -42,8 +42,8 @@
   min-width: 0;
   flex: 0 1 272px;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 6px;
-  padding: 3px 6px;
+  gap: $space-6;
+  padding: $space-3 $space-6;
   background: var(--canvas-subtle);
   box-shadow: none;
   order: 2;
@@ -64,11 +64,11 @@
   display: block;
   @include truncate;
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
   line-height: 24px;
 }
 .music-player--header .music-player-controls {
-  gap: 1px;
+  gap: $space-1;
 }
 .music-player--header .music-player-controls button {
   width: 24px;
@@ -102,7 +102,7 @@
 .music-player-info {
   display: grid;
   min-width: 0;
-  gap: 2px;
+  gap: $space-2;
 }
 .music-player-info strong,
 .music-player-info span {
@@ -110,17 +110,17 @@
 }
 .music-player-info strong {
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 600;
 }
 .music-player-info span {
   color: var(--fg-muted);
-  font-size: 11px;
+  font-size: $text-12;
 }
 .music-player-controls {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: $space-2;
 }
 .music-player-playlist {
   position: absolute;
@@ -129,12 +129,12 @@
   right: 0;
   left: 0;
   max-height: min(280px, 50vh);
-  padding: 6px;
+  padding: $space-6;
   overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: $radius-lg;
   background: var(--canvas);
-  box-shadow: 0 8px 24px rgb(31 35 40 / 14%);
+  box-shadow: var(--shadow-md);
 }
 .music-player:not(.music-player--header) .music-player-playlist {
   top: auto;
@@ -143,13 +143,13 @@
 .music-player-playlist-item {
   display: grid;
   width: 100%;
-  padding: 6px 8px;
-  gap: 2px;
+  padding: $space-6 $space-8;
+  gap: $space-2;
   border: 0;
   border-radius: $radius-md;
   background: transparent;
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
   text-align: left;
 }
 .music-player-playlist-item:hover {
@@ -165,21 +165,21 @@
 }
 .music-player-playlist-title {
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 600;
 }
 .music-player-playlist-artist {
   color: var(--fg-muted);
-  font-size: 11px;
+  font-size: $text-12;
 }
 .music-player-playlist-item.is-current .music-player-playlist-title,
 .music-player-playlist-item.is-current .music-player-playlist-artist {
   color: var(--accent);
 }
 .music-player-playlist-empty {
-  padding: 12px 8px;
-  color: var(--fg-muted);
-  font-size: 12px;
+  @extend %empty-state-text-inline;
+  padding: $space-12 $space-8;
+  font-size: $text-12;
   text-align: center;
 }
 @include below($breakpoint-md) {
@@ -188,6 +188,7 @@
   }
 }
 .music-player-controls button {
+  position: relative;
   display: inline-flex;
   width: 24px;
   height: 24px;
@@ -199,16 +200,23 @@
   background: transparent;
   color: var(--fg-muted);
   cursor: pointer;
+
+  /* 音乐控制条是 5 个 24px 图标的密集横排，整行宽度只有 130px 上下：
+     横向扩到 44px 必然和相邻按钮的热区互相遮挡（靠边的按钮反而点不到），
+     因此这里只做纵向扩展（24 → 44px 高），横向保持原宽度。 */
+  @include touch-target-vertical;
 }
 .music-player-controls button:hover:not(:disabled),
 .music-player-controls button:focus-visible {
   background: var(--button-hover);
   color: var(--fg);
-  outline: none;
+}
+.music-player-controls button:focus-visible {
+  @include focus-ring;
 }
 .music-player-controls button:disabled {
   cursor: wait;
-  opacity: 0.5;
+  opacity: var(--fg-disabled-opacity);
 }
 .music-player-controls iconify-icon {
   @include icon-size(16px);

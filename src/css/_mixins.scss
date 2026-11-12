@@ -19,9 +19,40 @@
 }
 
 // 键盘焦点环
-@mixin focus-ring($offset: 2px) {
-  outline: 2px solid var(--accent);
-  outline-offset: $offset;
+// 粗细与偏移走 CSS 变量，全站只有一档，不再各处自定 1px / 2px / 4px。
+@mixin focus-ring {
+  outline: var(--focus-ring-width) solid var(--accent);
+  outline-offset: var(--focus-ring-offset);
+}
+
+// 触控热区：视觉尺寸保持不变，用伪元素把可点区域扩到至少 $size（默认 44px）。
+// 用法前提：宿主元素自身必须是定位元素（position: relative / fixed / absolute），
+// 否则伪元素会相对更外层的祖先定位，热区就会跑偏。
+@mixin touch-target($size: 44px) {
+  &::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, $size);
+    height: max(100%, $size);
+    transform: translate(-50%, -50%);
+    content: "";
+  }
+}
+
+// 密集横排专用的热区：只做纵向扩展，横向保持元素原宽度。
+// 用于「一排 24px 图标按钮」这类控件——横向扩到 44px 必然与相邻按钮
+// 的热区互相遮挡，反而让靠边的按钮点不到。
+@mixin touch-target-vertical($size: 44px) {
+  &::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: max(100%, $size);
+    transform: translate(-50%, -50%);
+    content: "";
+  }
 }
 
 // 图标尺寸：iconify-icon 需要同时设定字号与盒子尺寸

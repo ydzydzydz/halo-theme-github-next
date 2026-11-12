@@ -1,22 +1,27 @@
 @use "components" as *;
 @use "tokens" as *;
 @use "mixins" as *;
-article {
-  padding: 24px;
+/* 正文卡片：只作用于带 class 的 <article class="post-article">。
+   以前用的是裸 article 元素选择器，会命中全站每一个 <article>
+   （.business-card、.moment-body 都被顺带加了 24px 内边距）。
+   注意：src/post.html 与 src/page.html 的 <article> 元素需要补上
+   class="post-article"，否则正文卡片不再有内边距与描边。 */
+.post-article {
+  padding: $space-24;
   @extend %surface-card;
 }
 .article-header {
   position: relative;
   z-index: 0;
   min-height: 0;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  margin-bottom: $space-24;
+  padding-bottom: $space-16;
   border-bottom: 1px solid var(--border);
 }
 .article-header--cover {
   display: flex;
   min-height: 180px;
-  padding: 24px;
+  padding: $space-24;
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
@@ -52,8 +57,8 @@ article {
   color: var(--accent);
 }
 .article-title {
-  margin: 0 0 8px;
-  font-size: 32px;
+  margin: 0 0 $space-8;
+  font-size: $text-32;
   line-height: 1.25;
   font-weight: 600;
 }
@@ -61,21 +66,150 @@ article {
 .post-meta,
 .post-excerpt {
   color: var(--fg-muted);
-  font-size: 14px;
+  font-size: $text-14;
 }
+/* ---------------------------------------------------------------------------
+   正文排版阶梯
+   ---------------------------------------------------------------------------
+   文章、页面、关于、动态、留言板引言这几处的正文都是后台渲染出来的
+   Markdown HTML，结构完全一致。这里统一收拾成 GitHub README 的观感：
+   标题有层级、段落有呼吸、列表与引用有缩进。
+   字号阶梯以 16px 正文为基准（h1 24 → h6 14），与 _readme.scss 的
+   README 卡片同一套刻度，只是基准字号更大。
+   --------------------------------------------------------------------------- */
 .article-content {
   max-width: 100%;
   color: var(--fg);
-  font-size: 16px;
+  font-size: $text-16;
   line-height: 1.75;
+  /* 长 URL、无空格长串不再撑破正文列。
+     overflow-wrap 是继承属性，声明一次即可覆盖全部后代。 */
+  overflow-wrap: break-word;
 }
+
+/* 首尾元素不留多余外边距，避免和卡片内边距叠成两倍留白 */
+.article-content > :first-child {
+  margin-top: 0;
+}
+
+.article-content > :last-child {
+  margin-bottom: 0;
+}
+
+/* 标题：h1 / h2 用分隔线切分大段落，h3 以下靠字号与字重区分 */
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  margin: $space-24 0 $space-12;
+  color: var(--fg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.article-content h1 {
+  padding-bottom: $space-8;
+  border-bottom: 1px solid var(--border);
+  font-size: $text-24;
+}
+
+.article-content h2 {
+  padding-bottom: $space-6;
+  border-bottom: 1px solid var(--border);
+  font-size: $text-20;
+}
+
+.article-content h3 {
+  font-size: $text-18;
+}
+
+.article-content h4 {
+  font-size: $text-16;
+}
+
+.article-content h5,
+.article-content h6 {
+  color: var(--fg-muted);
+  font-size: $text-14;
+}
+
+.article-content p {
+  margin: 0 0 $space-16;
+}
+
+.article-content ul,
+.article-content ol {
+  margin: 0 0 $space-16;
+  padding-left: $space-24;
+}
+
+.article-content li + li {
+  margin-top: $space-4;
+}
+
+.article-content li > ul,
+.article-content li > ol {
+  margin: $space-4 0 0;
+}
+
+.article-content blockquote {
+  margin: 0 0 $space-16;
+  padding: $space-4 $space-16;
+  border-left: 4px solid var(--border);
+  color: var(--fg-muted);
+}
+
+.article-content blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.article-content hr {
+  height: 1px;
+  margin: $space-24 0;
+  border: 0;
+  background: var(--border);
+}
+
+/* 表格：窄屏时整块横向滚动，不撑破正文列 */
+.article-content table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 $space-16;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: $text-14;
+}
+
+.article-content th,
+.article-content td {
+  padding: $space-6 $space-12;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.article-content th {
+  background: var(--canvas-subtle);
+  font-weight: 600;
+}
+
+.article-content .task-list-item {
+  list-style: none;
+}
+
+.article-content .task-list-item input {
+  margin-right: $space-6;
+}
+
 .article-content img {
   max-width: 100%;
   height: auto;
   border-radius: $radius-md;
 }
 .article-content figure {
-  margin: 20px 0;
+  margin: $space-20 0;
   text-align: center;
 }
 .article-content figure img {
@@ -86,9 +220,9 @@ article {
   cursor: zoom-in;
 }
 .article-content figure figcaption {
-  margin-top: 8px;
+  margin-top: $space-8;
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: $text-13;
   line-height: 1.5;
 }
 .article-content pre,
@@ -106,38 +240,46 @@ article {
 }
 .article-content pre {
   overflow-x: auto;
-  padding: 16px;
+  margin: 0 0 $space-16;
+  padding: $space-16;
+  border-radius: $radius-md;
+  font-size: $text-13;
+  line-height: 1.6;
 }
 .article-content code {
   padding: 0.2em 0.4em;
+  border-radius: $radius-xs;
   font-size: 85%;
 }
 .article-content pre code {
   padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 100%;
 }
 .tag,
 .category {
   @extend %pill;
-  margin: 4px 4px 0 0;
-  padding: 2px 8px;
+  margin: $space-4 $space-4 0 0;
+  padding: $space-2 $space-8;
   background: var(--canvas-subtle);
   color: var(--accent);
 }
 .article-tags,
 .article-categories {
-  margin-top: 24px;
+  margin-top: $space-24;
 }
 .post-nav {
   display: flex;
-  margin-top: 24px;
-  padding-top: 24px;
+  margin-top: $space-24;
+  padding-top: $space-24;
   justify-content: space-between;
-  gap: 16px;
+  gap: $space-16;
   border-top: 1px solid var(--border);
 }
 .post-comments {
-  margin-top: 24px;
-  padding: 16px;
+  margin-top: $space-24;
+  padding: $space-16;
   border: 1px solid var(--border);
   border-radius: $radius-lg;
   background: var(--canvas);
@@ -162,17 +304,17 @@ html[data-color-scheme="dark"] body .post-comments {
 }
 .post-comments-header {
   display: flex;
-  padding-bottom: 12px;
+  padding-bottom: $space-12;
   align-items: center;
-  gap: 8px;
+  gap: $space-8;
   border-bottom: 1px solid var(--border);
   color: var(--fg);
-  font-size: 14px;
+  font-size: $text-14;
 }
 .post-comments-header iconify-icon {
   @include icon-size(16px);
   color: var(--fg-muted);
 }
 .post-comments-body {
-  padding-top: 16px;
+  padding-top: $space-16;
 }

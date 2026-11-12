@@ -23,7 +23,7 @@
         ></a>
       </span>
     </div>
-    <p class="repository-list-desc" th:text="${post.status.excerpt ?: '暂无文章摘要'}">
+    <p class="repository-list-desc" th:text="${post.status.excerpt} ?: #{common.noSummary}">
       暂无文章摘要
     </p>
     <div class="repository-list-meta">
@@ -36,7 +36,9 @@
           th:text="${cat.spec.displayName}"
         ></a>
       </span>
-      <span th:unless="${not #lists.isEmpty(post.categories)}">未分类</span>
+      <span th:unless="${not #lists.isEmpty(post.categories)}" th:text="#{common.uncategorized}"
+        >未分类</span
+      >
       <time
         th:datetime="${post.spec.publishTime}"
         th:text="|Updated ${#temporals.format(post.spec.publishTime, 'MMM d')}|"
@@ -46,31 +48,28 @@
     </div>
   </div>
   <div class="repository-side">
-    <div class="repository-action-group" aria-label="文章操作">
+    <div class="repository-action-group" th:attr="aria-label=#{repository.actions}">
       <button
         class="repository-action-button post-upvote"
         type="button"
-        th:attr="data-post-upvote=${post.metadata.name}"
-        aria-label="点赞文章"
-        title="点赞"
+        th:attr="data-post-upvote=${post.metadata.name}, aria-label=#{post.upvote}, title=#{repository.upvote}"
       >
-        <iconify-icon icon="octicon:thumbsup-16"></iconify-icon>
-        <span>点赞</span>
+        <iconify-icon icon="octicon:thumbsup-16" aria-hidden="true"></iconify-icon>
+        <span th:text="#{repository.upvote}">点赞</span>
         <span data-post-upvote-count th:text="${post.stats?.upvote ?: 0}">0</span>
       </button>
       <a class="repository-action-button" th:href="@{${post.status.permalink} + '#comments'}">
-        <span>评论</span>
+        <span th:text="#{repository.comment}">评论</span>
       </a>
     </div>
     <div
       class="repository-engagement"
-      th:attr="data-repository-post-name=${post.metadata.name}, aria-label=|文章互动：${post.stats?.visit ?: 0} 次访问，${post.stats?.comment ?: 0} 条评论，${post.stats?.upvote ?: 0} 个赞|"
+      th:attr="data-repository-post-name=${post.metadata.name},  aria-label=|文章互动：${post.stats?.visit ?: 0} 次访问，${post.stats?.comment ?: 0} 条评论，${post.stats?.upvote ?: 0} 个赞|"
     >
       <span
         class="repository-engagement-metric"
         data-engagement-kind="visit"
-        th:attr="data-engagement-count=${post.stats?.visit ?: 0}"
-        title="访问量"
+        th:attr="data-engagement-count=${post.stats?.visit ?: 0}, title=#{common.viewCount}"
       >
         <iconify-icon icon="octicon:eye-16" aria-hidden="true"></iconify-icon>
         <span
@@ -82,8 +81,7 @@
       <span
         class="repository-engagement-metric"
         data-engagement-kind="comment"
-        th:attr="data-engagement-count=${post.stats?.comment ?: 0}"
-        title="评论数"
+        th:attr="data-engagement-count=${post.stats?.comment ?: 0}, title=#{common.commentCount}"
       >
         <iconify-icon icon="octicon:comment-16" aria-hidden="true"></iconify-icon>
         <span
@@ -95,8 +93,7 @@
       <span
         class="repository-engagement-metric"
         data-engagement-kind="upvote"
-        th:attr="data-engagement-count=${post.stats?.upvote ?: 0}"
-        title="点赞数"
+        th:attr="data-engagement-count=${post.stats?.upvote ?: 0}, title=#{common.upvoteCount}"
       >
         <iconify-icon icon="octicon:thumbsup-16" aria-hidden="true"></iconify-icon>
         <span

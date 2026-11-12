@@ -2,21 +2,19 @@
   <header class="business-hero">
     <div class="business-hero-copy">
       <span class="business-eyebrow"
-        ><iconify-icon icon="octicon:briefcase-16"></iconify-icon> SERVICES</span
+        ><iconify-icon icon="octicon:briefcase-16" aria-hidden="true"></iconify-icon> SERVICES</span
       >
-      <h1 th:text="${businessConfig.title ?: '我可以为你做什么'}">我可以为你做什么</h1>
-      <p
-        th:text="${businessConfig.intro ?: '面向个人与企业，提供从基础设施到网络接入的一站式技术服务。'}"
-      >
+      <h1 th:text="${businessConfig.title} ?: #{business.defaultTitle}">我可以为你做什么</h1>
+      <p th:text="${businessConfig.intro} ?: #{business.defaultIntro}">
         面向个人与企业，提供从基础设施到网络接入的一站式技术服务。
       </p>
     </div>
   </header>
 
   <div class="business-disabled" th:if="${businessConfig.enabled == false}">
-    <iconify-icon icon="octicon:eye-closed-16"></iconify-icon>
-    <h2>服务页面暂未开放</h2>
-    <p>可以在主题设置中重新开启服务页面。</p>
+    <iconify-icon icon="octicon:eye-closed-16" aria-hidden="true"></iconify-icon>
+    <h2 th:text="#{business.disabledTitle}">服务页面暂未开放</h2>
+    <p th:text="#{business.disabledHint}">可以在主题设置中重新开启服务页面。</p>
   </div>
 
   <div
@@ -53,7 +51,7 @@
           </span>
           <span class="business-card-copy">
             <strong th:text="${service.name}">服务器</strong>
-            <span th:text="${service.summary ?: '查看服务详情'}">查看服务详情</span>
+            <span th:text="${service.summary} ?: #{business.detailSummary}">查看服务详情</span>
           </span>
         </span>
         <span class="business-card-tags" th:if="${not #strings.isEmpty(service.deliverables)}">
@@ -78,24 +76,27 @@
             <h2 th:text="${service.name}">服务器运维</h2>
           </div>
         </div>
-        <p class="business-modal-description" th:text="${service.description ?: service.summary}">
-          详细介绍
+        <p
+          class="business-modal-description"
+          th:text="${service.description ?: service.summary} ?: #{business.more}"
+        >
+          th:text="#{business.more}"
         </p>
         <div class="business-modal-section" th:if="${not #strings.isEmpty(service.deliverables)}">
-          <h3>服务内容</h3>
+          <h3 th:text="#{business.serviceContent}">服务内容</h3>
           <ul>
             <li
               th:each="item : ${#strings.arraySplit(service.deliverables, '\n')}"
               th:if="${not #strings.isEmpty(item)}"
               th:text="${item}"
             >
-              服务内容
+              th:text="#{business.serviceContent}"
             </li>
           </ul>
         </div>
         <div class="business-modal-meta" th:if="${not #strings.isEmpty(service.price)}">
-          <span>费用说明</span>
-          <strong th:text="${service.price}">按项目评估</strong>
+          <span th:text="#{business.priceLabel}">费用说明</span>
+          <strong th:text="${service.price} ?: #{business.price}">按项目评估</strong>
         </div>
         <div
           class="business-contact-list"
@@ -106,25 +107,29 @@
             th:if="${not #strings.isEmpty(service.contact_wechat)}"
           >
             <iconify-icon icon="simple-icons:wechat" aria-hidden="true"></iconify-icon>
-            <span>微信</span>
-            <strong th:text="${service.contact_wechat}">微信号</strong>
+            <span th:text="#{business.wechat}">微信</span>
+            <strong th:text="${service.contact_wechat} ?: #{business.wechatPlaceholder}"
+              >微信号</strong
+            >
           </div>
           <div class="business-contact-item" th:if="${not #strings.isEmpty(service.contact_qq)}">
             <iconify-icon icon="simple-icons:qq" aria-hidden="true"></iconify-icon>
             <span>QQ</span>
-            <strong th:text="${service.contact_qq}">QQ 号</strong>
+            <strong th:text="${service.contact_qq} ?: #{business.qqPlaceholder}">QQ 号</strong>
           </div>
           <div class="business-contact-item" th:if="${not #strings.isEmpty(service.contact_phone)}">
             <iconify-icon icon="octicon:device-mobile-16" aria-hidden="true"></iconify-icon>
-            <span>手机</span>
-            <strong th:text="${service.contact_phone}">手机号</strong>
+            <span th:text="#{business.phone}">手机</span>
+            <strong th:text="${service.contact_phone} ?: #{business.phonePlaceholder}"
+              >手机号</strong
+            >
           </div>
         </div>
         <a
           class="business-contact-button"
           th:if="${not #strings.isEmpty(service.contact_url)}"
           th:href="${service.contact_url}"
-          th:text="${service.contact_label ?: '立即咨询'}"
+          th:text="${service.contact_label} ?: #{business.inquire}"
           th:attr="target=${#strings.startsWith(service.contact_url, 'http') ? '_blank' : null}, rel=${#strings.startsWith(service.contact_url, 'http') ? 'noreferrer' : null}"
           >立即咨询</a
         >
@@ -136,8 +141,8 @@
     class="business-empty"
     th:if="${businessConfig.enabled != false and (businessConfig.services == null or #lists.isEmpty(businessConfig.services))}"
   >
-    <iconify-icon icon="octicon:inbox-16"></iconify-icon>
-    <p>暂时还没有开放的服务项目。</p>
+    <iconify-icon icon="octicon:inbox-16" aria-hidden="true"></iconify-icon>
+    <p th:text="#{business.empty}">暂时还没有开放的服务项目。</p>
   </div>
 </section>
 
@@ -154,8 +159,7 @@
       class="business-modal-close"
       type="button"
       data-business-close
-      aria-label="关闭详情"
-      title="关闭详情"
+      th:attr="aria-label=#{business.closeDetail}, title=#{business.closeDetail}"
     >
       <iconify-icon icon="octicon:x-16" aria-hidden="true"></iconify-icon>
     </button>

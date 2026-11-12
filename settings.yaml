@@ -42,16 +42,19 @@ spec:
               label: 内容
               value: ""
               placeholder: "社会大学"
+              help: 资料条目的显示文本
             - $formkit: text
               name: icon
               label: Iconify 图标
               value: "octicon:info-16"
               placeholder: "octicon:organization-16"
+              help: 资料条目前的 Iconify 图标名称
             - $formkit: text
               name: url
               label: 链接（可选）
               value: ""
               placeholder: "mailto:your@example.com"
+              help: 点击资料条目时打开的地址，留空则不可点击
         - $formkit: checkbox
           name: show_stats
           label: 是否显示网站统计信息
@@ -64,11 +67,6 @@ spec:
           min: 1
           max: 50
           help: 首页“站点动态”默认展示的最新记录数量
-        - $formkit: checkbox
-          name: contribution_graph_english
-          label: 动态贡献图开启英文显示
-          value: false
-          help: 默认使用中文；开启后，首页动态贡献图及站点动态的月份、提示和操作文案使用英文显示
         - $formkit: select
           name: status
           label: 状态 Emoji
@@ -172,6 +170,7 @@ spec:
             person_two_name: ""
             person_two_avatar: ""
             person_two_qq: ""
+          help: 恩爱计时设置组，用于配置两位当事人的信息与开始时间
           children:
             - $formkit: checkbox
               name: enabled
@@ -194,6 +193,7 @@ spec:
               value: ""
               placeholder: "例如：小明"
               validation: required
+              help: 第一位当事人的名称，显示在头像旁
             - $formkit: attachment
               name: person_one_avatar
               if: $get(sidebar_love_enabled).value
@@ -216,6 +216,7 @@ spec:
               value: ""
               placeholder: "例如：小红"
               validation: required
+              help: 第二位当事人的名称，显示在头像旁
             - $formkit: attachment
               name: person_two_avatar
               if: $get(sidebar_love_enabled).value
@@ -277,7 +278,7 @@ spec:
           name: hide_sidebar_on_mobile
           label: 移动端隐藏整个侧边栏
           value: true
-          help: 开启后在手机等窄屏设备上隐藏整个左侧资料区（头像、名称、资料、标签、分类等），内容区占满整行
+          help: 开启后在手机等窄屏设备上完全隐藏侧栏资料区（头像、名称、资料、标签、分类等），内容区占满整行；关闭后侧栏会在窄屏下继续保留
     - group: icons
       label: 图标配置
       formSchema:
@@ -350,6 +351,7 @@ spec:
               label: Iconify 图标名称
               value: "octicon:star-16"
               placeholder: "octicon:tools-16"
+              help: 自定义菜单项显示的 Iconify 图标名称
         - $formkit: text
           name: fallback
           label: 未匹配菜单默认图标
@@ -368,6 +370,7 @@ spec:
           label: 页面标题
           value: "我可以为你做什么"
           placeholder: "我可以为你做什么"
+          help: 服务页面顶部显示的标题
         - $formkit: textarea
           name: intro
           label: 页面介绍
@@ -457,7 +460,7 @@ spec:
               background_image: ""
           addLabel: 添加服务项目
           emptyText: 暂无服务项目，请添加后在前台展示
-          help: 关闭某项的“显示此服务”后，该项目不会出现在前台
+          help: 服务项目列表，逐条配置服务卡片与详情弹窗；关闭某项的“显示此服务”后，该项目不会出现在前台
           itemLabels:
             - type: text
               label: "$value.name"
@@ -466,21 +469,25 @@ spec:
               name: enabled
               label: 显示此服务
               value: true
+              help: 取消勾选后，该服务项目不会出现在前台
             - $formkit: text
               name: name
               label: 服务名称
               value: ""
               placeholder: "服务器运维"
+              help: 服务卡片显示的名称
             - $formkit: text
               name: summary
               label: 卡片简介
               value: ""
               placeholder: "一句话说明这项服务"
+              help: 服务卡片名称下方显示的一句话简介
             - $formkit: textarea
               name: description
               label: 详细介绍
               value: ""
               placeholder: "介绍适用场景、服务方式和你能解决的问题"
+              help: 详情弹窗中的详细介绍，支持换行
             - $formkit: textarea
               name: deliverables
               label: 服务内容
@@ -492,36 +499,43 @@ spec:
               label: 费用说明
               value: ""
               placeholder: "按项目评估"
+              help: 详情弹窗中显示的费用或计价方式说明
             - $formkit: text
               name: icon
               label: Iconify 图标
               value: "octicon:briefcase-16"
               placeholder: "octicon:server-16"
+              help: 服务卡片显示的 Iconify 图标名称
             - $formkit: text
               name: contact_label
               label: 联系按钮文字
               value: "立即咨询"
               placeholder: "立即咨询"
+              help: 详情弹窗中联系按钮的显示文字
             - $formkit: text
               name: contact_url
               label: 联系地址
               value: ""
               placeholder: "mailto:you@example.com 或 https://..."
+              help: "点击联系按钮后打开的地址，支持 mailto: 与 https:// 链接"
             - $formkit: text
               name: contact_wechat
               label: 微信号
               value: ""
               placeholder: "填写后在详情中显示"
+              help: 详情弹窗中显示的微信号，留空则不显示
             - $formkit: text
               name: contact_qq
               label: QQ 号
               value: ""
               placeholder: "填写后在详情中显示"
+              help: 详情弹窗中显示的 QQ 号，留空则不显示
             - $formkit: text
               name: contact_phone
               label: 手机号
               value: ""
               placeholder: "填写后在详情中显示"
+              help: 详情弹窗中显示的手机号，留空则不显示
             - $formkit: attachment
               name: background_image
               label: 卡片背景图片
@@ -535,6 +549,7 @@ spec:
           name: show_tags
           label: 显示个人标签
           value: true
+          help: 开启后在关于页右侧 README 中显示个人标签
         - $formkit: array
           name: tags
           label: 个人标签
@@ -549,6 +564,7 @@ spec:
             - text: "🚀 持续折腾"
           addLabel: 添加标签
           emptyText: 暂无个人标签
+          help: 关于页展示的个人标签列表，按顺序显示
           itemLabels:
             - type: text
               label: "$value.text"
@@ -558,6 +574,7 @@ spec:
               label: 标签文字
               value: ""
               placeholder: "💻 运维开发"
+              help: 标签显示的文字内容
         - $formkit: textarea
           name: intro
           label: 关于本站
@@ -572,6 +589,7 @@ spec:
           name: show_skills
           label: 显示技能与认证
           value: true
+          help: 开启后在关于页显示技能与认证区块
         - $formkit: array
           name: skills
           label: 技能与认证
@@ -608,6 +626,7 @@ spec:
               level: 100
           addLabel: 添加技能或认证
           emptyText: 暂无技能与认证
+          help: 技能与认证列表，逐条配置名称、图标和进度
           itemLabels:
             - type: text
               label: "$value.name"
@@ -617,10 +636,12 @@ spec:
               label: 名称
               value: ""
               placeholder: "2025 · 认证名称"
+              help: 技能或认证的名称，显示在进度条上方
             - $formkit: text
               name: icon
               label: Iconify 图标
               value: "octicon:verified-16"
+              help: 该项显示的 Iconify 图标名称
             - $formkit: number
               name: level
               label: 进度
@@ -628,10 +649,12 @@ spec:
               min: 0
               max: 100
               suffix: "%"
+              help: 进度百分比，取值 0 至 100
         - $formkit: checkbox
           name: show_history
           label: 显示建站历程
           value: true
+          help: 开启后在关于页显示建站历程区块
         - $formkit: textarea
           name: history
           label: 建站历程
@@ -646,14 +669,17 @@ spec:
           name: show_promise
           label: 显示十年之约
           value: true
+          help: 开启后在关于页显示十年之约区块
         - $formkit: text
           name: promise_title
           label: 约定标题
           value: "十年之约"
+          help: 十年之约区块的标题
         - $formkit: text
           name: promise_subtitle
           label: 约定描述
           value: "十年之约，写给这座博客，也写给未来的自己。"
+          help: 十年之约区块标题下方显示的描述文案
         - $formkit: text
           name: promise_start
           label: 开始日期
@@ -670,6 +696,7 @@ spec:
           name: show_contacts
           label: 显示联系方式
           value: true
+          help: 开启后在关于页显示联系方式区块
         - $formkit: array
           name: contacts
           label: 联系方式
@@ -685,6 +712,7 @@ spec:
               icon: "octicon:rss-16"
           addLabel: 添加联系方式
           emptyText: 暂无联系方式
+          help: 联系方式列表，逐条配置名称、链接和图标
           itemLabels:
             - type: text
               label: "$value.label"
@@ -696,15 +724,18 @@ spec:
               label: 名称
               value: ""
               placeholder: "GitHub"
+              help: 联系方式显示的名称
             - $formkit: text
               name: url
               label: 链接
               value: ""
               placeholder: "https://example.com"
+              help: "点击联系方式后打开的地址，支持 mailto: 与站内路径"
             - $formkit: text
               name: icon
               label: Iconify 图标
               value: "octicon:link-16"
+              help: 联系方式显示的 Iconify 图标名称
     - group: styles
       label: 样式
       formSchema:
@@ -712,10 +743,12 @@ spec:
           name: background_color
           label: 背景颜色
           value: "#ffffff"
+          help: "页面整体背景色，支持 #rrggbb 十六进制格式；暗色模式下会自动与暗色基底混合，避免背景过亮影响阅读"
         - $formkit: color
           name: accent_color
           label: 强调色
           value: "#0969da"
+          help: "链接、选中态等元素的主题色，支持 #rrggbb 十六进制格式；暗色模式下会自动与暗色基底混合，避免高亮过亮"
         - $formkit: checkbox
           name: archive_cover_enabled
           label: 归档列表显示封面背景
@@ -825,6 +858,7 @@ spec:
           label: 本站友链名称
           value: ""
           placeholder: "留空时使用站点名称"
+          help: 友链申请区域中展示的本站名称，留空时使用站点标题
         - $formkit: text
           name: link_application_site_url
           label: 本站友链地址
@@ -842,6 +876,7 @@ spec:
           label: 本站友链描述
           value: ""
           placeholder: "留空时使用站点描述"
+          help: 友链申请区域中展示的本站描述，留空时使用站点描述
         - $formkit: text
           name: link_application_site_link_page
           label: 本站友链页面
@@ -884,7 +919,7 @@ spec:
           label: 站点开始运行时间
           value: ""
           step: 1
-          help: 设置后在前端底部显示精确到秒的站点运行时间，留空则不显示；满一年后会自动追加年份
+          help: 设置后在前端底部显示精确到秒的站点运行时间，按 365.2425 天/年计算，不满一年时不显示年份；留空则不显示
         - $formkit: checkbox
           name: rss_enabled
           label: 显示 RSS 订阅

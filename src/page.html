@@ -31,11 +31,11 @@
     <section class="about-section about-overview">
       <div
         class="about-section-copy"
-        th:with="hasCustomAboutContent=${singlePage.content != null and not #strings.isEmpty(singlePage.content.content) and not #strings.contains(singlePage.content.content, '这是一篇自动生成的页面')}"
+        th:with="hasCustomAboutContent=${singlePage.content != null and not #strings.isEmpty(singlePage.content.content) and not #strings.contains(singlePage.content.content, 'auto-generated')}"
       >
         <div class="about-section-heading">
-          <iconify-icon icon="octicon:info-16"></iconify-icon>
-          <h2>关于本站</h2>
+          <iconify-icon icon="octicon:info-16" aria-hidden="true"></iconify-icon>
+          <h2 th:text="#{about.overviewTitle}">关于本站</h2>
         </div>
         <p
           class="about-config-text"
@@ -51,11 +51,13 @@
           class="article-content about-content"
           th:if="${#strings.isEmpty(aboutConfig.intro) and not hasCustomAboutContent}"
         >
-          <p>嗨，欢迎来到我的小站。这里是我存放运维笔记、记录日常点滴的自留地。</p>
-          <p>
-            一名闲不住、天天和服务器对线的运维人，平日主要调集群、排查各类线上故障，有空就折腾自动化脚本提升效率。
+          <p th:text="#{about.defaultIntro1}">
+            嗨，欢迎来到我的小站。这里是我存放运维笔记、记录日常点滴的自留地。
           </p>
-          <p>本站一半记录生活碎片，一半分享一路走来踩过的运维坑与实操经验。</p>
+          <p>th:text="#{about.defaultIntro2}"</p>
+          <p th:text="#{about.defaultIntro3}">
+            本站一半记录生活碎片，一半分享一路走来踩过的运维坑与实操经验。
+          </p>
         </div>
       </div>
     </section>
@@ -65,20 +67,20 @@
       th:if="${aboutConfig.show_tags == null or aboutConfig.show_tags}"
     >
       <div class="about-section-heading">
-        <iconify-icon icon="octicon:telescope-16"></iconify-icon>
-        <h2>关注方向</h2>
+        <iconify-icon icon="octicon:telescope-16" aria-hidden="true"></iconify-icon>
+        <h2 th:text="#{about.focusTitle}">关注方向</h2>
       </div>
-      <div class="about-tag-list" aria-label="个人标签">
+      <div class="about-tag-list" th:attr="aria-label=#{about.focusTagLabel}">
         <span th:each="tag : ${aboutConfig.tags}" th:text="${tag.text}"></span>
         <th:block th:if="${#lists.isEmpty(aboutConfig.tags)}">
-          <span>💻 运维开发</span>
-          <span>📚 终身学习</span>
-          <span>🏓 台球</span>
-          <span>⌨️ 击键爱好者</span>
+          <span th:text="#{about.defaultTag1}">💻 运维开发</span>
+          <span th:text="#{about.defaultTag2}">📚 终身学习</span>
+          <span th:text="#{about.defaultTag3}">🏓 台球</span>
+          <span th:text="#{about.defaultTag4}">⌨️ 击键爱好者</span>
           <span>🛠️ AMT-er</span>
           <span>🏁 INFA-J</span>
-          <span>🧑‍💻 技术实践</span>
-          <span>🚀 持续折腾</span>
+          <span th:text="#{about.defaultTag7}">🧑‍💻 技术实践</span>
+          <span th:text="#{about.defaultTag8}">🚀 持续折腾</span>
         </th:block>
       </div>
     </section>
@@ -88,8 +90,8 @@
       th:if="${aboutConfig.show_skills == null or aboutConfig.show_skills}"
     >
       <div class="about-section-heading">
-        <iconify-icon icon="octicon:stack-16"></iconify-icon>
-        <h2>技能与认证</h2>
+        <iconify-icon icon="octicon:stack-16" aria-hidden="true"></iconify-icon>
+        <h2 th:text="#{about.skillsTitle}">技能与认证</h2>
       </div>
       <div class="about-skill-grid" th:if="${not #lists.isEmpty(aboutConfig.skills)}">
         <div
@@ -97,50 +99,53 @@
           th:each="skill : ${aboutConfig.skills}"
           th:style="|--skill-level: ${skill.level ?: 100}%|"
         >
-          <iconify-icon th:attr="icon=${skill.icon ?: 'octicon:verified-16'}"></iconify-icon>
+          <iconify-icon
+            th:attr="icon=${skill.icon ?: 'octicon:verified-16'}"
+            aria-hidden="true"
+          ></iconify-icon>
           <span th:text="${skill.name}"></span>
         </div>
       </div>
       <div class="about-skill-grid" th:if="${#lists.isEmpty(aboutConfig.skills)}">
         <div class="about-skill" style="--skill-level: 100%">
-          <iconify-icon icon="octicon:verified-16"></iconify-icon>
-          <span>2025 · 信息技术处理员（软考）</span>
+          <iconify-icon icon="octicon:verified-16" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill1}">2025 · 信息技术处理员（软考）</span>
         </div>
         <div class="about-skill" style="--skill-level: 100%">
-          <iconify-icon icon="octicon:verified-16"></iconify-icon>
-          <span>2025 · 信息系统运行管理员（软考）</span>
+          <iconify-icon icon="octicon:verified-16" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill2}">2025 · 信息系统运行管理员（软考）</span>
         </div>
         <div class="about-skill" style="--skill-level: 88%">
-          <iconify-icon icon="simple-icons:oracle"></iconify-icon>
-          <span>2025 · OCP（Oracle）</span>
+          <iconify-icon icon="simple-icons:oracle" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill3}">2025 · OCP（Oracle）</span>
         </div>
         <div class="about-skill" style="--skill-level: 90%">
-          <iconify-icon icon="simple-icons:huawei"></iconify-icon>
-          <span>2025 · H3CNE（华三）</span>
+          <iconify-icon icon="simple-icons:huawei" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill4}">2025 · H3CNE（华三）</span>
         </div>
         <div class="about-skill" style="--skill-level: 90%">
-          <iconify-icon icon="simple-icons:huawei"></iconify-icon>
-          <span>2021 · HCIP（华为）</span>
+          <iconify-icon icon="simple-icons:huawei" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill5}">2021 · HCIP（华为）</span>
         </div>
         <div class="about-skill" style="--skill-level: 95%">
-          <iconify-icon icon="simple-icons:huawei"></iconify-icon>
-          <span>2021 · HCIA（华为）</span>
+          <iconify-icon icon="simple-icons:huawei" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill6}">2021 · HCIA（华为）</span>
         </div>
         <div class="about-skill" style="--skill-level: 100%">
-          <iconify-icon icon="octicon:terminal-16"></iconify-icon>
-          <span>2019 · 软件工程师（人社部）</span>
+          <iconify-icon icon="octicon:terminal-16" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill7}">2019 · 软件工程师（人社部）</span>
         </div>
         <div class="about-skill" style="--skill-level: 100%">
-          <iconify-icon icon="octicon:code-16"></iconify-icon>
-          <span>2018 · 中级程序员（人社部）</span>
+          <iconify-icon icon="octicon:code-16" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill8}">2018 · 中级程序员（人社部）</span>
         </div>
         <div class="about-skill" style="--skill-level: 100%">
-          <iconify-icon icon="octicon:code-16"></iconify-icon>
-          <span>2017 · 初级程序员（人社部）</span>
+          <iconify-icon icon="octicon:code-16" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill9}">2017 · 初级程序员（人社部）</span>
         </div>
         <div class="about-skill" style="--skill-level: 100%">
-          <iconify-icon icon="octicon:device-desktop-16"></iconify-icon>
-          <span>2015 · 计算机操作员三级（人社部）</span>
+          <iconify-icon icon="octicon:device-desktop-16" aria-hidden="true"></iconify-icon>
+          <span th:text="#{about.sampleSkill10}">2015 · 计算机操作员三级（人社部）</span>
         </div>
       </div>
     </section>
@@ -150,8 +155,8 @@
       th:if="${aboutConfig.show_history == null or aboutConfig.show_history}"
     >
       <div class="about-section-heading">
-        <iconify-icon icon="octicon:history-16"></iconify-icon>
-        <h2>建站历程</h2>
+        <iconify-icon icon="octicon:history-16" aria-hidden="true"></iconify-icon>
+        <h2 th:text="#{about.historyTitle}">建站历程</h2>
       </div>
       <p
         class="about-config-text"
@@ -159,9 +164,8 @@
         th:text="${aboutConfig.history}"
       ></p>
       <p class="about-config-text" th:if="${#strings.isEmpty(aboutConfig.history)}">
-        最开始搭建这个博客，初衷很简单，只是为了存档工作里遇到的各类问题。
-        日常运维工作总会碰到各式各样的故障、踩不完的坑，很多问题解决过后隔段时间就容易遗忘。于是便想着把排查思路、处理步骤、踩过的弯路全部记录下来。
-        慢慢写着写着，博客不再仅仅是工作问题的知识库。
+        th:text="#{about.historyIntro1}" th:text="#{about.historyIntro2}"
+        th:text="#{about.historyIntro3}"
       </p>
     </section>
 
@@ -169,26 +173,27 @@
       class="about-section about-promise"
       th:if="${aboutConfig.show_promise == null or aboutConfig.show_promise}"
       data-site-timeline
-      th:attr="data-start=${aboutConfig.promise_start ?: '2021-01-01'}, data-end=${aboutConfig.promise_end ?: '2031-01-01'}"
+      th:attr="data-start=${aboutConfig.promise_start ?: '2021-01-01'},  data-end=${aboutConfig.promise_end ?: '2031-01-01'}"
     >
       <div class="about-promise-heading">
-        <iconify-icon icon="octicon:heart-16"></iconify-icon>
+        <iconify-icon icon="octicon:heart-16" aria-hidden="true"></iconify-icon>
         <div>
-          <h2 th:text="${aboutConfig.promise_title ?: '十年之约'}">十年之约</h2>
-          <p
-            th:text="${aboutConfig.promise_subtitle ?: '十年之约，写给这座博客，也写给未来的自己。'}"
-          >
-            十年之约，写给这座博客，也写给未来的自己。
+          <h2 th:text="${aboutConfig.promise_title} ?: #{about.promiseDefaultTitle}">十年之约</h2>
+          <p th:text="${aboutConfig.promise_subtitle} ?: #{about.promiseDefaultSubtitle}">
+            th:text="#{about.promiseDefaultSubtitle}"
           </p>
         </div>
       </div>
-      <div class="about-progress" aria-label="十年之约进度">
+      <div class="about-progress" th:attr="aria-label=#{about.promiseProgressLabel}">
         <span data-site-progress></span>
       </div>
       <div class="about-progress-meta">
-        <span>已坚持 <strong data-site-percent>0%</strong></span>
+        <span
+          ><span th:text="#{about.promiseDone}">已坚持</span>
+          <strong data-site-percent>0%</strong></span
+        >
         <span data-site-age>0 天</span>
-        <span data-site-target>目标：10 年</span>
+        <span data-site-target th:text="#{about.promiseTarget}">目标：10 年</span>
       </div>
     </section>
 
@@ -197,12 +202,12 @@
       th:if="${aboutConfig.show_contacts == null or aboutConfig.show_contacts}"
     >
       <div class="about-section-heading">
-        <iconify-icon icon="octicon:mail-16"></iconify-icon>
-        <h2>联系我</h2>
+        <iconify-icon icon="octicon:mail-16" aria-hidden="true"></iconify-icon>
+        <h2 th:text="#{about.contactTitle}">联系我</h2>
       </div>
       <nav
         class="about-contact-list"
-        aria-label="联系方式"
+        th:attr="aria-label=#{about.contactLabel}"
         th:if="${not #lists.isEmpty(aboutConfig.contacts)}"
       >
         <a
@@ -210,25 +215,28 @@
           th:href="${contact.url}"
           th:attr="target=${#strings.startsWith(contact.url, 'http') ? '_blank' : null}, rel=${#strings.startsWith(contact.url, 'http') ? 'noreferrer' : null}"
         >
-          <iconify-icon th:attr="icon=${contact.icon ?: 'octicon:link-16'}"></iconify-icon>
+          <iconify-icon
+            th:attr="icon=${contact.icon ?: 'octicon:link-16'}"
+            aria-hidden="true"
+          ></iconify-icon>
           <span th:text="${contact.label}"></span>
         </a>
       </nav>
       <nav
         class="about-contact-list"
-        aria-label="联系方式"
+        th:attr="aria-label=#{about.contactLabel}"
         th:if="${#lists.isEmpty(aboutConfig.contacts)}"
       >
         <a href="https://github.com/ydzydzydz" target="_blank" rel="noreferrer">
-          <iconify-icon icon="octicon:mark-github-16"></iconify-icon>
+          <iconify-icon icon="octicon:mark-github-16" aria-hidden="true"></iconify-icon>
           <span>GitHub</span>
         </a>
         <a href="https://gitee.com/ydzydzydz" target="_blank" rel="noreferrer">
-          <iconify-icon icon="simple-icons:gitee"></iconify-icon>
+          <iconify-icon icon="simple-icons:gitee" aria-hidden="true"></iconify-icon>
           <span>Gitee</span>
         </a>
         <a th:href="@{/rss.xml}" target="_blank" rel="noreferrer">
-          <iconify-icon icon="octicon:rss-16"></iconify-icon>
+          <iconify-icon icon="octicon:rss-16" aria-hidden="true"></iconify-icon>
           <span>RSS</span>
         </a>
       </nav>
@@ -236,6 +244,7 @@
   </section>
 
   <article
+    class="post-article"
     th:unless="${singlePage.spec.slug == 'about' or singlePage.spec.slug == 'services' or singlePage.spec.slug == 'Services' or singlePage.spec.slug == 'business' or singlePage.spec.slug == 'Business'}"
   >
     <header class="article-header">
@@ -244,10 +253,15 @@
     <div class="article-content" th:utext="${singlePage.content.content}"></div>
   </article>
 
-  <section class="post-comments" id="comments" aria-label="评论区" th:if="${haloCommentEnabled}">
+  <section
+    class="post-comments"
+    id="comments"
+    th:if="${haloCommentEnabled}"
+    th:attr="aria-label=#{post.commentArea}"
+  >
     <header class="post-comments-header">
       <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
-      <strong>评论</strong>
+      <strong th:text="#{comment.title}">评论</strong>
     </header>
     <div class="post-comments-body">
       <halo:comment

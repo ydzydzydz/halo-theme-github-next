@@ -1,7 +1,10 @@
 import "../css/main.scss";
 import "../css/about.scss";
 import "iconify-icon";
+import { setupBackToTop } from "./shared/back-to-top";
 import { setupCommentWidgetStyle } from "./shared/comment-widget";
+import { pageLocale, showInlineHint } from "./shared/dom";
+import { messages, formatMessage } from "./shared/i18n";
 import { setupRepositoryFilters } from "./shared/repository-filters";
 
 type SearchHit = {
@@ -54,38 +57,38 @@ let currentUserRequest: Promise<CurrentUserDetail | undefined> | undefined;
 
 const getWeatherMeta = (code: number) => {
   if (code === 0) {
-    return { icon: "solar:sun-2-linear", label: "晴" };
+    return { icon: "solar:sun-2-linear", label: messages.weather.conditionClear };
   }
 
   if ([1, 2].includes(code)) {
-    return { icon: "solar:cloud-sun-2-linear", label: "少云" };
+    return { icon: "solar:cloud-sun-2-linear", label: messages.weather.conditionMostlyClear };
   }
 
   if (code === 3) {
-    return { icon: "solar:cloud-linear", label: "阴" };
+    return { icon: "solar:cloud-linear", label: messages.weather.conditionOvercast };
   }
 
   if ([45, 48].includes(code)) {
-    return { icon: "solar:cloud-fog-linear", label: "雾" };
+    return { icon: "solar:cloud-fog-linear", label: messages.weather.conditionFog };
   }
 
   if ([51, 53, 55, 56, 57].includes(code)) {
-    return { icon: "solar:cloud-sun-rain-linear", label: "毛毛雨" };
+    return { icon: "solar:cloud-sun-rain-linear", label: messages.weather.conditionDrizzle };
   }
 
   if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) {
-    return { icon: "solar:cloud-rain-linear", label: "雨" };
+    return { icon: "solar:cloud-rain-linear", label: messages.weather.conditionRain };
   }
 
   if ([71, 73, 75, 77, 85, 86].includes(code)) {
-    return { icon: "solar:cloud-snowfall-linear", label: "雪" };
+    return { icon: "solar:cloud-snowfall-linear", label: messages.weather.conditionSnow };
   }
 
   if ([95, 96, 99].includes(code)) {
-    return { icon: "solar:cloud-bolt-linear", label: "雷雨" };
+    return { icon: "solar:cloud-bolt-linear", label: messages.weather.conditionThunderstorm };
   }
 
-  return { icon: "solar:cloud-linear", label: "多云" };
+  return { icon: "solar:cloud-linear", label: messages.weather.conditionCloudy };
 };
 
 const setupWeather = () => {
@@ -100,7 +103,7 @@ const setupWeather = () => {
   }
 
   const fallback: WeatherCoordinates = {
-    label: widget.dataset.weatherLocation?.trim() || "天气",
+    label: widget.dataset.weatherLocation?.trim() || messages.weather.defaultLabel,
     latitude: Number(widget.dataset.weatherLatitude),
     longitude: Number(widget.dataset.weatherLongitude),
   };
@@ -147,7 +150,12 @@ const setupWeather = () => {
         temperature.textContent = `${roundedTemperature}°`;
         widget.setAttribute(
           "aria-label",
-          `${coordinates.label}，${weather.label}，${roundedTemperature} 摄氏度`,
+          formatMessage(
+            messages.weather.summary,
+            coordinates.label,
+            weather.label,
+            String(roundedTemperature),
+          ),
         );
       })
       .catch(() => {
@@ -165,7 +173,7 @@ const setupWeather = () => {
     return;
   }
 
-  location.textContent = "定位中";
+  location.textContent = messages.weather.locating;
   navigator.geolocation.getCurrentPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
@@ -175,7 +183,7 @@ const setupWeather = () => {
         return;
       }
 
-      loadWeather({ label: "当前位置", latitude, longitude }, true);
+      loadWeather({ label: messages.weather.currentLocation, latitude, longitude }, true);
     },
     () => loadWeather(fallback, false),
     { enableHighAccuracy: false, maximumAge: 900000, timeout: 6000 },
@@ -198,35 +206,118 @@ const setupThemeToggle = () => {
     return;
   }
 
-  let colorScheme = "light";
+  // 三种状态：system（跟随系统）/ light / dark。
+  // 只有用户显式选择过 light 或 dark 时才写入 <html data-color-scheme>，
+  // 这样未选择过的访客能由 CSS 的 prefers-color-scheme 规则接管，跟随系统外观。
+  type ColorScheme = "system" | "light" | "dark";
+
+  const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+  let preference: ColorScheme = "system";
 
   try {
-    colorScheme = localStorage.getItem(colorSchemeStorageKey) === "dark" ? "dark" : "light";
+    const stored = localStorage.getItem(colorSchemeStorageKey);
+    if (stored === "dark" || stored === "light") {
+      preference = stored;
+    }
   } catch {
-    colorScheme = "light";
+    // 存储不可用时保持 system，由 CSS 媒体查询决定实际外观。
   }
 
-  const applyColorScheme = (scheme: string) => {
-    const isDark = scheme === "dark";
-    document.documentElement.dataset.colorScheme = isDark ? "dark" : "light";
-    trigger.setAttribute("aria-pressed", String(isDark));
-    trigger.setAttribute("aria-label", isDark ? "切换到日间模式" : "切换到黑夜模式");
-    trigger.title = isDark ? "切换到日间模式" : "切换到黑夜模式";
-    icon?.setAttribute("icon", isDark ? "solar:moon-line-duotone" : "solar:sun-linear");
+  const resolveScheme = (value: ColorScheme): "light" | "dark" => {
+    if (value === "dark") return "dark";
+    if (value === "light") return "light";
+    return systemPrefersDark.matches ? "dark" : "light";
   };
 
-  applyColorScheme(colorScheme);
+  // 三态循环：跟随系统 -> 白色 -> 夜间 -> 跟随系统。
+  // 这样用户可以回到「跟随系统」，不必清缓存才能恢复默认行为。
+  const nextScheme = (value: ColorScheme): ColorScheme => {
+    if (value === "system") return "light";
+    if (value === "light") return "dark";
+    return "system";
+  };
+
+  // 图标按「用户选择的模式」取，而不是按「当前实际生效的外观」取。
+  //
+  // 原因：跟随系统时实际外观由操作系统决定，若图标跟着实际外观走，
+  // 系统为暗色时「跟随系统」和「夜间」会渲染成完全一样的月亮图标，
+  // 用户点击后看不出自己已经切回了跟随系统。这里用显示器图标表示
+  // 「跟随设备 / 跟随系统设置」，太阳与月亮分别表示白色与夜间。
+  const colorSchemeIcons: Record<ColorScheme, string> = {
+    system: "solar:monitor-linear",
+    light: "solar:sun-linear",
+    dark: "solar:moon-line-duotone",
+  };
+
+  const colorSchemeModeLabels: Record<ColorScheme, string> = {
+    system: messages.theme.modeSystem,
+    light: messages.theme.modeLight,
+    dark: messages.theme.modeDark,
+  };
+
+  const colorSchemeActionLabels: Record<ColorScheme, string> = {
+    system: messages.theme.switchToSystem,
+    light: messages.theme.switchToLight,
+    dark: messages.theme.switchToDark,
+  };
+
+  const applyColorScheme = (preferenceValue: ColorScheme) => {
+    const scheme = resolveScheme(preferenceValue);
+    const root = document.documentElement;
+
+    // 始终把「实际生效的配色」写到 <html data-color-scheme>，跟随系统时也不例外。
+    //
+    // 原因是站点里的插件（代码高亮 shiki、文章摘要、评论组件、搜索组件……）
+    // 都以 html[data-color-scheme="dark"] 判断是否暗色。如果跟随系统时把这个
+    // 属性删掉，主题自己会按 prefers-color-scheme 变暗，插件却仍是浅色，
+    // 暗色页面上就会浮着几张白色卡片。
+    //
+    // CSS 里的 @media (prefers-color-scheme: dark) 分支保留给没有 JS 的访客。
+    root.dataset.colorScheme = scheme;
+
+    // 无障碍名称同时说明「当前是什么模式」和「点下去会切到什么模式」，
+    // 光靠图标传达不了三态之间的区别。
+    const label = `${formatMessage(
+      messages.theme.modeLabel,
+      colorSchemeModeLabels[preferenceValue],
+    )}, ${colorSchemeActionLabels[nextScheme(preferenceValue)]}`;
+
+    trigger.setAttribute("aria-label", label);
+    trigger.title = label;
+    trigger.dataset.colorMode = preferenceValue;
+    icon?.setAttribute("icon", colorSchemeIcons[preferenceValue]);
+  };
+
+  applyColorScheme(preference);
 
   trigger.addEventListener("click", () => {
-    colorScheme = colorScheme === "dark" ? "light" : "dark";
-    applyColorScheme(colorScheme);
+    preference = nextScheme(preference);
+    applyColorScheme(preference);
 
     try {
-      localStorage.setItem(colorSchemeStorageKey, colorScheme);
+      if (preference === "system") {
+        localStorage.removeItem(colorSchemeStorageKey);
+      } else {
+        localStorage.setItem(colorSchemeStorageKey, preference);
+      }
     } catch {
-      // The selected mode still applies for the current page when storage is unavailable.
+      // 存储不可用时，本次页面仍然按所选模式生效。
     }
   });
+
+  // 用户未显式选择时，系统外观变化应实时反映到页面。
+  const onSystemChange = () => {
+    if (preference === "system") {
+      applyColorScheme(preference);
+    }
+  };
+
+  if (typeof systemPrefersDark.addEventListener === "function") {
+    systemPrefersDark.addEventListener("change", onSystemChange);
+  } else if (typeof systemPrefersDark.addListener === "function") {
+    systemPrefersDark.addListener(onSystemChange);
+  }
 };
 
 // 一年按 365.2425 天计算，站点运行时间与建站历程进度条保持一致。
@@ -259,8 +350,11 @@ const setupSiteTimeline = () => {
 
   progress.style.width = `${progressValue}%`;
   percent.textContent = `${progressValue.toFixed(2)}%`;
-  age.textContent = `${elapsedDays} 天`;
-  target.textContent = `目标：${Number.isInteger(durationYears) ? durationYears : durationYears.toFixed(1)} 年`;
+  age.textContent = formatMessage(messages.timeline.elapsedDays, elapsedDays);
+  target.textContent = formatMessage(
+    messages.timeline.target,
+    Number.isInteger(durationYears) ? durationYears : durationYears.toFixed(1),
+  );
 };
 
 const setupSiteRuntime = () => {
@@ -290,10 +384,15 @@ const setupSiteRuntime = () => {
 
     // 不足一年时不展示年份，避免出现「0 年」。
     if (years > 0) {
-      segments.push(`${years} 年`);
+      segments.push(formatMessage(messages.timeline.years, years));
     }
 
-    segments.push(`${days} 天`, `${pad(hours)} 时`, `${pad(minutes)} 分`, `${pad(seconds)} 秒`);
+    segments.push(
+      formatMessage(messages.timeline.days, days),
+      formatMessage(messages.timeline.hours, pad(hours)),
+      formatMessage(messages.timeline.minutes, pad(minutes)),
+      formatMessage(messages.timeline.seconds, pad(seconds)),
+    );
     runtime.textContent = segments.join(" ");
   };
 
@@ -308,14 +407,22 @@ const setupHeaderClock = () => {
     return;
   }
 
-  const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+  // 中英文的日期顺序与月份写法差异很大，交给 Intl 按页面语言格式化。
+  const formatter = new Intl.DateTimeFormat(pageLocale(), {
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
   const pad = (value: number) => String(value).padStart(2, "0");
   const updateClock = () => {
     const now = new Date();
     const dateTime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
     clock.dateTime = dateTime;
-    clock.textContent = `${now.getMonth() + 1}月${now.getDate()}日 周${weekdays[now.getDay()]} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    clock.textContent = formatter.format(now);
   };
 
   const scheduleNextUpdate = () => {
@@ -449,7 +556,7 @@ const normalizeHttpUrl = (value: string, label: string) => {
     }
     return url.toString();
   } catch {
-    throw new Error(`${label}必须是有效的 HTTP 或 HTTPS 地址。`);
+    throw new Error(formatMessage(messages.links.invalidUrl, label));
   }
 };
 
@@ -463,18 +570,20 @@ const formatFriendLinkApplication = (payload: {
   rssUrl: string;
 }) => {
   const row = (label: string, value: string) =>
-    value ? `<p><strong>${label}：</strong>${escapeCommentHtml(value)}</p>` : "";
+    value
+      ? `<p><strong>${label}${messages.links.rowSeparator}</strong>${escapeCommentHtml(value)}</p>`
+      : "";
   const safeUrl = escapeCommentHtml(payload.url);
 
   return [
-    "<p><strong>[友链申请]</strong></p>",
-    row("网站名称", payload.siteName),
-    `<p><strong>网站地址：</strong>${safeUrl}</p>`,
-    row("网站头像", payload.logo),
-    row("网站描述", payload.description),
-    row("联系邮箱", payload.email),
-    row("友链页面", payload.backlinkUrl),
-    row("RSS 订阅地址", payload.rssUrl),
+    `<p><strong>[${messages.links.linkApplication}]</strong></p>`,
+    row(messages.links.rowSiteName, payload.siteName),
+    `<p><strong>${messages.links.rowSiteUrl}${messages.links.rowSeparator}</strong>${safeUrl}</p>`,
+    row(messages.links.rowSiteLogo, payload.logo),
+    row(messages.links.rowSiteDescription, payload.description),
+    row(messages.links.rowContactEmail, payload.email),
+    row(messages.links.rowBacklinkUrl, payload.backlinkUrl),
+    row(messages.links.rowRssUrl, payload.rssUrl),
   ]
     .filter(Boolean)
     .join("");
@@ -483,13 +592,13 @@ const formatFriendLinkApplication = (payload: {
 const findMessageBoardName = async () => {
   const response = await fetch(singlePageEndpoint, { cache: "no-store" });
   if (!response.ok) {
-    throw new Error("无法获取留言板信息，请稍后再试。");
+    throw new Error(messages.links.boardFetchFailed);
   }
 
   const result = (await response.json()) as { items?: SinglePageSummary[] };
   const messageBoard = result.items?.find((page) => page.spec?.template === "message.html");
   if (!messageBoard?.metadata?.name) {
-    throw new Error("未找到留言板页面，请先创建使用 message.html 模板的页面。");
+    throw new Error(messages.links.boardMissing);
   }
   return messageBoard.metadata.name;
 };
@@ -531,14 +640,14 @@ const setupFriendLinkApplication = () => {
     submit.disabled = true;
     status.classList.remove("is-error");
     status.classList.remove("is-success");
-    status.textContent = "正在提交...";
+    status.textContent = messages.links.submitting;
 
     void Promise.resolve()
       .then(() => {
-        payload.url = normalizeHttpUrl(payload.url, "网站地址");
-        payload.logo = normalizeHttpUrl(payload.logo, "网站头像");
-        payload.backlinkUrl = normalizeHttpUrl(payload.backlinkUrl, "友链页面");
-        payload.rssUrl = normalizeHttpUrl(payload.rssUrl, "RSS 订阅地址");
+        payload.url = normalizeHttpUrl(payload.url, messages.links.rowSiteUrl);
+        payload.logo = normalizeHttpUrl(payload.logo, messages.links.rowSiteLogo);
+        payload.backlinkUrl = normalizeHttpUrl(payload.backlinkUrl, messages.links.rowBacklinkUrl);
+        payload.rssUrl = normalizeHttpUrl(payload.rssUrl, messages.links.rowRssUrl);
         return findMessageBoardName();
       })
       .then((messageBoardName) => {
@@ -569,16 +678,16 @@ const setupFriendLinkApplication = () => {
           const body = (await response.json().catch(() => undefined)) as
             | { detail?: string; message?: string }
             | undefined;
-          throw new Error(body?.message || body?.detail || "提交失败，请稍后再试。");
+          throw new Error(body?.message || body?.detail || messages.links.failed);
         }
 
         form.reset();
         status.classList.add("is-success");
-        status.textContent = "申请已提交到留言板，等待站长审核。";
+        status.textContent = messages.links.submittedToBoard;
       })
       .catch((error: unknown) => {
         status.classList.add("is-error");
-        status.textContent = error instanceof Error ? error.message : "提交失败，请稍后再试。";
+        status.textContent = error instanceof Error ? error.message : messages.links.failed;
       })
       .finally(() => {
         submit.disabled = false;
@@ -797,10 +906,10 @@ const normalizeMusicTrack = (value: unknown): MusicTrack | undefined => {
   }
 
   return {
-    title: getText(track.title, track.name, track.songname) || "未命名歌曲",
+    title: getText(track.title, track.name, track.songname) || messages.music.untitled,
     artist:
       getArtistName(track.artist ?? track.author ?? track.ar ?? track.artists ?? track.singer) ||
-      "未知歌手",
+      messages.music.unknownArtist,
     lyric: getText(track.lrc, track.lyric, track.lyrics),
     url,
     cover: getText(
@@ -1089,8 +1198,8 @@ const setupMusicPlayer = () => {
   };
 
   if (!sourceApi) {
-    title.textContent = "请填写音乐 API 地址";
-    artist.textContent = "自定义数据源需要返回可播放歌曲列表";
+    title.textContent = messages.music.apiRequired;
+    artist.textContent = messages.music.customApiHint;
     setControlsEnabled(false);
     return;
   }
@@ -1138,16 +1247,19 @@ const setupMusicPlayer = () => {
 
   const updatePlayState = () => {
     const isPlaying = !audio.paused;
-    toggle.setAttribute("aria-label", isPlaying ? "暂停" : "播放");
-    toggle.title = isPlaying ? "暂停" : "播放";
+    toggle.setAttribute("aria-label", isPlaying ? messages.music.pause : messages.music.play);
+    toggle.title = isPlaying ? messages.music.pause : messages.music.play;
     toggleIcon?.setAttribute("icon", isPlaying ? "octicon:pause-16" : "octicon:play-16");
   };
 
   const updatePlaybackMode = () => {
     const isShuffle = playbackModeValue === "shuffle";
-    playbackMode.setAttribute("aria-label", isShuffle ? "随机播放" : "顺序播放");
+    playbackMode.setAttribute(
+      "aria-label",
+      isShuffle ? messages.music.shuffle : messages.music.playbackMode,
+    );
     playbackMode.setAttribute("aria-pressed", String(isShuffle));
-    playbackMode.title = isShuffle ? "随机播放" : "顺序播放";
+    playbackMode.title = isShuffle ? messages.music.shuffle : messages.music.playbackMode;
     playbackModeIcon?.setAttribute("icon", isShuffle ? "lucide:shuffle" : "lucide:list-ordered");
   };
 
@@ -1168,7 +1280,7 @@ const setupMusicPlayer = () => {
     if (!tracks.length) {
       const empty = document.createElement("p");
       empty.className = "music-player-playlist-empty";
-      empty.textContent = "播放列表为空";
+      empty.textContent = messages.music.emptyPlaylist;
       playlistPanel.append(empty);
       return;
     }
@@ -1228,7 +1340,7 @@ const setupMusicPlayer = () => {
   };
 
   const updateLyrics = () => {
-    const fallback = tracks[index]?.title || "正在加载歌词";
+    const fallback = tracks[index]?.title || messages.music.lyricsFallback;
     const currentTime = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
     let currentLine: MusicLyricLine | undefined;
 
@@ -1247,7 +1359,7 @@ const setupMusicPlayer = () => {
     const requestId = ++lyricRequestId;
     lyricLines = [];
     displayedLyric = "";
-    setLyrics(track.lyric ? "正在加载歌词" : track.title);
+    setLyrics(track.lyric ? messages.music.lyricsFallback : track.title);
 
     try {
       const source = track.lyric;
@@ -1288,7 +1400,7 @@ const setupMusicPlayer = () => {
       updatePlayState();
     } catch {
       resumeOnInteraction = true;
-      artist.textContent = "浏览器限制自动播放，点击页面后继续";
+      artist.textContent = messages.music.autoplayBlocked;
       updatePlayState();
 
       if (!interactionListenerBound) {
@@ -1454,7 +1566,7 @@ const setupMusicPlayer = () => {
     }
   });
   audio.addEventListener("error", () => {
-    artist.textContent = "当前歌曲无法播放，正在切换";
+    artist.textContent = messages.music.playbackFailed;
     if (tracks.length > 1) {
       window.setTimeout(goToNext, 500);
     }
@@ -1498,8 +1610,8 @@ const setupMusicPlayer = () => {
       loadTrack(restoredIndex, shouldPlay, canRestore?.time || 0);
     })
     .catch(() => {
-      title.textContent = "音乐暂时不可用";
-      artist.textContent = "请检查播放器 API 配置";
+      title.textContent = messages.music.unavailableTitle;
+      artist.textContent = messages.music.unavailableHint;
       setControlsEnabled(false);
     });
 };
@@ -1532,7 +1644,7 @@ const setupMomentImagePreview = () => {
       preview.className = "image-preview";
       preview.setAttribute("role", "dialog");
       preview.setAttribute("aria-modal", "true");
-      preview.setAttribute("aria-label", "图片预览");
+      preview.setAttribute("aria-label", messages.preview.label);
 
       const previewImage = document.createElement("img");
       previewImage.src = source;
@@ -1541,8 +1653,8 @@ const setupMomentImagePreview = () => {
       const closeButton = document.createElement("button");
       closeButton.className = "image-preview-close";
       closeButton.type = "button";
-      closeButton.title = "关闭预览";
-      closeButton.setAttribute("aria-label", "关闭预览");
+      closeButton.title = messages.preview.close;
+      closeButton.setAttribute("aria-label", messages.preview.close);
       const closeIcon = document.createElement("iconify-icon");
       closeIcon.setAttribute("icon", "material-symbols:close");
       closeButton.append(closeIcon);
@@ -1598,7 +1710,7 @@ const createImageLightbox = (entries: LightboxEntry[]) => {
   counter.className = "photo-lightbox-counter";
   const original = document.createElement("a");
   original.className = "photo-lightbox-original";
-  original.textContent = "查看原图";
+  original.textContent = messages.preview.original;
   original.target = "_blank";
   original.rel = "noreferrer";
 
@@ -1613,29 +1725,29 @@ const createImageLightbox = (entries: LightboxEntry[]) => {
   const closeButton = document.createElement("button");
   closeButton.className = "photo-lightbox-close";
   closeButton.type = "button";
-  closeButton.title = "关闭预览";
-  closeButton.setAttribute("aria-label", "关闭预览");
+  closeButton.title = messages.preview.close;
+  closeButton.setAttribute("aria-label", messages.preview.close);
   closeButton.append(createIcon("material-symbols:close"));
 
   const prevButton = document.createElement("button");
   prevButton.className = "photo-lightbox-nav photo-lightbox-nav--prev";
   prevButton.type = "button";
-  prevButton.title = "上一张";
-  prevButton.setAttribute("aria-label", "上一张");
+  prevButton.title = messages.preview.previous;
+  prevButton.setAttribute("aria-label", messages.preview.previous);
   prevButton.append(createIcon("material-symbols:chevron-left"));
 
   const nextButton = document.createElement("button");
   nextButton.className = "photo-lightbox-nav photo-lightbox-nav--next";
   nextButton.type = "button";
-  nextButton.title = "下一张";
-  nextButton.setAttribute("aria-label", "下一张");
+  nextButton.title = messages.preview.next;
+  nextButton.setAttribute("aria-label", messages.preview.next);
   nextButton.append(createIcon("material-symbols:chevron-right"));
 
   const overlay = document.createElement("div");
   overlay.className = "photo-lightbox";
   overlay.setAttribute("role", "dialog");
   overlay.setAttribute("aria-modal", "true");
-  overlay.setAttribute("aria-label", "图片预览");
+  overlay.setAttribute("aria-label", messages.preview.label);
   overlay.hidden = true;
   overlay.append(figure, closeButton, prevButton, nextButton);
   document.body.append(overlay);
@@ -1860,7 +1972,7 @@ const setupMomentUpvotes = () => {
             item.classList.add("is-upvoted");
           });
       } catch {
-        window.alert("点赞失败，请稍后再试");
+        showInlineHint(button, messages.toast.likeFailed);
       } finally {
         button.disabled = false;
       }
@@ -1938,7 +2050,7 @@ const setupPostUpvotes = () => {
           });
         setupRepositoryEngagement();
       } catch {
-        window.alert("点赞失败，请稍后再试");
+        showInlineHint(button, messages.toast.likeFailed);
       } finally {
         button.disabled = false;
       }
@@ -1961,7 +2073,7 @@ const setupNotificationIndicator = () => {
     dot.hidden = !hasUnread;
 
     if (hasUnread) {
-      link.title = "有未读消息";
+      link.title = messages.notification.unread;
     } else {
       link.removeAttribute("title");
     }
@@ -2206,7 +2318,7 @@ const setupSearch = () => {
     overlay.hidden = true;
     document.documentElement.classList.remove("search-open");
     input.value = "";
-    status.textContent = "输入关键词搜索";
+    status.textContent = messages.search.status;
     results.replaceChildren();
     controller?.abort();
   };
@@ -2215,11 +2327,11 @@ const setupSearch = () => {
     results.replaceChildren();
 
     if (!data.hits?.length) {
-      status.textContent = `没有找到与 “${keyword}” 相关的内容`;
+      status.textContent = formatMessage(messages.search.noResultWithKeyword, keyword);
       return;
     }
 
-    status.textContent = `找到 ${data.total ?? data.hits.length} 条结果`;
+    status.textContent = formatMessage(messages.search.resultCount, data.total ?? data.hits.length);
     results.append(...data.hits.map(createResultItem));
   };
 
@@ -2228,13 +2340,13 @@ const setupSearch = () => {
     controller?.abort();
 
     if (!keyword) {
-      status.textContent = "输入关键词搜索";
+      status.textContent = messages.search.status;
       results.replaceChildren();
       return;
     }
 
     controller = new AbortController();
-    status.textContent = "搜索中...";
+    status.textContent = messages.search.searching;
 
     try {
       const response = await fetch(searchEndpoint, {
@@ -2263,7 +2375,7 @@ const setupSearch = () => {
         return;
       }
 
-      status.textContent = "搜索暂时不可用";
+      status.textContent = messages.search.temporarilyUnavailable;
     }
   };
 
@@ -2530,7 +2642,7 @@ const setupSidebarCategories = () => {
             const item = document.createElement("li");
             const link = document.createElement("a");
             const name = document.createElement("span");
-            name.textContent = category.spec?.displayName?.trim() || "未命名分类";
+            name.textContent = category.spec?.displayName?.trim() || messages.taxonomy.untitled;
             link.href = category.status?.permalink || "/categories";
             link.append(name);
 
@@ -2617,7 +2729,7 @@ const setupTaxonomyPage = () => {
     const title = document.createElement("strong");
     const description = document.createElement("span");
     const metrics = document.createElement("span");
-    const name = category.spec?.displayName?.trim() || "未命名分类";
+    const name = category.spec?.displayName?.trim() || messages.taxonomy.untitled;
     const categoryPosts = posts.filter((post) =>
       post.categories?.some(
         (postCategory) => postCategory.metadata?.name === category.metadata?.name,
@@ -2650,19 +2762,26 @@ const setupTaxonomyPage = () => {
     title.className = "category-directory-title";
     title.textContent = name;
     description.className = "category-directory-description";
-    description.textContent = category.spec?.description?.trim() || "暂无分类描述";
+    description.textContent =
+      category.spec?.description?.trim() || messages.taxonomy.defaultDescription;
     metrics.className = "category-directory-metrics";
     metrics.append(
-      createMetric("octicon:repo-16", `${postCount} 篇内容`),
-      createMetric("octicon:eye-16", `共 ${stats.visit} 阅读`),
-      createMetric("octicon:heart-16", `共 ${stats.upvote} 点赞`),
-      createMetric("octicon:comment-16", `共 ${stats.comment} 评论`),
+      createMetric("octicon:repo-16", formatMessage(messages.taxonomy.postsMetric, postCount)),
+      createMetric("octicon:eye-16", formatMessage(messages.taxonomy.viewsMetric, stats.visit)),
+      createMetric(
+        "octicon:heart-16",
+        formatMessage(messages.taxonomy.upvotesMetric, stats.upvote),
+      ),
+      createMetric(
+        "octicon:comment-16",
+        formatMessage(messages.taxonomy.commentsMetric, stats.comment),
+      ),
     );
 
     if (coverUrl) {
       const image = document.createElement("img");
       image.src = coverUrl;
-      image.alt = `${name} 分类封面`;
+      image.alt = formatMessage(messages.taxonomy.coverAlt, name);
       image.loading = "lazy";
       image.addEventListener("error", () => image.replaceWith(fallback));
       cover.append(image);
@@ -2725,7 +2844,7 @@ const setupTaxonomyPage = () => {
           title.className = "taxonomy-card-title";
           title.textContent = taxonomy.spec?.displayName?.trim() || "";
           meta.className = "taxonomy-card-meta";
-          meta.textContent = "标签";
+          meta.textContent = messages.taxonomy.tags;
           link.append(title, meta);
           item.append(link);
           return item;
@@ -2734,7 +2853,10 @@ const setupTaxonomyPage = () => {
       empty.hidden = true;
     } catch {
       list.replaceChildren();
-      empty.textContent = kind === "categories" ? "无法加载分类。" : "无法加载标签。";
+      empty.textContent =
+        kind === "categories"
+          ? messages.taxonomy.categoriesLoadFailed
+          : messages.taxonomy.tagsLoadFailed;
       empty.hidden = false;
     }
   };
@@ -2772,7 +2894,7 @@ const setupLoveCounter = () => {
     const totalSeconds = Math.floor((Date.now() - start.getTime()) / 1000);
 
     if (totalSeconds < 0) {
-      elapsed.textContent = "即将开始";
+      elapsed.textContent = messages.love.upcoming;
       return;
     }
 
@@ -2780,14 +2902,14 @@ const setupLoveCounter = () => {
     const hours = Math.floor((totalSeconds % 86_400) / 3_600);
     const minutes = Math.floor((totalSeconds % 3_600) / 60);
     const seconds = totalSeconds % 60;
-    elapsed.textContent = `${days} 天 ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    elapsed.textContent = `${formatMessage(messages.timeline.days, days)} ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
   update();
   window.setInterval(update, 1_000);
 };
 
-const setupBackToTop = () => {
+const setupGlobalBackToTop = () => {
   const button = document.querySelector<HTMLButtonElement>("[data-back-to-top]");
 
   if (!button) {
@@ -2800,16 +2922,7 @@ const setupBackToTop = () => {
     return;
   }
 
-  const updateVisibility = () => {
-    button.hidden = window.scrollY < 320;
-  };
-
-  updateVisibility();
-  window.addEventListener("scroll", updateVisibility, { passive: true });
-  button.addEventListener("click", () => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
-  });
+  setupBackToTop(button);
 };
 
 setupCustomMenuIcons();
@@ -2837,5 +2950,5 @@ setupSidebarTags();
 setupSidebarCategories();
 setupTaxonomyPage();
 setupLoveCounter();
-setupBackToTop();
+setupGlobalBackToTop();
 setupCommentWidgetStyle();

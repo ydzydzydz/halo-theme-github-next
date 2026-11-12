@@ -9,28 +9,28 @@
   contentClass=""
 >
   <template name="head">
-    <title th:text="|${title ?: '豆瓣'} - ${site.title}|">豆瓣</title>
+    <title th:with="pageTitle=${title}" th:text="|${pageTitle} - ${site.title}|">豆瓣</title>
     <script type="module" src="./js/douban.ts"></script>
   </template>
 
   <section class="page-hero douban-hero">
     <div>
       <p class="eyebrow">Douban</p>
-      <h1 th:text="${title ?: '豆瓣记录'}">豆瓣记录</h1>
-      <p>把在豆瓣标记过的影视与书籍整理成清单，随时回看自己的片单。</p>
+      <h1 th:text="${title} ?: #{douban.title}">豆瓣记录</h1>
+      <p th:text="#{douban.intro}">把在豆瓣标记过的影视与书籍整理成清单，随时回看自己的片单。</p>
     </div>
     <span class="page-hero-count" data-douban-count>
       <span data-douban-total>0</span>
-      <span>条记录</span>
+      <span th:text="#{common.recordCount}">条记录</span>
     </span>
   </section>
 
-  <section class="douban-panel" data-douban-app aria-label="豆瓣记录">
+  <section class="douban-panel" data-douban-app th:attr="aria-label=#{douban.title}">
     <div class="douban-state" data-douban-state>
-      <iconify-icon icon="octicon:database-16"></iconify-icon>
-      <p>正在读取豆瓣记录...</p>
+      <iconify-icon icon="octicon:database-16" aria-hidden="true"></iconify-icon>
+      <p th:text="#{douban.loading}">正在读取豆瓣记录...</p>
     </div>
   </section>
 
-  <nav data-douban-pagination hidden aria-label="豆瓣记录分页"></nav>
+  <nav data-douban-pagination hidden th:attr="aria-label=#{douban.pagination}"></nav>
 </include>

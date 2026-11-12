@@ -1,11 +1,39 @@
 <!doctype html>
-<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" th:fragment="html (head, content)">
+<html
+  lang="zh-CN"
+  xmlns:th="http://www.thymeleaf.org"
+  th:fragment="html (head, content)"
+  th:attr="lang=${#locale.toLanguageTag}"
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <slot name="head">
       <title th:text="${site.title}">Site Title</title>
     </slot>
+    <include src="messages.html"></include>
+    <!--
+      尽早把生效的配色写到 <html data-color-scheme>，赶在首帧之前。
+      站点里的插件（代码高亮、文章摘要、评论组件……）都以这个属性判断暗色，
+      等 main.ts 跑完再写，浅色卡片会先闪一下。
+      这里的存储键与 src/js/main.ts 的 colorSchemeStorageKey 保持一致。
+    -->
+    <script>
+      (() => {
+        try {
+          const stored = localStorage.getItem("theme-github-next-color-scheme");
+          const scheme =
+            stored === "dark" || stored === "light"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          document.documentElement.setAttribute("data-color-scheme", scheme);
+        } catch {
+          // 读取本地存储失败时，交给 CSS 的 prefers-color-scheme 规则接管
+        }
+      })();
+    </script>
     <script type="module" src="./js/main.ts"></script>
   </head>
   <body
@@ -22,7 +50,12 @@
         </a>
         <a class="site-title" th:href="@{/}" th:text="${site.title}">GitHub Next</a>
         <div class="header-tools">
-          <button class="search-box" type="button" data-search-trigger aria-label="搜索">
+          <button
+            class="search-box"
+            type="button"
+            data-search-trigger
+            th:attr="aria-label=#{search.open}"
+          >
             <svg viewBox="0 0 16 16" aria-hidden="true">
               <path
                 d="M10.68 11.74a6 6 0 1 1 1.06-1.06l3.04 3.04a.75.75 0 1 1-1.06 1.06ZM11.5 7a4.5 4.5 0 1 0-9 0 4.5 4.5 0 0 0 9 0Z"
@@ -33,8 +66,7 @@
             class="weather-widget"
             data-weather-widget
             th:if="${theme.config.styles.weather_enabled == true}"
-            th:attr="data-weather-location=${theme.config.styles.weather_location ?: '深圳'}, data-weather-latitude=${theme.config.styles.weather_latitude ?: '22.5431'}, data-weather-longitude=${theme.config.styles.weather_longitude ?: '114.0579'}, data-weather-auto-location=${theme.config.styles.weather_auto_location != false}"
-            aria-label="正在获取天气"
+            th:attr="data-weather-location=${theme.config.styles.weather_location ?: '深圳'}, data-weather-latitude=${theme.config.styles.weather_latitude ?: '22.5431'}, data-weather-longitude=${theme.config.styles.weather_longitude ?: '114.0579'}, data-weather-auto-location=${theme.config.styles.weather_auto_location != false}, aria-label=#{weather.loading}"
           >
             <iconify-icon
               data-weather-icon
@@ -48,56 +80,76 @@
             class="header-clock"
             data-header-clock
             th:if="${theme.config.styles.header_clock_enabled == true}"
-            aria-label="当前时间"
+            th:attr="aria-label=#{clock.current}"
           >
-            8月15日 周五 10:30
+            th:text="#{clock.placeholder}"
           </time>
           <section
             class="music-player"
             data-music-player
             th:if="${theme.config.styles.music_player_enabled == true and not #strings.isEmpty(theme.config.styles.music_playlist_id)}"
             th:classappend="${theme.config.styles.music_player_position == 'top-right' ? 'music-player--header' : ''}"
-            th:attr="data-music-source=${theme.config.styles.music_source ?: 'netease'}, data-music-playlist-id=${theme.config.styles.music_playlist_id}, data-music-playback-mode=${theme.config.styles.music_playback_mode ?: 'sequence'}, data-music-api=${theme.config.styles.music_api ?: 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id={id}'}, data-music-autoplay=${theme.config.styles.music_autoplay == true}, data-music-hide-mobile=${theme.config.styles.music_hide_on_mobile == true}"
-            aria-label="音乐播放器"
+            th:attr="data-music-source=${theme.config.styles.music_source ?: 'netease'}, data-music-playlist-id=${theme.config.styles.music_playlist_id}, data-music-playback-mode=${theme.config.styles.music_playback_mode ?: 'sequence'}, data-music-api=${theme.config.styles.music_api ?: 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id={id}'}, data-music-autoplay=${theme.config.styles.music_autoplay == true}, data-music-hide-mobile=${theme.config.styles.music_hide_on_mobile == true}, aria-label=#{music.player}"
           >
             <div class="music-player-cover" aria-hidden="true">
               <img data-music-cover alt="" hidden />
-              <iconify-icon data-music-cover-placeholder icon="octicon:music-16"></iconify-icon>
+              <iconify-icon
+                data-music-cover-placeholder
+                icon="octicon:music-16"
+                aria-hidden="true"
+              ></iconify-icon>
             </div>
             <div class="music-player-info" aria-live="polite">
               <strong data-music-title>正在加载音乐</strong>
               <span data-music-artist>请稍候</span>
-              <span class="music-player-lyrics" data-music-lyrics aria-hidden="true"
+              <span
+                class="music-player-lyrics"
+                data-music-lyrics
+                aria-hidden="true"
+                th:text="#{music.loadingLyrics}"
                 >正在加载歌词</span
               >
             </div>
-            <div class="music-player-controls" aria-label="播放控制">
-              <button type="button" data-music-previous aria-label="上一首" title="上一首" disabled>
+            <div class="music-player-controls" th:attr="aria-label=#{music.player}">
+              <button
+                type="button"
+                data-music-previous
+                disabled
+                th:attr="aria-label=#{music.previous}, title=#{music.previous}"
+              >
                 <iconify-icon icon="lucide:skip-back" aria-hidden="true"></iconify-icon>
               </button>
-              <button type="button" data-music-toggle aria-label="播放" title="播放" disabled>
+              <button
+                type="button"
+                data-music-toggle
+                disabled
+                th:attr="aria-label=#{music.play}, title=#{music.play}"
+              >
                 <iconify-icon icon="octicon:play-16" aria-hidden="true"></iconify-icon>
               </button>
-              <button type="button" data-music-next aria-label="下一首" title="下一首" disabled>
+              <button
+                type="button"
+                data-music-next
+                disabled
+                th:attr="aria-label=#{music.next}, title=#{music.next}"
+              >
                 <iconify-icon icon="lucide:skip-forward" aria-hidden="true"></iconify-icon>
               </button>
               <button
                 type="button"
                 data-music-playback-mode
-                aria-label="顺序播放"
                 aria-pressed="false"
-                title="顺序播放"
                 disabled
+                th:attr="aria-label=#{music.playbackMode}, title=#{music.playbackMode}"
               >
                 <iconify-icon icon="lucide:list-ordered" aria-hidden="true"></iconify-icon>
               </button>
               <button
                 type="button"
                 data-music-playlist-toggle
-                aria-label="播放列表"
                 aria-expanded="false"
-                title="播放列表"
                 disabled
+                th:attr="aria-label=#{music.playlist}, title=#{music.playlist}"
               >
                 <iconify-icon icon="lucide:list-music" aria-hidden="true"></iconify-icon>
               </button>
@@ -108,7 +160,7 @@
               min="0"
               max="100"
               value="0"
-              aria-label="播放进度"
+              th:attr="aria-label=#{music.progress}"
               data-music-progress
               disabled
             />
@@ -119,12 +171,10 @@
             <button
               class="icon-button theme-toggle"
               type="button"
-              aria-label="切换到黑夜模式"
-              aria-pressed="false"
-              title="切换到黑夜模式"
               data-theme-toggle
+              th:attr="aria-label=#{theme.modeSystem}, title=#{theme.modeSystem}"
             >
-              <iconify-icon icon="solar:sun-linear" aria-hidden="true"></iconify-icon>
+              <iconify-icon icon="solar:monitor-linear" aria-hidden="true"></iconify-icon>
             </button>
             <div class="publish-menu">
               <button
@@ -139,9 +189,18 @@
                 <span class="chevron"></span>
               </button>
               <div class="publish-menu-list" role="menu" data-publish-menu hidden>
-                <a th:href="@{/console/posts/editor}" role="menuitem">发布文章</a>
-                <a th:href="@{/console/moments}" role="menuitem">发布瞬间</a>
-                <a th:href="@{/console/photos}" role="menuitem">上传图库</a>
+                <a
+                  th:href="@{/console/posts/editor}"
+                  role="menuitem"
+                  th:text="#{sidebar.publishPost}"
+                  >发布文章</a
+                >
+                <a th:href="@{/console/moments}" role="menuitem" th:text="#{sidebar.publishMoment}"
+                  >发布瞬间</a
+                >
+                <a th:href="@{/console/photos}" role="menuitem" th:text="#{publish.photos}"
+                  >上传图库</a
+                >
               </div>
             </div>
             <a
@@ -157,7 +216,7 @@
               <a
                 class="icon-button login-link"
                 th:href="@{/login}"
-                aria-label="登录"
+                th:attr="aria-label=#{user.login}"
                 data-login-link
               >
                 <iconify-icon icon="material-symbols:login" aria-hidden="true"></iconify-icon>
@@ -165,7 +224,7 @@
               <button
                 class="header-avatar"
                 type="button"
-                aria-label="用户菜单"
+                th:attr="aria-label=#{user.menu}"
                 aria-haspopup="menu"
                 aria-expanded="false"
                 data-user-menu-trigger
@@ -178,8 +237,8 @@
                 />
               </button>
               <div class="user-menu-list" role="menu" data-user-menu-list hidden>
-                <a th:href="@{/console}" role="menuitem">控制台</a>
-                <a th:href="@{/logout}" role="menuitem">退出</a>
+                <a th:href="@{/console}" role="menuitem" th:text="#{user.console}">控制台</a>
+                <a th:href="@{/logout}" role="menuitem" th:text="#{user.logout}">退出</a>
               </div>
             </div>
           </div>
@@ -200,12 +259,13 @@
             type="search"
             name="keyword"
             autocomplete="off"
-            placeholder="搜索文章..."
-            aria-label="搜索文章"
+            th:attr="placeholder=#{search.placeholder}, aria-label=#{search.dialog}"
           />
-          <button type="button" data-search-close aria-label="Close search">Esc</button>
+          <button type="button" data-search-close th:attr="aria-label=#{search.close}">Esc</button>
         </form>
-        <div class="search-status" data-search-status>输入关键词搜索</div>
+        <div class="search-status" data-search-status th:text="#{search.status}">
+          输入关键词搜索
+        </div>
         <div class="search-results" data-search-results></div>
       </div>
     </div>
@@ -271,6 +331,7 @@
                                   ? customMenuIcon.icon
                                   : (theme.config.icons.fallback ?: theme.config.icons.other ?: theme.config.icons.stars ?: 'octicon:star-16'))))))))))
             }"
+            aria-hidden="true"
           ></iconify-icon>
           <span th:text="${item.status.displayName}">菜单</span>
           <span class="counter" th:if="${isPostsMenu}" th:text="${siteStats.post ?: 0}">0</span>
@@ -282,37 +343,42 @@
           <iconify-icon
             class="tab-icon"
             th:attr="icon=${theme.config.icons.home ?: 'line-md:home'}"
+            aria-hidden="true"
           ></iconify-icon>
-          <span>首页</span>
+          <span th:text="#{site.home}">首页</span>
         </a>
         <a class="{{activePosts}}" th:href="@{/archives}">
           <iconify-icon
             class="tab-icon"
             th:attr="icon=${theme.config.icons.posts ?: 'octicon:repo-16'}"
+            aria-hidden="true"
           ></iconify-icon>
-          <span>文章</span>
+          <span th:text="#{site.articles}">文章</span>
           <span class="counter" th:text="${siteStats.post ?: 0}">0</span>
         </a>
         <a class="{{activeProjects}}" th:href="@{/categories/default}">
           <iconify-icon
             class="tab-icon"
             th:attr="icon=${theme.config.icons.default_category ?: 'octicon:bookmark-16'}"
+            aria-hidden="true"
           ></iconify-icon>
-          <span>默认分类</span>
+          <span th:text="#{site.defaultCategory}">默认分类</span>
         </a>
         <a class="{{activeHome}}" th:href="@{/about}">
           <iconify-icon
             class="tab-icon"
             th:attr="icon=${theme.config.icons.about ?: 'octicon:person-16'}"
+            aria-hidden="true"
           ></iconify-icon>
-          <span>关于</span>
+          <span th:text="#{site.about}">关于</span>
         </a>
         <a th:href="@{/services}">
           <iconify-icon
             class="tab-icon"
             th:attr="icon=${theme.config.icons.business ?: 'octicon:briefcase-16'}"
+            aria-hidden="true"
           ></iconify-icon>
-          <span>服务</span>
+          <span th:text="#{site.services}">服务</span>
         </a>
       </th:block>
     </nav>
@@ -345,21 +411,41 @@
         th:classappend="${singlePage != null and (singlePage.spec.slug == 'services' or singlePage.spec.slug == 'Services' or singlePage.spec.slug == 'business' or singlePage.spec.slug == 'Business') ? 'is-hidden' : ''}"
       >
         <div class="profile-card">
-          <img
-            class="profile-avatar"
-            th:src="${site.logo ?: 'https://avatars.githubusercontent.com/u/9919?s=240&v=4'}"
-            th:alt="${theme.config.basic.name ?: site.title}"
-          />
-          <div
-            class="profile-status"
-            tabindex="0"
-            th:with="
-              statusEmoji=${theme.config.basic.status ?: '☺'},
-              statusText=${statusEmoji == '😊' ? '开心' : statusEmoji == '🤔' ? '思考' : statusEmoji == '💻' ? '写代码' : statusEmoji == '🚀' ? '发布' : statusEmoji == '☕' ? '喝咖啡' : statusEmoji == '📚' ? '学习' : statusEmoji == '🎧' ? '听歌' : statusEmoji == '🌙' ? '夜间模式' : statusEmoji == '🔥' ? '忙碌' : statusEmoji == '✨' ? '灵感' : '状态 Emoji'}
-            "
-            th:attr="data-status-text=${statusText}, aria-label=${statusText}"
-          >
-            <span th:text="${statusEmoji}">😊</span>
+          <div class="profile-avatar-wrap">
+            <img
+              class="profile-avatar"
+              th:src="${site.logo ?: 'https://avatars.githubusercontent.com/u/9919?s=240&v=4'}"
+              th:alt="${theme.config.basic.name ?: site.title}"
+            />
+            <div
+              class="profile-status"
+              tabindex="0"
+              th:with="statusEmoji=${theme.config.basic.status ?: '☺'}"
+            >
+              <span class="profile-status-emoji" th:text="${statusEmoji}">😊</span>
+              <!--
+                状态文案随 emoji 变化。Thymeleaf 的 SpEL 表达式内部不能直接使用
+                #{...} 消息表达式，因此这里用 th:switch 分支渲染。
+
+                文案元素本身就是悬浮时展开出来的胶囊，不用 attr(data-status-text)：
+                attr() 只能读元素自身的属性，把文案放在子元素上就取不到，
+                放回元素自身又得为每个状态单独塞一份。
+                opacity 为 0 时文案仍在无障碍树里，读屏读到的是状态文字而不是 emoji。
+              -->
+              <span class="profile-status-message" th:switch="${statusEmoji}">
+                <span th:case="'😊'" th:text="#{status.happy}">开心</span>
+                <span th:case="'🤔'" th:text="#{status.thinking}">思考</span>
+                <span th:case="'💻'" th:text="#{status.coding}">写代码</span>
+                <span th:case="'🚀'" th:text="#{status.shipping}">发布</span>
+                <span th:case="'☕'" th:text="#{status.coffee}">喝咖啡</span>
+                <span th:case="'📚'" th:text="#{status.studying}">学习</span>
+                <span th:case="'🎧'" th:text="#{status.listening}">听歌</span>
+                <span th:case="'🌙'" th:text="#{status.night}">夜间模式</span>
+                <span th:case="'🔥'" th:text="#{status.busy}">忙碌</span>
+                <span th:case="'✨'" th:text="#{status.inspiration}">灵感</span>
+                <span th:case="*" th:text="#{status.default}">状态 Emoji</span>
+              </span>
+            </div>
           </div>
           <h1 class="profile-name" th:text="${theme.config.basic.name ?: site.title}">GitHub</h1>
           <p class="profile-username" th:text="${theme.config.basic.description ?: 'halo-user'}">
@@ -371,6 +457,7 @@
             th:href="@{/console/theme/settings/about}"
             target="_blank"
             rel="noreferrer"
+            th:text="#{sidebar.editProfile}"
             >编辑关于</a
           >
           <a
@@ -379,6 +466,7 @@
             th:href="@{/console/comments}"
             target="_blank"
             rel="noreferrer"
+            th:text="#{sidebar.manageMessages}"
             >管理留言</a
           >
           <a
@@ -387,6 +475,7 @@
             th:href="@{/console/links}"
             target="_blank"
             rel="noreferrer"
+            th:text="#{sidebar.manageLinks}"
             >管理友链</a
           >
           <a
@@ -395,6 +484,7 @@
             th:href="@{/console/posts/categories}"
             target="_blank"
             rel="noreferrer"
+            th:text="#{sidebar.manageCategories}"
             >管理分类</a
           >
           <a
@@ -403,6 +493,7 @@
             th:href="@{/console/moments}"
             target="_blank"
             rel="noreferrer"
+            th:text="#{sidebar.publishMoment}"
             >发布瞬间</a
           >
           <a
@@ -411,6 +502,7 @@
             th:href="@{/console/posts/editor}"
             target="_blank"
             rel="noreferrer"
+            th:text="#{sidebar.publishPost}"
             >发布文章</a
           >
           <a
@@ -419,6 +511,7 @@
             th:href="@{/console}"
             target="_blank"
             rel="noreferrer"
+            th:text="#{sidebar.console}"
             >后台管理</a
           >
           <a
@@ -435,6 +528,7 @@
                 <iconify-icon
                   class="meta-icon"
                   th:attr="icon=${item.icon ?: 'octicon:info-16'}"
+                  aria-hidden="true"
                 ></iconify-icon>
                 <a
                   th:if="${not #strings.isEmpty(item.url)}"
@@ -447,15 +541,27 @@
             </th:block>
             <th:block th:if="${#lists.isEmpty(theme.config.basic.profile_meta)}">
               <li th:if="${theme.config.basic.company}">
-                <iconify-icon class="meta-icon" icon="octicon:organization-16"></iconify-icon>
+                <iconify-icon
+                  class="meta-icon"
+                  icon="octicon:organization-16"
+                  aria-hidden="true"
+                ></iconify-icon>
                 <span th:text="${theme.config.basic.company}">Company</span>
               </li>
               <li th:if="${theme.config.basic.location}">
-                <iconify-icon class="meta-icon" icon="octicon:location-16"></iconify-icon>
+                <iconify-icon
+                  class="meta-icon"
+                  icon="octicon:location-16"
+                  aria-hidden="true"
+                ></iconify-icon>
                 <span th:text="${theme.config.basic.location}">Location</span>
               </li>
               <li th:if="${theme.config.basic.email}">
-                <iconify-icon class="meta-icon" icon="octicon:mail-16"></iconify-icon>
+                <iconify-icon
+                  class="meta-icon"
+                  icon="octicon:mail-16"
+                  aria-hidden="true"
+                ></iconify-icon>
                 <a
                   th:href="|mailto:${theme.config.basic.email}|"
                   th:text="${theme.config.basic.email}"
@@ -469,17 +575,17 @@
             >
               <a th:href="@{/archives}">
                 <span class="profile-stat-count" th:text="${siteStats.post ?: 0}">0</span>
-                <span>文章</span>
+                <span th:text="#{site.posts}">文章</span>
               </a>
               <span class="profile-stat-separator">·</span>
               <span>
                 <span class="profile-stat-count" th:text="${siteStats.comment ?: 0}">0</span>
-                <span>评论</span>
+                <span th:text="#{site.comments}">评论</span>
               </span>
               <span class="profile-stat-separator">·</span>
               <span>
                 <span class="profile-stat-count" th:text="${siteStats.visit ?: 0}">0</span>
-                <span>访问</span>
+                <span th:text="#{site.views}">访问</span>
               </span>
             </li>
           </ul>
@@ -489,7 +595,7 @@
           >
             <img
               th:src="${theme.config.sidebar.wechat_official_account_qrcode}"
-              alt="公众号二维码"
+              th:alt="#{sidebar.wechatQrAlt}"
             />
           </section>
           <section
@@ -501,7 +607,7 @@
           >
             <div class="sidebar-love-heading">
               <iconify-icon icon="octicon:heart-16" aria-hidden="true"></iconify-icon>
-              <strong>恩爱计时</strong>
+              <strong th:text="#{sidebar.loveTitle}">恩爱计时</strong>
             </div>
             <div class="love-people">
               <figure
@@ -511,11 +617,13 @@
                 <img
                   class="love-person-avatar"
                   th:src="${avatar}"
-                  th:alt="${love.person_one_name ?: '第一位'}"
+                  th:alt="${love.person_one_name} ?: #{sidebar.personOne}"
                 />
-                <figcaption th:text="${love.person_one_name ?: '第一位'}">第一位</figcaption>
+                <figcaption th:text="${love.person_one_name} ?: #{sidebar.personOne}">
+                  第一位
+                </figcaption>
               </figure>
-              <span class="love-heart" aria-label="相爱">
+              <span class="love-heart" th:attr="aria-label=#{love.heartLabel}">
                 <iconify-icon icon="octicon:heart-fill-16" aria-hidden="true"></iconify-icon>
               </span>
               <figure
@@ -525,13 +633,21 @@
                 <img
                   class="love-person-avatar"
                   th:src="${avatar}"
-                  th:alt="${love.person_two_name ?: '第二位'}"
+                  th:alt="${love.person_two_name} ?: #{sidebar.personTwo}"
                 />
-                <figcaption th:text="${love.person_two_name ?: '第二位'}">第二位</figcaption>
+                <figcaption th:text="${love.person_two_name} ?: #{sidebar.personTwo}">
+                  第二位
+                </figcaption>
               </figure>
             </div>
-            <p class="love-duration-label">我们已经在一起</p>
-            <time class="love-duration" data-love-elapsed aria-live="polite">正在计算...</time>
+            <p class="love-duration-label" th:text="#{sidebar.loveTogether}">我们已经在一起</p>
+            <time
+              class="love-duration"
+              data-love-elapsed
+              aria-live="polite"
+              th:text="#{love.calculating}"
+              >正在计算...</time
+            >
           </section>
           <section
             class="sidebar-tags"
@@ -541,12 +657,14 @@
           >
             <div class="sidebar-tags-heading">
               <iconify-icon icon="octicon:tag-16" aria-hidden="true"></iconify-icon>
-              <strong>站点标签</strong>
+              <strong th:text="#{sidebar.siteTags}">站点标签</strong>
             </div>
-            <div class="sidebar-tag-sphere" aria-label="动态站点标签">
+            <div class="sidebar-tag-sphere" th:attr="aria-label=#{sidebar.tagSphere}">
               <div class="sidebar-tag-cloud" data-sidebar-tag-cloud></div>
             </div>
-            <p class="sidebar-tags-empty" data-sidebar-tags-empty>暂无标签</p>
+            <p class="sidebar-tags-empty" data-sidebar-tags-empty th:text="#{sidebar.noTags}">
+              暂无标签
+            </p>
           </section>
           <section
             class="sidebar-categories"
@@ -556,10 +674,16 @@
           >
             <div class="sidebar-tags-heading sidebar-categories-heading">
               <iconify-icon icon="octicon:tag-16" aria-hidden="true"></iconify-icon>
-              <strong>站点分类</strong>
+              <strong th:text="#{sidebar.siteCategories}">站点分类</strong>
             </div>
             <ul class="sidebar-category-list" data-sidebar-category-list></ul>
-            <p class="sidebar-tags-empty" data-sidebar-categories-empty>暂无分类</p>
+            <p
+              class="sidebar-tags-empty"
+              data-sidebar-categories-empty
+              th:text="#{sidebar.noCategories}"
+            >
+              暂无分类
+            </p>
           </section>
         </div>
       </aside>
@@ -574,46 +698,42 @@
     <button
       class="back-to-top"
       type="button"
-      aria-label="返回顶部"
-      title="返回顶部"
       hidden
       data-back-to-top
+      th:attr="aria-label=#{footer.backToTop}, title=#{footer.backToTop}"
     >
       <span class="back-to-top-icon" aria-hidden="true">
-        <iconify-icon icon="icon-park-outline:to-top"></iconify-icon>
+        <iconify-icon icon="icon-park-outline:to-top" aria-hidden="true"></iconify-icon>
       </span>
     </button>
     <a
       class="back-to-top page-anchor-action"
       th:if="${singlePage != null and singlePage.spec.template == 'message.html' and haloCommentEnabled and singlePage.spec.allowComment}"
       href="#comments"
-      aria-label="前往评论"
-      title="前往评论"
+      th:attr="aria-label=#{footer.toComments}, title=#{footer.toComments}"
     >
       <span class="back-to-top-icon" aria-hidden="true">
-        <iconify-icon icon="octicon:comment-discussion-16"></iconify-icon>
+        <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
       </span>
     </a>
     <a
       class="back-to-top page-anchor-action"
       th:if="${singlePage != null and singlePage.spec.slug == 'about' and haloCommentEnabled}"
       href="#comments"
-      aria-label="前往评论"
-      title="前往评论"
+      th:attr="aria-label=#{footer.toComments}, title=#{footer.toComments}"
     >
       <span class="back-to-top-icon" aria-hidden="true">
-        <iconify-icon icon="octicon:comment-discussion-16"></iconify-icon>
+        <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
       </span>
     </a>
     <a
       class="back-to-top page-anchor-action"
       th:if="${linksTitle != null and theme.config.links.link_application_enabled != false}"
       href="#link-application"
-      aria-label="申请友链"
-      title="申请友链"
+      th:attr="aria-label=#{footer.applyLink}, title=#{footer.applyLink}"
     >
       <span class="back-to-top-icon" aria-hidden="true">
-        <iconify-icon icon="octicon:link-16"></iconify-icon>
+        <iconify-icon icon="octicon:link-16" aria-hidden="true"></iconify-icon>
       </span>
     </a>
 
@@ -624,7 +744,7 @@
             <span aria-hidden="true">©</span>
             <span th:text="${#temporals.year(#temporals.createNow())}">2026</span>
             <strong th:text="${site.title}">站点名称</strong>
-            <span>保留所有权利</span>
+            <span th:text="#{site.allRightsReserved}">保留所有权利</span>
           </span>
           <span class="footer-halo"><halo:footer /></span>
           <a
@@ -633,8 +753,7 @@
             th:href="@{/rss.xml}"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="RSS 订阅"
-            title="RSS 订阅"
+            th:attr="aria-label=#{footer.rss}, title=#{footer.rss}"
           >
             <iconify-icon icon="material-symbols:rss-feed" aria-hidden="true"></iconify-icon>
             <span>RSS</span>
@@ -687,7 +806,7 @@
             th:if="${not #strings.isEmpty(footerConfig.provider_name) or not #strings.isEmpty(footerConfig.provider_logo)}"
           >
             <iconify-icon icon="material-symbols:cloud-outline" aria-hidden="true"></iconify-icon>
-            <span>本站由</span>
+            <span th:text="#{footer.providedBy}">本站由</span>
             <a
               th:if="${not #strings.isEmpty(footerConfig.provider_url)}"
               th:href="${footerConfig.provider_url}"
@@ -720,18 +839,19 @@
                 >云服务商</span
               >
             </span>
-            <span>提供服务</span>
+            <span th:text="#{footer.provideService}">提供服务</span>
           </span>
           <span
             class="footer-runtime"
             th:if="${not #strings.isEmpty(footerConfig.site_start_time)}"
           >
             <iconify-icon icon="mingcute:time-line" aria-hidden="true"></iconify-icon>
-            <span>本站已运行</span>
+            <span th:text="#{footer.runtimeLabel}">本站已运行</span>
             <strong
               data-site-runtime
-              th:attr="data-start=${footerConfig.site_start_time}"
+              th:attr=" data-start=${footerConfig.site_start_time}"
               aria-live="off"
+              th:text="#{footer.runtimeInitial}"
               >0 天 00 时 00 分 00 秒</strong
             >
           </span>

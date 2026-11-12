@@ -1,3 +1,4 @@
+@use "tokens" as *;
 @use "components" as *;
 @use "mixins" as *;
 
@@ -14,19 +15,28 @@
 // ---------------------------------------------------------------------------
 .pagination {
   display: flex;
-  padding: 28px 0 0;
+  padding: $space-28 0 0;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: $space-12;
 }
 .pagination a,
 .pagination span,
 .pagination button {
-  min-height: 32px;
-  padding: 5px 12px;
+  min-height: $control-md;
+  padding: $space-5 $space-12;
   text-align: center;
   @extend %surface-card;
+}
+/* 只有可点击的项才扩热区：翻页中间的省略号（span）不是交互目标，
+   给它加 44px 热区反而会盖住两侧链接的边缘 */
+.pagination a,
+.pagination button {
+  position: relative;
+
+  /* 视觉仍是 32px，热区扩到 44px（翻页容器 12px 间距刚好容下） */
+  @include touch-target;
 }
 .pagination a,
 .pagination button {
@@ -35,14 +45,14 @@
   font: inherit;
   text-decoration: none;
   transition:
-    border-color 160ms ease,
-    color 160ms ease;
+    border-color $dur-base $ease-standard,
+    color $dur-base $ease-standard;
 }
 /* 禁用态不参与悬浮反馈，链接的全局下划线也要一并去掉 */
 .pagination a:hover:not([aria-disabled="true"]),
 .pagination button:hover:not(:disabled) {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-hover);
   text-decoration: none;
 }
 .pagination a:focus-visible:not([aria-disabled="true"]),
@@ -50,7 +60,7 @@
   border-color: var(--accent);
   color: var(--accent);
   text-decoration: none;
-  @include focus-ring(2px);
+  @include focus-ring;
 }
 /* 两类禁用态共用同一套外观：服务端渲染的链接用 aria-disabled，
    客户端渲染的按钮用原生 disabled。
@@ -60,5 +70,5 @@
 .pagination button:disabled {
   color: var(--fg-muted);
   cursor: default;
-  opacity: 0.55;
+  opacity: var(--fg-disabled-opacity);
 }

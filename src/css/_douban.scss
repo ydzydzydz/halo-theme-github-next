@@ -1,53 +1,50 @@
 @use "components" as *;
 @use "tokens" as *;
 @use "mixins" as *;
-.taxonomy-hero {
-  @extend %hero-gap;
-}
 .douban-hero {
   @extend %hero-gap;
 }
 .douban-panel {
-  padding: 16px;
+  padding: $space-16;
   border: 1px solid var(--border);
   border-radius: $radius-lg;
   background: var(--canvas);
 }
 .douban-state {
   display: flex;
-  padding: 48px 0;
+  padding: $space-48 0;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: $space-10;
   color: var(--fg-muted);
-  font-size: 14px;
+  font-size: $text-14;
 }
 .douban-toolbar {
   display: flex;
-  padding-bottom: 16px;
+  padding-bottom: $space-16;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: $space-8;
   border-bottom: 1px solid var(--border);
 }
 .douban-tabs {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: $space-20;
   border-bottom: 1px solid var(--border);
 }
 .douban-tab {
   display: inline-flex;
-  padding: 8px 0 10px;
+  padding: $space-8 0 $space-10;
   align-items: center;
-  gap: 6px;
+  gap: $space-6;
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
   color: var(--fg);
   cursor: pointer;
   font: inherit;
-  font-size: 16px;
+  font-size: $text-16;
   font-weight: 600;
 }
 .douban-tab {
@@ -58,22 +55,22 @@
   color: var(--accent);
 }
 .douban-tab-count {
-  padding: 0 6px;
+  padding: 0 $space-6;
   border-radius: $radius-pill;
   background: var(--counter-bg);
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 500;
 }
 .douban-list {
-  margin: 16px 0 0;
+  margin: $space-16 0 0;
   padding: 0;
   list-style: none;
 }
 .douban-list-item {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: $space-16;
 }
 .douban-list-cover {
   display: block;
@@ -97,25 +94,25 @@
   margin-left: auto;
   align-items: flex-end;
   flex-direction: column;
-  gap: 8px;
+  gap: $space-8;
 }
 .douban-list-score {
   display: inline-flex;
   min-width: 38px;
   height: 20px;
-  padding: 0 7px;
+  padding: 0 $space-7;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--border);
   border-radius: $radius-pill;
   color: var(--fg);
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 600;
 }
 .douban-list-stars {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: $space-2;
   color: var(--star-color);
 }
 .douban-list-stars iconify-icon {
@@ -127,7 +124,7 @@
 .douban-list-status {
   @extend %pill;
   height: 20px;
-  padding: 0 8px;
+  padding: 0 $space-8;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -145,13 +142,13 @@
 }
 .douban-list-date {
   color: var(--fg-muted);
-  font-size: 12px;
+  font-size: $text-12;
   white-space: nowrap;
 }
-@include below($breakpoint-sm) {
+@include below($breakpoint-md) {
   .douban-list-item {
     flex-wrap: wrap;
-    gap: 12px;
+    gap: $space-12;
   }
 
   /* 封面与标题保持同一行，评分与状态另起一行靠右 */
@@ -164,7 +161,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
-    gap: 12px;
+    gap: $space-12;
   }
 
   .douban-list-cover {

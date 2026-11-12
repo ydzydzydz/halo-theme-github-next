@@ -13,7 +13,7 @@
     <script type="module" src="./js/post.ts"></script>
   </template>
 
-  <article>
+  <article class="post-article">
     <header
       class="article-header"
       th:classappend="${not #strings.isEmpty(post.spec.cover) ? 'article-header--cover' : ''}"
@@ -63,35 +63,36 @@
     </nav>
   </article>
 
-  <nav class="post-side-actions" aria-label="文章快捷操作">
+  <nav class="post-side-actions" th:attr="aria-label=#{post.sideActions}">
     <button
       class="post-side-action post-back-to-top"
       type="button"
       data-post-back-to-top
-      aria-label="回到顶部"
-      title="回到顶部"
       disabled
+      th:attr="aria-label=#{footer.backToTop}, title=#{footer.backToTop}"
     >
       <iconify-icon icon="icon-park-outline:to-top" aria-hidden="true"></iconify-icon>
     </button>
     <button
       class="post-side-action post-upvote"
       type="button"
-      th:attr="data-post-upvote=${post.metadata.name}"
-      aria-label="点赞文章"
-      title="点赞"
+      th:attr="data-post-upvote=${post.metadata.name}, aria-label=#{post.upvote}, title=#{repository.upvote}"
     >
       <iconify-icon icon="octicon:thumbsup-16" aria-hidden="true"></iconify-icon>
     </button>
-    <a class="post-side-action" href="#comments" aria-label="查看评论" title="评论">
+    <a
+      class="post-side-action"
+      href="#comments"
+      th:attr="aria-label=#{post.viewComments}, title=#{repository.comment}"
+    >
       <iconify-icon icon="octicon:comment-16" aria-hidden="true"></iconify-icon>
     </a>
   </nav>
 
-  <section class="post-comments" id="comments" aria-label="评论区">
+  <section class="post-comments" id="comments" th:attr="aria-label=#{post.commentArea}">
     <header class="post-comments-header">
       <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
-      <strong>评论</strong>
+      <strong th:text="#{comment.title}">评论</strong>
     </header>
     <div class="post-comments-body">
       <halo:comment

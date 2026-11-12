@@ -22,18 +22,18 @@
       <div>
         <p class="eyebrow">Message board</p>
         <h1 th:text="${singlePage.spec.title}">留言板</h1>
-        <p>在这里写下你的想法与建议，我会逐条看完并回复。</p>
+        <p th:text="#{message.intro}">在这里写下你的想法与建议，我会逐条看完并回复。</p>
       </div>
       <span class="page-hero-count" data-message-count>
         <span data-message-total>…</span>
-        <span data-message-unit>正在读取留言</span>
+        <span data-message-unit th:text="#{message.reading}">正在读取留言</span>
       </span>
     </header>
 
     <div class="message-stage" data-message-stage aria-live="polite">
       <div class="message-stage-status" data-message-status>
-        <iconify-icon icon="octicon:comment-discussion-16"></iconify-icon>
-        <span>正在加载留言...</span>
+        <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
+        <span th:text="#{message.loading}">正在加载留言...</span>
       </div>
     </div>
 
@@ -43,10 +43,10 @@
       th:utext="${singlePage.content.content}"
     ></div>
 
-    <section class="post-comments" id="comments" aria-label="评论区">
+    <section class="post-comments" id="comments" th:attr="aria-label=#{message.commentArea}">
       <header class="post-comments-header">
         <iconify-icon icon="octicon:comment-discussion-16" aria-hidden="true"></iconify-icon>
-        <strong>评论</strong>
+        <strong th:text="#{comment.title}">评论</strong>
       </header>
       <div class="post-comments-body">
         <halo:comment
@@ -59,7 +59,7 @@
           class="message-comments-disabled"
           th:if="${not haloCommentEnabled or not singlePage.spec.allowComment}"
         >
-          当前页面未启用评论。
+          th:text="#{comment.disabled}"
         </p>
       </div>
     </section>

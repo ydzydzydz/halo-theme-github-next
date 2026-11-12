@@ -15,19 +15,19 @@
   <section class="page-hero taxonomy-hero">
     <div>
       <p class="eyebrow">Categories</p>
-      <h1 th:text="|分类：${category.spec.displayName}|"></h1>
-      <p th:text="${category.spec.description} ?: '查看该分类下的全部文章。'"></p>
+      <h1 th:text="|#{taxonomy.title}: ${category.spec.displayName}|"></h1>
+      <p th:text="${category.spec.description} ?: #{category.descriptionDefault}"></p>
     </div>
     <span class="page-hero-count" th:if="${posts != null}">
       <span th:text="${posts.total ?: 0}">0</span>
-      <span>篇文章</span>
+      <span th:text="#{common.articleCount}">篇文章</span>
     </span>
   </section>
 
   <ul class="repository-list repository-list--bordered">
     <include src="repository-post-item.html"></include>
     <li class="repository-empty" th:if="${posts.total == 0}">
-      <span>该分类下暂无文章</span>
+      <span th:text="#{category.empty}">该分类下暂无文章</span>
     </li>
   </ul>
 

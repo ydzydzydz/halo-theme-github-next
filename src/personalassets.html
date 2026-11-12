@@ -9,7 +9,7 @@
   contentClass="content-column-full"
 >
   <template name="head">
-    <title th:text="|${title ?: '资产'} - ${site.title}|">资产</title>
+    <title th:with="pageTitle=${title}" th:text="|${pageTitle} - ${site.title}|">资产</title>
     <th:block th:replace="~{plugin:personalassets:modules/style}"></th:block>
     <style>
       .github-personalassets {
@@ -227,7 +227,7 @@
   <section class="github-personalassets">
     <header class="github-personalassets-heading">
       <div>
-        <h2 th:text="${title ?: '资产'}">资产</h2>
+        <h2 th:text="${title} ?: #{personalAssets.title}">资产</h2>
         <p th:if="${not #strings.isEmpty(subtitle)}" th:text="${subtitle}"></p>
       </div>
     </header>

@@ -9,33 +9,35 @@
   contentClass=""
 >
   <template name="head">
-    <title th:text="|${linksTitle ?: '友链'} - ${site.title}|">友链</title>
+    <title th:with="pageTitle=${linksTitle}" th:text="|${pageTitle} - ${site.title}|">友链</title>
   </template>
 
   <section class="links-page">
     <header class="page-hero">
       <div>
         <p class="eyebrow">Links</p>
-        <h1 th:text="${linksTitle ?: '友链'}">友链</h1>
-        <p>把值得常去的站点放在这里，像 GitHub stars 一样收藏朋友和灵感。</p>
+        <h1 th:text="${linksTitle} ?: #{links.title}">友链</h1>
+        <p th:text="#{links.intro}">
+          把值得常去的站点放在这里，像 GitHub stars 一样收藏朋友和灵感。
+        </p>
       </div>
       <span class="page-hero-count" th:if="${links != null}">
         <span th:text="${#lists.size(links)}">0</span>
-        <span>个链接</span>
+        <span th:text="#{common.itemCount}">个链接</span>
       </span>
     </header>
 
     <div class="links-empty" th:if="${groups == null or #lists.isEmpty(groups)}">
-      <iconify-icon icon="octicon:link-16"></iconify-icon>
-      <h2>暂无友链</h2>
-      <p>在后台链接管理插件里添加链接后，这里会自动显示。</p>
+      <iconify-icon icon="octicon:link-16" aria-hidden="true"></iconify-icon>
+      <h2 th:text="#{links.emptyTitle}">暂无友链</h2>
+      <p th:text="#{links.emptyHint}">在后台链接管理插件里添加链接后，这里会自动显示。</p>
     </div>
 
     <div class="links-groups" th:if="${groups != null and not #lists.isEmpty(groups)}">
       <section class="links-group" th:each="linkGroup : ${groups}">
         <div class="links-group-heading">
           <h2 th:text="${linkGroup.spec.displayName}">默认分组</h2>
-          <span th:text="|${#lists.size(linkGroup.links)} 个链接|">0 个链接</span>
+          <span th:text="|${#lists.size(linkGroup.links)} #{common.itemCount}|">0 个链接</span>
         </div>
 
         <div class="links-grid">
@@ -59,12 +61,11 @@
             <span class="link-card-body">
               <span class="link-card-title">
                 <span th:text="${link.spec.displayName}">Halo</span>
-                <iconify-icon icon="octicon:link-external-16"></iconify-icon>
+                <iconify-icon icon="octicon:link-external-16" aria-hidden="true"></iconify-icon>
               </span>
               <span class="link-card-desc" th:text="${link.spec.description ?: link.spec.url}">
-                一个朋友的网站
+                <span th:text="#{links.subtitle}">一个朋友的网站</span>
               </span>
-              <span class="link-card-url" th:text="${link.spec.url}">https://halo.run</span>
             </span>
           </a>
         </div>
@@ -80,49 +81,47 @@
       <div class="link-application-heading">
         <div>
           <p class="eyebrow">Exchange links</p>
-          <h2>添加我的友链</h2>
-          <p
-            th:text="${theme.config.links.link_application_note ?: '请先在贵站添加本站友链，提交后会作为留言发送，站长会手动审核。'}"
-          >
-            请先在贵站添加本站友链，提交后会作为留言发送，站长会手动审核。
+          <h2 th:text="#{links.applicationTitle}">添加我的友链</h2>
+          <p th:text="${theme.config.links.link_application_note} ?: #{links.applyNote}">
+            th:text="#{links.applyNote}"
           </p>
         </div>
         <button class="link-application-trigger" type="button" data-friend-link-open>
-          申请友链
+          <span th:text="#{links.apply}">申请友链</span>
         </button>
       </div>
 
       <dl class="link-application-profile">
         <div>
-          <dt>网站名称</dt>
+          <dt th:text="#{links.fieldSiteName}">网站名称</dt>
           <dd
             th:text="${theme.config.links.link_application_site_name ?: theme.config.basic.name ?: site.title}"
           >
-            网站名称
+            th:text="#{links.fieldSiteName}"
           </dd>
         </div>
         <div>
-          <dt>网站地址</dt>
+          <dt th:text="#{links.fieldSiteUrl}">网站地址</dt>
           <dd th:text="${theme.config.links.link_application_site_url ?: site.url}">
             https://example.com
           </dd>
         </div>
         <div>
-          <dt>网站头像</dt>
+          <dt th:text="#{links.fieldSiteLogo}">网站头像</dt>
           <dd th:text="${theme.config.links.link_application_site_logo ?: site.logo ?: ''}">
             https://example.com/avatar.png
           </dd>
         </div>
         <div>
-          <dt>网站描述</dt>
+          <dt th:text="#{links.fieldSiteDescription}">网站描述</dt>
           <dd
             th:text="${theme.config.links.link_application_site_description ?: theme.config.basic.description ?: site.title}"
           >
-            网站描述
+            th:text="#{links.fieldSiteDescription}"
           </dd>
         </div>
         <div>
-          <dt>友链页面</dt>
+          <dt th:text="#{links.fieldLinkPage}">友链页面</dt>
           <dd
             th:text="${theme.config.links.link_application_site_link_page ?: (site.url + 'links')}"
           >
@@ -130,7 +129,7 @@
           </dd>
         </div>
         <div>
-          <dt>RSS 订阅</dt>
+          <dt th:text="#{links.fieldRss}">RSS 订阅</dt>
           <dd
             th:text="${theme.config.links.link_application_site_rss_url ?: (site.url + 'rss.xml')}"
           >
@@ -142,27 +141,27 @@
       <form class="link-application-form" data-friend-link-form hidden>
         <div class="link-application-fields">
           <label>
-            <span>网站名称</span>
+            <span th:text="#{links.fieldSiteName}">网站名称</span>
             <input name="siteName" type="text" maxlength="80" required />
           </label>
           <label>
-            <span>网站地址</span>
+            <span th:text="#{links.fieldSiteUrl}">网站地址</span>
             <input name="url" type="url" placeholder="https://" maxlength="300" required />
           </label>
           <label>
-            <span>网站头像</span>
+            <span th:text="#{links.fieldSiteLogo}">网站头像</span>
             <input name="logo" type="url" placeholder="https://" maxlength="300" />
           </label>
           <label>
-            <span>联系邮箱</span>
+            <span th:text="#{links.fieldContactEmail}">联系邮箱</span>
             <input name="email" type="email" maxlength="160" required />
           </label>
           <label class="link-application-field-wide">
-            <span>网站描述</span>
+            <span th:text="#{links.fieldSiteDescription}">网站描述</span>
             <textarea name="description" rows="3" maxlength="240" required></textarea>
           </label>
           <label>
-            <span>友链页面</span>
+            <span th:text="#{links.fieldLinkPage}">友链页面</span>
             <input
               name="backlinkUrl"
               type="url"
@@ -171,7 +170,7 @@
             />
           </label>
           <label>
-            <span>RSS 订阅地址</span>
+            <span th:text="#{links.fieldRssAddress}">RSS 订阅地址</span>
             <input
               name="rssUrl"
               type="url"
@@ -182,7 +181,9 @@
         </div>
         <div class="link-application-form-actions">
           <p data-friend-link-status aria-live="polite"></p>
-          <button type="submit" data-friend-link-submit>提交到留言板</button>
+          <button type="submit" data-friend-link-submit th:text="#{links.submitToBoard}">
+            提交到留言板
+          </button>
         </div>
       </form>
     </section>

@@ -9,7 +9,12 @@
   contentClass="content-column-full"
 >
   <template name="head">
-    <title th:text="|${theme.config.business.title ?: '服务'} - ${site.title}|">服务</title>
+    <title
+      th:with="pageTitle=${theme.config.business.title}"
+      th:text="|${pageTitle} - ${site.title}|"
+    >
+      服务
+    </title>
     <script type="module" src="./js/business.ts"></script>
   </template>
 

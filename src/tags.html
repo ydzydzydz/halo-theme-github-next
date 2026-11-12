@@ -13,7 +13,18 @@
     <title th:text="|Tags - ${site.title}|">Tags</title>
   </template>
 
-  <h1>Tags</h1>
-  <ul class="tag-list" data-taxonomy-page-list data-taxonomy-kind="tags"></ul>
-  <p class="taxonomy-list-empty" data-taxonomy-page-empty hidden>暂无标签。</p>
+  <section class="tags-page">
+    <header class="page-hero tags-hero">
+      <div>
+        <p class="eyebrow">Tags</p>
+        <h1 th:text="#{taxonomy.tagTitle}">标签</h1>
+        <p th:text="#{tags.intro}">按标签归拢文章内容，快速找到同一主题下的全部文章。</p>
+      </div>
+    </header>
+
+    <ul class="tag-list" data-taxonomy-page-list data-taxonomy-kind="tags"></ul>
+    <p class="taxonomy-list-empty" data-taxonomy-page-empty hidden th:text="#{tags.empty}">
+      暂无标签。
+    </p>
+  </section>
 </include>

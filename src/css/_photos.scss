@@ -3,7 +3,7 @@
 @use "mixins" as *;
 .photos-page {
   display: grid;
-  gap: 16px;
+  gap: $space-16;
 }
 .photos-hero {
   @extend %hero-gap-tight;
@@ -11,12 +11,12 @@
 .photo-albums {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 48px 40px;
+  gap: $space-48 $space-40;
 }
 .photo-album {
   display: grid;
   min-width: 0;
-  gap: 12px;
+  gap: $space-12;
   color: var(--fg);
 }
 .photo-album:hover,
@@ -25,14 +25,14 @@
   text-decoration: none;
 }
 .photo-album:focus-visible {
-  @include focus-ring(4px);
+  @include focus-ring;
 }
 .photo-album-cover {
   display: grid;
   aspect-ratio: 1.2;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 4px;
+  gap: $space-4;
   overflow: hidden;
   border-radius: $radius-md;
   background: var(--canvas-subtle);
@@ -42,7 +42,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 180ms ease;
+  transition: transform 180ms $ease-standard;
 }
 .photo-album-cover img:first-child {
   grid-column: span 2;
@@ -69,21 +69,21 @@
   display: flex;
   min-width: 0;
   align-items: baseline;
-  gap: 8px;
+  gap: $space-8;
 }
 .photo-album-meta strong {
   @include truncate;
-  font-size: 18px;
+  font-size: $text-18;
   line-height: 1.35;
 }
 .photo-album-meta > span:last-child,
 .photo-album-kind {
   flex: none;
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: $text-13;
 }
 .photo-album-kind {
-  padding: 2px 5px;
+  padding: $space-2 $space-5;
   border-radius: $radius-sm;
   background: var(--canvas-subtle);
 }
@@ -91,16 +91,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 2px;
+  gap: $space-12;
+  padding-bottom: $space-2;
   border-bottom: 1px solid var(--border);
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: $text-13;
 }
 .photo-gallery-back {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: $space-6;
   color: var(--fg);
   font-weight: 600;
 }
@@ -112,7 +112,7 @@
   grid-auto-flow: row dense;
   grid-auto-rows: clamp(156px, 15vw, 236px);
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: $space-8;
 }
 .photo-card {
   position: relative;
@@ -140,14 +140,14 @@
   text-decoration: none;
 }
 .photo-card:focus-visible {
-  @include focus-ring(2px);
+  @include focus-ring;
 }
 .photo-card img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 180ms ease;
+  transition: transform 180ms $ease-standard;
 }
 .photo-card:hover img,
 .photo-card:focus-visible img {
@@ -159,17 +159,25 @@
   bottom: 0;
   left: 0;
   display: flex;
-  padding: 10px;
+  padding: $space-10;
   color: #ffffff;
-  font-size: 12px;
+  font-size: $text-12;
   font-weight: 600;
   background: rgba(13, 17, 23, 0.72);
-  opacity: 0;
-  transition: opacity 180ms ease;
-}
-.photo-card:hover .photo-card-title,
-.photo-card:focus-visible .photo-card-title {
   opacity: 1;
+  transition: opacity 180ms $ease-standard;
+}
+/* 标题默认常驻可见：只有真正有指针的设备才隐藏并靠悬浮显示，
+   否则 721–1040px 的平板（没有 hover）上标题永远不可见 */
+@media (hover: hover) and (pointer: fine) {
+  .photo-card-title {
+    opacity: 0;
+  }
+
+  .photo-card:hover .photo-card-title,
+  .photo-card:focus-visible .photo-card-title {
+    opacity: 1;
+  }
 }
 .photo-card-title span {
   @include truncate;
@@ -183,7 +191,7 @@ html.photo-lightbox-open {
   position: fixed;
   z-index: 80;
   place-items: center;
-  padding: 32px 72px;
+  padding: $space-32 $space-72;
   background: rgb(13 17 23 / 92%);
   inset: 0;
   animation: photo-lightbox-fade 160ms ease;
@@ -201,7 +209,7 @@ html.photo-lightbox-open {
   display: grid;
   max-width: 100%;
   max-height: 100%;
-  gap: 12px;
+  gap: $space-12;
   justify-items: center;
   margin: 0;
 }
@@ -215,9 +223,9 @@ html.photo-lightbox-open {
 .photo-lightbox-caption {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: $space-12;
   color: rgb(255 255 255 / 82%);
-  font-size: 13px;
+  font-size: $text-13;
   text-align: center;
 }
 .photo-lightbox-original {
@@ -245,16 +253,22 @@ html.photo-lightbox-open {
   top: 16px;
   right: 16px;
   width: 36px;
-  height: 36px;
+  height: $control-lg;
   border-radius: $radius-md;
+
+  /* 视觉仍是 36px，热区扩到 44px */
+  @include touch-target;
 }
 .photo-lightbox-nav {
   position: absolute;
   top: 50%;
   width: 42px;
-  height: 42px;
+  height: $control-float;
   border-radius: $radius-circle;
   transform: translateY(-50%);
+
+  /* 视觉仍是 42px，热区扩到 44px */
+  @include touch-target;
 }
 .photo-lightbox-nav--prev {
   left: 16px;
