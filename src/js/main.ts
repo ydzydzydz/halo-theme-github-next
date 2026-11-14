@@ -2191,7 +2191,7 @@ const createResultItem = (hit: SearchHit, keyword: string) => {
 
   const title = document.createElement("span");
   title.className = "search-result-title";
-  // 接口把命中词包在 <B> 里，交给 renderSearchText 转成高亮元素
+  // 接口把命中词包在 <mark> 里，交给 renderSearchText 转成高亮元素
   renderSearchText(title, hit.title || "", keyword);
 
   if (!title.textContent) {

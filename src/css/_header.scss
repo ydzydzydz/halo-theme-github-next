@@ -184,6 +184,10 @@
 .search-dialog-form input {
   width: 100%;
   border: 0;
+  /* 输入框本体不画内描边：焦点环统一由外圈负责，
+     否则全局 :where(input…):focus 的 inset 描边会叠在焦点环内侧，
+     形成内外两圈高亮（与归档页 .repository-search 同一处理）。 */
+  box-shadow: none;
   color: var(--fg);
   font: inherit;
 }

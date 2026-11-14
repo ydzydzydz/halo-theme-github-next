@@ -140,8 +140,9 @@ const appendText = (target: Node, text: string, keyword: string, doc: Document) 
 /**
  * 逐节点搬运解析结果。
  *
- * 接口把命中词包在 <B> 里（例如 "Golang <B>中的</B> Option 模式"）：
- *   - <b> / <strong> / <mark> 变成高亮元素；
+ * 接口把命中词包在 <mark> 里（例如 "Golang <mark>中的</mark> Option 模式"）：
+ *   - <mark> 变成高亮元素；
+ *   - <b> / <strong> 是正文自己的加粗，保留加粗语义，不当作命中标记；
  *   - 其余标签只取文字，避免把接口返回的 HTML 直接塞进页面；
  *   - 接口没标出、但正文里确实出现的关键词，再补一层高亮。
  */
@@ -170,7 +171,18 @@ const appendNode = (
   const element = node as Element;
   const tag = element.tagName.toLowerCase();
 
-  if (tag === "b" || tag === "strong" || tag === "mark") {
+  // 正文里的加粗：接口标记命中词时会把原文的 <strong> 一起包进 <mark>，
+  // 这里若再把 <strong> 当成命中标记，就会套出内外两层高亮。
+  if (tag === "b" || tag === "strong") {
+    const strong = doc.createElement("strong");
+    Array.from(element.childNodes).forEach((child) => {
+      appendNode(strong, child, keyword, doc, insideHit);
+    });
+    target.appendChild(strong);
+    return;
+  }
+
+  if (tag === "mark") {
     const mark = doc.createElement("mark");
     mark.className = hitClass;
 
