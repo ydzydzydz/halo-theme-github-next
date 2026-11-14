@@ -17,6 +17,7 @@
     "prepare": "vp config",
     "gen:messages": "node scripts/gen-messages.mjs",
     "version:sync": "node scripts/sync-version.mjs",
+    "release": "node scripts/release.mjs",
     "skills:update": "npx skills update"
   },
   "dependencies": {

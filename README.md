@@ -66,6 +66,21 @@ pnpm build
 
 构建完成后，主题安装包生成在 `dist/` 目录中。将 zip 文件上传到 Halo Console 即可安装。
 
+## 发版
+
+发版脚本会依次完成：改版本号 → 构建 → 提交 `chore(release): vX.Y.Z` → 推送 `main` 与标签 → 创建 GitHub Release → 等待 CD 工作流上传主题安装包。
+
+```bash
+pnpm release                                    # 自增补丁版本号（1.1.7 -> 1.1.8）
+pnpm release 1.2.0                              # 指定版本号
+pnpm release 1.2.0 --notes-file docs/notes.md   # 自带 Release 说明
+pnpm release --dry-run                          # 只打印计划，不做任何改动
+```
+
+**不要手动把主题 zip 上传到 Release。** halo-sigs 的 `theme-cd` 工作流会在 Release 发布后自行构建，再用 `gh release upload` 把产物挂上去；手动先传同名文件会让那一步因「asset already exists」失败，结果是 Release 上挂着本地构建的包、CD 却显示失败。脚本因此只创建 Release（不带资产），产物一律由 CD 上传；若 CD 偶发失败，脚本会自动重跑失败作业。
+
+前置条件：当前分支为 `main`、工作区干净、已执行 `gh auth login`。
+
 ## 基础配置
 
 进入 Halo Console 的「外观」->「主题」->「GitHub Next」->「设置」，按需配置以下内容。
