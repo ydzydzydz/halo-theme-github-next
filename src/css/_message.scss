@@ -73,15 +73,21 @@
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: $radius-circle;
-  background: var(--canvas);
-  color: var(--fg-muted);
-  font-size: $text-12;
+  /* 占位文字的底色与字色跟评论区保持一致（评论区用的是 --halo-cw-muted-2-color 与 --halo-cw-text-1-color） */
+  background: var(--canvas-subtle);
+  color: var(--fg);
+  font-size: $text-13;
   font-weight: 600;
 }
 .floating-message-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+/* 头像加载失败时的警告图标，和评论区一致 */
+.floating-message-avatar iconify-icon {
+  font-size: $text-18;
+  color: var(--fg-muted);
 }
 .floating-message-body {
   display: flex;
