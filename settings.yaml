@@ -801,7 +801,7 @@ spec:
               value: "bottom-left"
             - label: "右上角"
               value: "top-right"
-          help: 选择右上角后，播放器显示在顶部搜索框之后，采用紧凑的 macOS 音乐播放器样式
+          help: 选择右上角后，播放器显示在顶部搜索框之前，采用紧凑的 macOS 音乐播放器样式
         - $formkit: select
           name: music_source
           label: 音乐数据源

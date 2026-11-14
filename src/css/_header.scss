@@ -96,7 +96,9 @@
   background: var(--canvas-subtle);
   color: var(--fg-muted);
   cursor: pointer;
-  order: 1;
+  order: 2;
+  /* 图标按钮不参与收缩，窄屏也保持 32px 固定尺寸 */
+  flex: 0 0 auto;
 
   /* 视觉仍是 32px，热区扩到 44px */
   @include touch-target;

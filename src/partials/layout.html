@@ -50,40 +50,6 @@
         </a>
         <a class="site-title" th:href="@{/}" th:text="${site.title}">GitHub Next</a>
         <div class="header-tools">
-          <button
-            class="search-box"
-            type="button"
-            data-search-trigger
-            th:attr="aria-label=#{search.open}"
-          >
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M10.68 11.74a6 6 0 1 1 1.06-1.06l3.04 3.04a.75.75 0 1 1-1.06 1.06ZM11.5 7a4.5 4.5 0 1 0-9 0 4.5 4.5 0 0 0 9 0Z"
-              />
-            </svg>
-          </button>
-          <div
-            class="weather-widget"
-            data-weather-widget
-            th:if="${theme.config.styles.weather_enabled == true}"
-            th:attr="data-weather-location=${theme.config.styles.weather_location ?: '深圳'}, data-weather-latitude=${theme.config.styles.weather_latitude ?: '22.5431'}, data-weather-longitude=${theme.config.styles.weather_longitude ?: '114.0579'}, data-weather-auto-location=${theme.config.styles.weather_auto_location != false}, aria-label=#{weather.loading}"
-          >
-            <iconify-icon
-              data-weather-icon
-              icon="solar:cloud-linear"
-              aria-hidden="true"
-            ></iconify-icon>
-            <span data-weather-location-label>深圳</span>
-            <strong data-weather-temperature>--°</strong>
-          </div>
-          <time
-            class="header-clock"
-            data-header-clock
-            th:if="${theme.config.styles.header_clock_enabled == true}"
-            th:attr="aria-label=#{clock.current}"
-          >
-            th:text="#{clock.placeholder}"
-          </time>
           <section
             class="music-player"
             data-music-player
@@ -167,6 +133,40 @@
             <div class="music-player-playlist" data-music-playlist hidden></div>
             <audio data-music-audio preload="metadata"></audio>
           </section>
+          <button
+            class="search-box"
+            type="button"
+            data-search-trigger
+            th:attr="aria-label=#{search.open}"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                d="M10.68 11.74a6 6 0 1 1 1.06-1.06l3.04 3.04a.75.75 0 1 1-1.06 1.06ZM11.5 7a4.5 4.5 0 1 0-9 0 4.5 4.5 0 0 0 9 0Z"
+              />
+            </svg>
+          </button>
+          <div
+            class="weather-widget"
+            data-weather-widget
+            th:if="${theme.config.styles.weather_enabled == true}"
+            th:attr="data-weather-location=${theme.config.styles.weather_location ?: '深圳'}, data-weather-latitude=${theme.config.styles.weather_latitude ?: '22.5431'}, data-weather-longitude=${theme.config.styles.weather_longitude ?: '114.0579'}, data-weather-auto-location=${theme.config.styles.weather_auto_location != false}, aria-label=#{weather.loading}"
+          >
+            <iconify-icon
+              data-weather-icon
+              icon="solar:cloud-linear"
+              aria-hidden="true"
+            ></iconify-icon>
+            <span data-weather-location-label>深圳</span>
+            <strong data-weather-temperature>--°</strong>
+          </div>
+          <time
+            class="header-clock"
+            data-header-clock
+            th:if="${theme.config.styles.header_clock_enabled == true}"
+            th:attr="aria-label=#{clock.current}"
+          >
+            th:text="#{clock.placeholder}"
+          </time>
           <div class="header-actions">
             <button
               class="icon-button theme-toggle"

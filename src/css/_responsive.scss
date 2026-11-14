@@ -26,11 +26,23 @@
     --shell-pad-x: 16px;
   }
 
-  .search-box,
+  /* 窄屏仍保留顶部搜索按钮，只隐藏天气、时钟与次要图标按钮 */
   .weather-widget,
   .header-clock,
   .header-actions .icon-button:not(.wide-icon):not(.login-link):not(.theme-toggle) {
     display: none;
+  }
+
+  /* 右侧工具区（搜索按钮 + 操作按钮）尺寸固定，不参与压缩；
+     多余空间全部由站点标题吸收并省略，避免工具区被挤出屏幕 */
+  .header-tools {
+    flex: 0 0 auto;
+  }
+
+  .site-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .music-player--header {
