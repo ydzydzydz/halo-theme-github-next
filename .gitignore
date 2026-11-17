@@ -27,3 +27,6 @@ dist-ssr
 .gradle
 build
 templates
+
+# skills CLI 为各 agent 生成的链接目录，内容已在 .agents/skills 下跟踪
+.claude
