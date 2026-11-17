@@ -164,12 +164,18 @@ if (notesFile) {
 }
 run("gh", releaseArgs);
 
-const assets = JSON.parse(
-  capture("gh", ["release", "view", tag, "--json", "assets", "--jq", ".assets[].name"]),
-);
+// Release 刚建好时还没有任何资产，gh 的 --jq 输出是空字符串，
+// 直接 JSON.parse 会抛「Unexpected end of JSON input」，这里按行拆开处理。
+const listAssetNames = (releaseTag) =>
+  capture("gh", ["release", "view", releaseTag, "--json", "assets", "--jq", ".assets[].name"])
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+const assets = listAssetNames(tag);
 ensure(
-  assets === "",
-  `Release ${tag} 上已有资产（${assets}），CD 上传会因同名冲突失败，请先删除这些资产`,
+  assets.length === 0,
+  `Release ${tag} 上已有资产（${assets.join(", ")}），CD 上传会因同名冲突失败，请先删除这些资产`,
 );
 
 // ---------- 5. 等 CD 工作流上传产物 ----------
@@ -228,9 +234,7 @@ for (let attempt = 0; attempt < 3; attempt += 1) {
 
 // ---------- 6. 校验产物 ----------
 
-const finalAssets = JSON.parse(
-  capture("gh", ["release", "view", tag, "--json", "assets", "--jq", ".assets[].name"]),
-);
+const finalAssets = listAssetNames(tag);
 ensure(
   finalAssets.includes(`theme-github-next-${nextVersion}.zip`),
   `Release ${tag} 上没有找到主题安装包，请检查 CD 日志`,
