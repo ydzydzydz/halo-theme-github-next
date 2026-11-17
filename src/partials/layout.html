@@ -39,6 +39,7 @@
   <body
     th:style="|--configured-page-bg: ${theme.config.styles.background_color ?: '#ffffff'}; --configured-accent: ${theme.config.styles.accent_color ?: '#0969da'}|"
     th:classappend="${theme.config.announcement.prayer_mode == true ? 'is-prayer-mode' : ''}"
+    th:attr="data-authenticated=${#authentication != null and #authentication.name != 'anonymousUser'}"
   >
     <header class="github-header">
       <div class="header-inner">
@@ -176,7 +177,8 @@
             >
               <iconify-icon icon="solar:monitor-linear" aria-hidden="true"></iconify-icon>
             </button>
-            <div class="publish-menu">
+            <!-- 发布入口属于后台操作，未登录时不渲染 -->
+            <div class="publish-menu" sec:authorize="isAuthenticated()">
               <button
                 class="icon-button wide-icon"
                 type="button"
@@ -203,8 +205,10 @@
                 >
               </div>
             </div>
+            <!-- 通知中心在用户中心里，未登录时访问会被重定向到登录页 -->
             <a
               class="icon-button notification-link"
+              sec:authorize="isAuthenticated()"
               th:href="@{/uc/notifications}"
               aria-label="Notifications"
               data-notification-link
@@ -237,8 +241,20 @@
                 />
               </button>
               <div class="user-menu-list" role="menu" data-user-menu-list hidden>
-                <a th:href="@{/console}" role="menuitem" th:text="#{user.console}">控制台</a>
-                <a th:href="@{/logout}" role="menuitem" th:text="#{user.logout}">退出</a>
+                <a
+                  th:href="@{/console}"
+                  role="menuitem"
+                  sec:authorize="isAuthenticated()"
+                  th:text="#{user.console}"
+                  >控制台</a
+                >
+                <a
+                  th:href="@{/logout}"
+                  role="menuitem"
+                  sec:authorize="isAuthenticated()"
+                  th:text="#{user.logout}"
+                  >退出</a
+                >
               </div>
             </div>
           </div>
@@ -451,8 +467,10 @@
           <p class="profile-username" th:text="${theme.config.basic.description ?: 'halo-user'}">
             halo-user
           </p>
+          <!-- 侧栏里的后台入口都需要登录，未登录时整组不渲染 -->
           <a
             class="profile-button"
+            sec:authorize="isAuthenticated()"
             th:if="${singlePage != null and singlePage.spec.slug == 'about'}"
             th:href="@{/console/theme/settings/about}"
             target="_blank"
@@ -462,6 +480,7 @@
           >
           <a
             class="profile-button"
+            sec:authorize="isAuthenticated()"
             th:if="${singlePage != null and singlePage.spec.template == 'message.html'}"
             th:href="@{/console/comments}"
             target="_blank"
@@ -471,6 +490,7 @@
           >
           <a
             class="profile-button"
+            sec:authorize="isAuthenticated()"
             th:if="${(singlePage == null or (singlePage.spec.slug != 'about' and singlePage.spec.template != 'message.html')) and linksTitle != null}"
             th:href="@{/console/links}"
             target="_blank"
@@ -480,6 +500,7 @@
           >
           <a
             class="profile-button"
+            sec:authorize="isAuthenticated()"
             th:if="${linksTitle == null and (category != null or categories != null)}"
             th:href="@{/console/posts/categories}"
             target="_blank"
@@ -489,6 +510,7 @@
           >
           <a
             class="profile-button"
+            sec:authorize="isAuthenticated()"
             th:if="${linksTitle == null and category == null and categories == null and (moment != null or moments != null)}"
             th:href="@{/console/moments}"
             target="_blank"
@@ -498,6 +520,7 @@
           >
           <a
             class="profile-button"
+            sec:authorize="isAuthenticated()"
             th:if="${linksTitle == null and category == null and categories == null and moment == null and moments == null and (post != null or archives != null)}"
             th:href="@{/console/posts/editor}"
             target="_blank"
@@ -507,6 +530,7 @@
           >
           <a
             class="profile-button"
+            sec:authorize="isAuthenticated()"
             th:if="${'{{activeHome}}' == 'is-active'}"
             th:href="@{/console}"
             target="_blank"
@@ -514,9 +538,24 @@
             th:text="#{sidebar.console}"
             >后台管理</a
           >
+          <!--
+            豆瓣页由插件路由渲染，没有 singlePage，只能靠构建期标记区分，
+            所以按钮文案与链接都在这里单独给一份。
+          -->
           <a
             class="profile-button"
-            th:unless="${(singlePage != null and (singlePage.spec.slug == 'about' or singlePage.spec.template == 'message.html')) or linksTitle != null or category != null or categories != null or moment != null or moments != null or post != null or archives != null or '{{activeHome}}' == 'is-active'}"
+            sec:authorize="isAuthenticated()"
+            th:if="${'{{isDoubanPage}}' == 'true'}"
+            th:href="@{/console/douban}"
+            target="_blank"
+            rel="noreferrer"
+            th:text="#{sidebar.manageDouban}"
+            >管理豆瓣</a
+          >
+          <a
+            class="profile-button"
+            sec:authorize="isAuthenticated()"
+            th:unless="${(singlePage != null and (singlePage.spec.slug == 'about' or singlePage.spec.template == 'message.html')) or linksTitle != null or category != null or categories != null or moment != null or moments != null or post != null or archives != null or '{{activeHome}}' == 'is-active' or '{{isDoubanPage}}' == 'true'}"
             th:href="@{/console}"
             target="_blank"
             rel="noreferrer"

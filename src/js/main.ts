@@ -192,6 +192,10 @@ const getCurrentUser = () => {
   return currentUserRequest;
 };
 
+// 登录态由服务端在 <body data-authenticated> 上给出，
+// 未登录时就不必再请求控制台接口去反查当前用户。
+const isAuthenticated = () => document.body?.dataset.authenticated === "true";
+
 const setupThemeToggle = () => {
   const trigger = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
   const icon = trigger?.querySelector<HTMLElement>("iconify-icon");
@@ -2060,6 +2064,10 @@ const setupNotificationIndicator = () => {
     return;
   }
 
+  if (!isAuthenticated()) {
+    return;
+  }
+
   let username: string | undefined;
   let checking = false;
 
@@ -2139,6 +2147,10 @@ const setupUserMenu = async () => {
   }
 
   loginLink.href = `/login?redirect_uri=${encodeURIComponent(window.location.href)}`;
+
+  if (!isAuthenticated()) {
+    return;
+  }
 
   const currentUser = await getCurrentUser();
   const username = currentUser?.user?.metadata?.name;

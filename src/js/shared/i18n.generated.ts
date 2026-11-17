@@ -456,6 +456,7 @@ export interface ThemeMessages {
     loveTitle: string;
     loveTogether: string;
     manageCategories: string;
+    manageDouban: string;
     manageLinks: string;
     manageMessages: string;
     noCategories: string;
@@ -1049,6 +1050,7 @@ export const defaultMessages: ThemeMessages = {
     loveTitle: "恩爱计时",
     loveTogether: "我们已经在一起",
     manageCategories: "管理分类",
+    manageDouban: "管理豆瓣",
     manageLinks: "管理友链",
     manageMessages: "管理留言",
     noCategories: "暂无分类",
