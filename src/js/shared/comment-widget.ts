@@ -36,6 +36,20 @@ const submitButtonStyle = `
   background: var(--button-primary-hover-bg, #1a7f37);
   opacity: 1;
 }
+
+/* 管理端改评论时的「保存 / 重试」也是主按钮：组件的 bg-primary-1 会跟着
+   --halo-cw-primary-1-color 走（现在是主题强调色），这里把它们拉回主按钮规格。 */
+.edit-form-submit.edit-form-submit,
+.edit-form-retry.edit-form-retry {
+  border-color: var(--button-primary-border, rgb(27 31 36 / 0.15));
+  background: var(--button-primary-bg, #1f883d);
+  color: #ffffff;
+}
+.edit-form-submit.edit-form-submit:hover,
+.edit-form-retry.edit-form-retry:hover {
+  background: var(--button-primary-hover-bg, #1a7f37);
+  opacity: 1;
+}
 `;
 
 /*

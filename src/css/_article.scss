@@ -283,8 +283,11 @@
   border: 1px solid var(--border);
   border-radius: $radius-lg;
   background: var(--canvas);
-  /* 评论组件主色：提交按钮沿用「申请友链」的 GitHub 绿 */
-  --halo-cw-primary-1-color: var(--green-primary);
+  /* 评论组件主色：跟随主题强调色。
+     这个变量同时管着评论正文里的链接、输入框聚焦边框、返回/重试的文字，
+     一旦改成 GitHub 绿，评论里的链接就全变绿了（2acbc80 那次改按钮颜色时带出来的）。
+     提交按钮的绿色不走这里，由 comment-widget.ts 按「主按钮规格」单独接管。 */
+  --halo-cw-primary-1-color: var(--accent);
   --halo-cw-primary-contrast-color: #ffffff;
   /* 字形与正文一致，组件默认的 Roboto/Helvetica 不再单独生效 */
   --halo-cw-base-font-family: #{$font-sans};
