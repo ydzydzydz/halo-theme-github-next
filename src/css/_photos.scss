@@ -287,3 +287,11 @@ html.photo-lightbox-open {
   border-color: rgb(255 255 255 / 65%);
   background: rgb(13 17 23 / 90%);
 }
+/* 灯箱是深色遮罩，主题蓝焦点环贴在深底上像描边出错。
+   键盘操作时改用浅色环，焦点位置依然清楚。 */
+.photo-lightbox-original:focus-visible,
+.photo-lightbox-close:focus-visible,
+.photo-lightbox-nav:focus-visible {
+  outline: var(--focus-ring-width) solid rgb(255 255 255 / 90%);
+  outline-offset: var(--focus-ring-offset);
+}

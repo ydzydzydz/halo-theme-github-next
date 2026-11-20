@@ -168,11 +168,71 @@ export const truncateText = (text: string, maxLength: number) =>
 export const captureFocus = () =>
   document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
 
+/**
+ * 最近一次输入方式：指针 or 键盘。
+ *
+ * 脚本移动焦点时，Chrome / Firefox 会给新聚焦的元素补上 :focus-visible，
+ * 于是「鼠标点开灯箱 → 脚本聚焦关闭按钮」会凭空多出一圈焦点环，
+ * 看起来像按钮描边出了问题。这里记住最近一次输入是哪种方式：
+ * 指针操作跳过描边，键盘操作保留可见焦点环。
+ */
+type InputModality = "pointer" | "keyboard";
+
+let inputModality: InputModality = "pointer";
+
+if (typeof document !== "undefined") {
+  document.addEventListener(
+    "pointerdown",
+    () => {
+      inputModality = "pointer";
+    },
+    { capture: true },
+  );
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Tab" ||
+        event.key === "Enter" ||
+        event.key === " " ||
+        event.key === "Escape"
+      ) {
+        inputModality = "keyboard";
+      }
+    },
+    { capture: true },
+  );
+}
+
+/**
+ * 移动焦点：指针操作不画焦点环，键盘操作保留焦点环。
+ *
+ * focusVisible 是非标准选项，Chrome / Firefox 支持，Safari 会忽略它
+ * （忽略时退回浏览器默认表现，不影响可用性）。
+ */
+export const focusElement = (
+  element?: HTMLElement | null,
+  { preventScroll = false }: { preventScroll?: boolean } = {},
+) => {
+  if (!element || !document.contains(element)) {
+    return;
+  }
+
+  if (inputModality === "keyboard") {
+    element.focus({ preventScroll });
+    return;
+  }
+
+  element.focus({
+    preventScroll,
+    focusVisible: false,
+  } as FocusOptions & { focusVisible?: boolean });
+};
+
 /** 归还焦点到之前记录的元素。 */
 export const restoreFocus = (element?: HTMLElement | null) => {
-  if (element && document.contains(element)) {
-    element.focus();
-  }
+  focusElement(element);
 };
 
 const focusableSelector = [
@@ -218,13 +278,13 @@ export const createFocusTrap = (container: HTMLElement): FocusTrap => {
 
     if (event.shiftKey && (active === first || !container.contains(active))) {
       event.preventDefault();
-      last.focus();
+      focusElement(last);
       return;
     }
 
     if (!event.shiftKey && (active === last || !container.contains(active))) {
       event.preventDefault();
-      first.focus();
+      focusElement(first);
     }
   };
 

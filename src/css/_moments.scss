@@ -163,6 +163,11 @@
 .image-preview-close iconify-icon {
   @include icon-size(20px);
 }
+/* 深色遮罩上的焦点环改用浅色，避免主题蓝在深底上像描边出错。 */
+.image-preview-close:focus-visible {
+  outline: var(--focus-ring-width) solid rgb(255 255 255 / 90%);
+  outline-offset: var(--focus-ring-offset);
+}
 .moment-media-grid audio {
   width: 100%;
   grid-column: 1 / -1;

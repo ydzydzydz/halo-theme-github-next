@@ -13,6 +13,8 @@
  * 因此这里以「本次点击前那一次 pointerdown / touchstart 的指针类型」为准。
  */
 
+import { focusElement } from "./dom";
+
 /** 触摸发生后的一小段时间内，忽略浏览器补发的兼容鼠标悬浮事件。 */
 const TOUCH_GRACE_MS = 700;
 
@@ -55,7 +57,7 @@ export const setupDropdownMenu = ({
     // 焦点还留在菜单里（键盘 Tab 进来后按 Esc、或点中菜单项）时把焦点还给触发按钮，
     // 否则焦点会掉回 body，键盘用户下次就找不到这个菜单的入口了。
     if (restoreFocus || menu.contains(document.activeElement)) {
-      trigger.focus({ preventScroll: true });
+      focusElement(trigger, { preventScroll: true });
     }
   };
 
@@ -65,7 +67,7 @@ export const setupDropdownMenu = ({
     trigger.setAttribute("aria-expanded", "true");
 
     if (focusFirstItem) {
-      menu.querySelector<HTMLElement>("a, button")?.focus({ preventScroll: true });
+      focusElement(menu.querySelector<HTMLElement>("a, button"), { preventScroll: true });
     }
   };
 

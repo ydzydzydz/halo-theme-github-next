@@ -3,7 +3,7 @@ import "../css/about.scss";
 import "iconify-icon";
 import { setupBackToTop } from "./shared/back-to-top";
 import { setupCommentWidgetStyle } from "./shared/comment-widget";
-import { pageLocale, showInlineHint } from "./shared/dom";
+import { focusElement, pageLocale, showInlineHint } from "./shared/dom";
 import { setupDropdownMenu } from "./shared/dropdown-menu";
 import { messages, formatMessage } from "./shared/i18n";
 import { setupRepositoryFilters } from "./shared/repository-filters";
@@ -1666,7 +1666,7 @@ const setupMomentImagePreview = () => {
       });
       document.body.append(preview);
       document.documentElement.classList.add("image-preview-open");
-      closeButton.focus();
+      focusElement(closeButton);
     });
   });
 
@@ -1779,13 +1779,13 @@ const createImageLightbox = (entries: LightboxEntry[]) => {
     render();
     overlay.hidden = false;
     document.documentElement.classList.add("photo-lightbox-open");
-    closeButton.focus();
+    focusElement(closeButton);
   };
 
   const close = () => {
     overlay.hidden = true;
     document.documentElement.classList.remove("photo-lightbox-open");
-    entries[index]?.element?.focus();
+    focusElement(entries[index]?.element);
   };
 
   const step = (delta: number) => {

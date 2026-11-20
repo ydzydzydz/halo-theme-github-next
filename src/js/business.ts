@@ -1,6 +1,6 @@
 import "../css/business.scss";
 import "iconify-icon";
-import { captureFocus, createFocusTrap, restoreFocus } from "./shared/dom";
+import { captureFocus, createFocusTrap, focusElement, restoreFocus } from "./shared/dom";
 
 const setupBusinessDetails = () => {
   const modal = document.querySelector<HTMLElement>("[data-business-modal]");
@@ -47,7 +47,7 @@ const setupBusinessDetails = () => {
     modal.hidden = false;
     document.body.classList.add("business-modal-open");
     trap.activate();
-    focusableCloseButtons[0]?.focus();
+    focusElement(focusableCloseButtons[0]);
   };
 
   triggers.forEach((trigger) => trigger.addEventListener("click", () => open(trigger)));
