@@ -127,47 +127,6 @@
   height: auto;
   object-fit: cover;
 }
-.image-preview {
-  display: grid;
-  position: fixed;
-  z-index: 70;
-  place-items: center;
-  padding: $space-24;
-  background: rgba(13, 17, 23, 0.86);
-  inset: 0;
-}
-.image-preview img {
-  display: block;
-  max-width: min(92vw, 1440px);
-  max-height: 88vh;
-  object-fit: contain;
-}
-.image-preview-close {
-  display: inline-flex;
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 36px;
-  height: $control-lg;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: $radius-md;
-  background: rgba(13, 17, 23, 0.65);
-  color: #ffffff;
-  cursor: pointer;
-
-  /* 视觉仍是 36px，热区扩到 44px */
-  @include touch-target;
-}
-.image-preview-close iconify-icon {
-  @include icon-size(20px);
-}
-/* 深色遮罩上的焦点环改用浅色，避免主题蓝在深底上像描边出错。 */
-.image-preview-close:focus-visible {
-  outline: var(--focus-ring-width) solid rgb(255 255 255 / 90%);
-  outline-offset: var(--focus-ring-offset);
-}
 .moment-media-grid audio {
   width: 100%;
   grid-column: 1 / -1;

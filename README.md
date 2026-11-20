@@ -73,7 +73,7 @@ pnpm build       # 版本同步 + 清理 + 构建 + 生成主题 zip 包
 
 ### 国际化
 
-文案统一放在 `i18n/`：`default.properties`（简体中文与兜底）、`zh_CN.properties`（简体中文）、`en.properties`（英文）。Halo 按 `default` → `<语言>` → `<语言>_<地区>` 的顺序合并，后者覆盖同名键。
+文案统一放在 `i18n/`：`default.properties`（简体中文，同时兼作兜底）与 `en.properties`（英文）。Halo 按 `default` → `<语言>` → `<语言>_<地区>` 的顺序合并，后者覆盖同名键；简体中文直接由 `default.properties` 提供，无需再放一份内容相同的 `zh_CN.properties`。
 
 `i18n/*.properties` 是文案的唯一事实来源，`src/partials/messages.html` 与 `src/js/shared/i18n.generated.ts` 由脚本生成，不要手工编辑：
 

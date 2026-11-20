@@ -6,7 +6,7 @@
  */
 
 /** Halo 搜索索引接口。 */
-export const searchEndpoint = "/apis/api.halo.run/v1alpha1/indices/-/search";
+const searchEndpoint = "/apis/api.halo.run/v1alpha1/indices/-/search";
 
 export type SearchHit = {
   title?: string;

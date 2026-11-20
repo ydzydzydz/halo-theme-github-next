@@ -53,14 +53,3 @@ export const formatMessage = (template: string, ...values: (string | number)[]):
     template,
   );
 };
-
-/**
- * 页面当前是否使用中文。
- *
- * 只用于需要区分中英的格式化场景（例如中文习惯的日期写法），
- * 不参与文案翻译 —— 文案在服务端就已经按当前语言解析好了。
- */
-export const isChinese = () => {
-  const language = document.documentElement.lang || "";
-  return language.toLowerCase().startsWith("zh");
-};

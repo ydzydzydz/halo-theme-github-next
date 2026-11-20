@@ -13,57 +13,15 @@ const reducedMotionQuery = () => window.matchMedia("(prefers-reduced-motion: red
 /** 用户是否开启了「减少动效」偏好。 */
 export const prefersReducedMotion = () => reducedMotionQuery().matches;
 
-/**
- * 监听「减少动效」偏好变化，支持运行时切换。
- *
- * @returns 取消监听的函数。
- */
-export const onReducedMotionChange = (handler: (reduced: boolean) => void) => {
-  const query = reducedMotionQuery();
-  const listener = (event: MediaQueryListEvent) => handler(event.matches);
-
-  query.addEventListener("change", listener);
-
-  return () => query.removeEventListener("change", listener);
-};
-
 /** 滚动动效：用户要求减少动效时直接跳转，不做平滑滚动。 */
 export const scrollBehavior = (): ScrollBehavior => (prefersReducedMotion() ? "auto" : "smooth");
 
-const unitFormatters = new Map<string, Intl.NumberFormat | null>();
-
-/**
- * 带单位的数字，例如「3 天」「2 years」。
- *
- * 浏览器不支持该单位时退化为纯数字，不影响页面可用性。
- */
-export const formatUnit = (value: number, unit: string, options?: Intl.NumberFormatOptions) => {
-  const key = `${unit}|${options?.minimumIntegerDigits ?? ""}`;
-  const cached = unitFormatters.get(key);
-
-  if (cached !== undefined) {
-    return cached ? cached.format(value) : String(value);
-  }
-
-  let formatter: Intl.NumberFormat | null = null;
-
-  try {
-    formatter = new Intl.NumberFormat(pageLocale(), {
-      style: "unit",
-      unit,
-      unitDisplay: "long",
-      ...options,
-    });
-  } catch {
-    formatter = null;
-  }
-
-  unitFormatters.set(key, formatter);
-
-  return formatter ? formatter.format(value) : String(value);
-};
-
 export type PollingInterval = number | (() => number);
+
+export type PollingOptions = {
+  /** 是否在启动时立刻执行一次，默认 true。 */
+  immediate?: boolean;
+};
 
 export type PollingHandle = {
   /** 暂停轮询（切到后台标签页时自动暂停）。 */
@@ -83,6 +41,7 @@ export type PollingHandle = {
 export const createPolling = (
   task: () => void | Promise<void>,
   interval: PollingInterval,
+  options: PollingOptions = {},
 ): PollingHandle => {
   let timer = 0;
   let stopped = false;
@@ -137,7 +96,12 @@ export const createPolling = (
   window.addEventListener("pagehide", stop, { once: true });
 
   if (!document.hidden) {
-    tick();
+    if (options.immediate ?? true) {
+      tick();
+    } else {
+      // 首次执行也等一个完整周期，适合「每隔一段时间动一下」的场景。
+      timer = window.setTimeout(tick, delayOf());
+    }
   }
 
   return { pause, resume, stop };

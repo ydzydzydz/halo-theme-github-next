@@ -631,4 +631,4 @@ const setupContributions = async () => {
 };
 
 void setupContributions();
-setupReadme();
+void setupReadme();

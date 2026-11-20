@@ -38,6 +38,63 @@ const resourceName = (endpoint: string) => {
   return name || endpoint;
 };
 
+/** 发一次请求并解析 JSON，失败时抛出带资源名的错误。 */
+const fetchJson = async <T>(url: string, init: RequestInit): Promise<T> => {
+  const response = await fetch(url, init);
+
+  if (!response.ok) {
+    throw new Error(`Unable to load ${resourceName(url)}: ${response.status}`);
+  }
+
+  return (await response.json()) as T;
+};
+
+/**
+ * 在途读请求表：同一个「缓存策略 + URL」在同时刻只发一次。
+ *
+ * 同一页里常有多个模块要同一份数据 —— 例如首页的贡献图与侧边栏标签云
+ * 都要标签列表，两边各自发一次会拿到两份完全相同的响应。
+ * 这里按 URL 合并在途请求，后到的调用方直接复用先到者的 Promise。
+ *
+ * 只合并「读」请求：带 AbortSignal 的请求不参与合并，
+ * 否则一个调用方取消会连带把另一个调用方的请求也取消掉。
+ */
+const inflightReads = new Map<string, Promise<unknown>>();
+
+/** 拉取一页列表；相同 URL 的并发读请求会被合并成一次。 */
+const fetchPage = <T>(
+  url: string,
+  cache: RequestCache,
+  signal?: AbortSignal,
+): Promise<ListResponse<T>> => {
+  if (signal) {
+    return fetchJson<ListResponse<T>>(url, { cache, signal });
+  }
+
+  const key = `${cache}|${url}`;
+  const existing = inflightReads.get(key);
+
+  if (existing) {
+    return existing as Promise<ListResponse<T>>;
+  }
+
+  const request = fetchJson<ListResponse<T>>(url, { cache });
+  inflightReads.set(key, request);
+
+  void request
+    .finally(() => {
+      // 只清理自己登记的那条，避免误删后来者
+      if (inflightReads.get(key) === request) {
+        inflightReads.delete(key);
+      }
+    })
+    .catch(() => {
+      // 这里是清理用的派生 Promise，错误已经由原始 Promise 抛给调用方，吞掉即可
+    });
+
+  return request;
+};
+
 /**
  * 拉取列表接口的全部分页并合并结果。
  *
@@ -48,6 +105,7 @@ export const fetchAllPages = async <T>(
   options: FetchAllPagesOptions = {},
 ): Promise<PagedResult<T>> => {
   const size = options.size ?? 100;
+  const cache = options.cache ?? "no-store";
   const items: T[] = [];
   let page = 1;
   let totalPages = 1;
@@ -59,16 +117,8 @@ export const fetchAllPages = async <T>(
       page: String(page),
       size: String(size),
     });
-    const response = await fetch(`${endpoint}?${query}`, {
-      cache: options.cache ?? "no-store",
-      signal: options.signal,
-    });
+    const result = await fetchPage<T>(`${endpoint}?${query}`, cache, options.signal);
 
-    if (!response.ok) {
-      throw new Error(`Unable to load ${resourceName(endpoint)}: ${response.status}`);
-    }
-
-    const result = (await response.json()) as ListResponse<T>;
     items.push(...(result.items || []));
     total = result.total ?? total;
     totalPages = Math.max(1, result.totalPages || 1);

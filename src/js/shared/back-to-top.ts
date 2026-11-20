@@ -25,3 +25,24 @@ export const setupBackToTop = (button: HTMLButtonElement, options: BackToTopOpti
   window.addEventListener("scroll", updateVisibility, { passive: true });
   updateVisibility();
 };
+
+/**
+ * 全站悬浮回顶按钮。
+ *
+ * 正文页自带一个侧边栏回顶按钮，两处同时存在会重复，
+ * 因此这里在检测到正文页的回顶按钮时把全局那颗移除。
+ */
+export const setupGlobalBackToTop = () => {
+  const button = document.querySelector<HTMLButtonElement>("[data-back-to-top]");
+
+  if (!button) {
+    return;
+  }
+
+  if (document.querySelector("[data-post-back-to-top]")) {
+    button.remove();
+    return;
+  }
+
+  setupBackToTop(button);
+};

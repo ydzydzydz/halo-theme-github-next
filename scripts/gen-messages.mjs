@@ -164,21 +164,26 @@ const nextMessages = `${INJECT_START}\n${buildInjectionBlock()}\n${INJECT_END}\n
 // 4. 生成 TypeScript 类型与默认值
 // ---------------------------------------------------------------------------
 
+// 类型与默认值只覆盖「脚本真正用到的键」，而不是整张消息表：
+// 服务端注入块本来就只注入这些键，默认值只是注入失败时的兜底，
+// 把用不到的键也打进包里纯属浪费体积（中文默认值还有 UTF-8 放大）。
 const tsLines = [
   "/**",
   " * 此文件由 scripts/gen-messages.mjs 生成，请勿手动编辑。",
   " *",
   " * 消息表的事实来源是 i18n/default.properties（简体中文）。",
   " * 修改文案请改 i18n/ 下的 properties，再重新运行生成脚本。",
+  " *",
+  " * 这里只包含脚本实际引用到的键，与服务端注入块保持一致。",
   " */",
   "",
   "export interface ThemeMessages {",
 ];
 
-for (const group of [...catalog.keys()].sort(byName)) {
+for (const group of [...usedGroups.keys()].sort(byName)) {
   tsLines.push(`  ${group}: {`);
 
-  for (const name of [...catalog.get(group).keys()].sort(byName)) {
+  for (const name of [...usedGroups.get(group)].sort(byName)) {
     tsLines.push(`    ${name}: string;`);
   }
 
@@ -189,10 +194,10 @@ tsLines.push("}");
 tsLines.push("");
 tsLines.push("export const defaultMessages: ThemeMessages = {");
 
-for (const group of [...catalog.keys()].sort(byName)) {
+for (const group of [...usedGroups.keys()].sort(byName)) {
   tsLines.push(`  ${group}: {`);
 
-  for (const name of [...catalog.get(group).keys()].sort(byName)) {
+  for (const name of [...usedGroups.get(group)].sort(byName)) {
     tsLines.push(`    ${name}: ${JSON.stringify(catalog.get(group).get(name))},`);
   }
 
@@ -234,7 +239,7 @@ if (checkOnly) {
     process.exit(1);
   }
 
-  console.log(`✓ 消息产物已是最新（${usedKeys.size} 个脚本用到的键 / ${catalog.size} 个分组）`);
+  console.log(`✓ 消息产物已是最新（${usedKeys.size} 个脚本用到的键 / ${usedGroups.size} 个分组）`);
   process.exit(0);
 }
 
@@ -243,5 +248,5 @@ for (const { path, next } of targets) {
 }
 
 console.log(
-  `✓ 已生成消息产物：${usedKeys.size} 个注入键（${usedGroups.size} 个分组），类型覆盖 ${catalog.size} 个分组`,
+  `✓ 已生成消息产物：${usedKeys.size} 个注入键（${usedGroups.size} 个分组），类型覆盖 ${usedGroups.size} 个分组`,
 );
