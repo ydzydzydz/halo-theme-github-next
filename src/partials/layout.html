@@ -34,7 +34,17 @@
         }
       })();
     </script>
-    <script type="module" src="./js/main.ts"></script>
+    <!--
+      入口脚本用根绝对路径（/js/main.ts）而不是 ./js/main.ts。
+      构建期 <include> 是把 partial 的内容原样内联到引用它的模板里，
+      Vite 再按「引用它的那个 HTML 文件」解析脚本路径：
+      页面模板都在 src/ 下，./js/main.ts 恰好能解析到 src/js/main.ts；
+      但错误页模板在 src/error/ 下，./js/main.ts 会解析成 src/error/js/main.ts
+      —— 找不到文件，构建直接失败。
+      根绝对路径对两者都指向 src/js/main.ts，
+      产出的地址两者一致（/themes/<主题名>/assets/main-*.js），与原来没有差别。
+    -->
+    <script type="module" src="/js/main.ts"></script>
   </head>
   <body
     th:style="|--configured-page-bg: ${theme.config.styles.background_color ?: '#ffffff'}; --configured-accent: ${theme.config.styles.accent_color ?: '#0969da'}|"

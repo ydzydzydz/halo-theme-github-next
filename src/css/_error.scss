@@ -1,0 +1,228 @@
+@use "components" as *;
+@use "tokens" as *;
+@use "mixins" as *;
+
+// ---------------------------------------------------------------------------
+// 错误页面
+//
+// 错误页只有一个主体：错误状态 + 一句说明 + 几个去处。
+// 视觉上沿用 GitHub 的克制做法：状态码用大号数字压住画面，
+// 说明文字退到 --fg-muted，唯一的彩色留给图标底色与链接。
+//
+// 配色全部走令牌，暗色模式由 _base.scss 的变量表接管，
+// 这里不写任何硬编码颜色。
+// ---------------------------------------------------------------------------
+
+.error-page {
+  display: grid;
+  max-width: 680px;
+  margin: 0 auto;
+  gap: $space-20;
+}
+
+/* 主卡片：状态、说明、去处、技术详情 */
+.error-card {
+  display: grid;
+  padding: $space-40 $space-32;
+  justify-items: center;
+  gap: $space-12;
+  text-align: center;
+  @extend %surface-card;
+}
+
+/* 状态行：图标在左，状态码在右 */
+.error-status {
+  display: inline-flex;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
+  gap: $space-10;
+}
+
+/* 状态图标：与主题其它 iconify 图标同款写法，只染色、不套圆形底座 */
+.error-status-icon {
+  flex: 0 0 auto;
+  color: var(--danger-fg);
+  @include icon-size($text-28);
+}
+
+/* 状态码：整页唯一的「大字」，数字用等宽数位，切换状态码时不会左右抖动 */
+.error-status-code {
+  color: var(--fg);
+  font-size: $text-56;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.error-title {
+  margin: 0;
+  color: var(--fg);
+  font-size: $text-20;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.error-desc {
+  max-width: 460px;
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: $text-14;
+}
+
+/* 三个去处：回首页、翻归档、站内搜索 */
+.error-actions {
+  display: flex;
+  margin-top: $space-8;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-10;
+}
+.error-action {
+  display: inline-flex;
+  height: var(--button-primary-height);
+  padding: 0 $space-16;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--button-primary-radius);
+  background: var(--canvas);
+  color: var(--fg);
+  font: inherit;
+  font-size: var(--button-primary-font-size);
+  font-weight: var(--button-primary-weight);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color $dur-base $ease-standard,
+    background $dur-base $ease-standard,
+    color $dur-base $ease-standard;
+}
+.error-action:hover {
+  border-color: var(--accent);
+  background: var(--canvas-subtle);
+  color: var(--accent-hover);
+  text-decoration: none;
+}
+.error-action-primary {
+  border-color: var(--button-primary-border);
+  background: var(--button-primary-bg);
+  color: #ffffff;
+}
+.error-action-primary:hover {
+  border-color: var(--button-primary-border);
+  background: var(--button-primary-hover-bg);
+  color: #ffffff;
+}
+
+/* 技术详情：默认收起 */
+.error-details {
+  width: 100%;
+  margin-top: $space-16;
+  padding-top: $space-16;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+.error-details-summary {
+  color: var(--fg-muted);
+  font-size: $text-13;
+  cursor: pointer;
+  user-select: none;
+}
+.error-details-summary:hover {
+  color: var(--accent);
+}
+.error-details-list {
+  display: grid;
+  margin: $space-12 0 0;
+  gap: $space-8;
+}
+.error-details-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: $space-12;
+  align-items: baseline;
+}
+.error-details-label {
+  color: var(--fg-muted);
+  font-size: $text-12;
+}
+.error-details-value {
+  min-width: 0;
+  margin: 0;
+  color: var(--fg);
+  font-size: $text-12;
+}
+.error-details-value code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+/* 最近更新：给 404 一个能走出去的入口 */
+.error-suggestions {
+  display: grid;
+  padding: $space-16;
+  gap: $space-10;
+  @extend %surface-card;
+}
+.error-suggestions-title {
+  margin: 0;
+  color: var(--fg);
+  font-size: $text-14;
+  font-weight: 600;
+}
+.error-suggestions-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: $space-6;
+  list-style: none;
+}
+.error-suggestions-item {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: $space-8;
+}
+.error-suggestions-item::before {
+  width: 3px;
+  height: 3px;
+  flex: none;
+  border-radius: $radius-circle;
+  background: var(--fg-subtle);
+  content: "";
+}
+.error-suggestions-link {
+  min-width: 0;
+  color: var(--fg);
+  font-size: $text-13;
+  @include truncate;
+}
+.error-suggestions-link:hover {
+  color: var(--accent-hover);
+}
+.error-suggestions-more {
+  color: var(--fg-muted);
+  font-size: $text-12;
+}
+.error-suggestions-more:hover {
+  color: var(--accent-hover);
+}
+
+/* 窄屏：收紧留白，状态码与说明不要各占一行 */
+@include below($breakpoint-md) {
+  .error-card {
+    padding: $space-28 $space-18;
+  }
+  .error-status-code {
+    font-size: $text-44;
+  }
+  .error-status-icon {
+    @include icon-size($text-24);
+  }
+  .error-details-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: $space-2;
+  }
+}

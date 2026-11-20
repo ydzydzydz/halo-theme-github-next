@@ -1,0 +1,159 @@
+<!--
+  错误页面
+
+  Halo 按状态码依次匹配模板：
+    templates/error/404.html → templates/error/4xx.html → templates/error/error.html
+  本文件是最后兜底的那一份，所有状态码（4xx / 5xx 以及其它异常）都由它渲染，
+  标题与说明按状态码分支切换。
+
+  可用的错误信息来自模型变量 error：
+    error.status    状态码
+    error.title     状态标题（如 Not Found）
+    error.detail    异常详情
+    error.instance  请求地址
+    error.type      异常类型
+
+  页面沿用主题的页头与导航，去掉侧边栏：
+  错误页只有一个主体，侧栏的资料卡、标签云在这里只会分散注意力。
+  主操作给出三个去处——回首页、翻归档、站内搜索，
+  末尾再补一份最近更新的文章，404 不至于把人堵死在一个死胡同里。
+-->
+<include
+  src="layout.html"
+  activeHome=""
+  activePosts=""
+  activeProjects=""
+  activePackages=""
+  shellClass="github-shell-full"
+  sidebarClass="is-hidden"
+  contentClass="content-column-full"
+  isDoubanPage="false"
+>
+  <template name="head">
+    <title th:text="|${error.status} - ${site.title}|">404 - GitHub Next</title>
+  </template>
+
+  <section
+    class="error-page"
+    th:with="
+      status=${error.status},
+      isNotFound=${error.status == 404},
+      isClientError=${error.status >= 400 and error.status < 500},
+      isServerError=${error.status >= 500}
+    "
+  >
+    <div class="error-card">
+      <p class="error-status">
+        <iconify-icon
+          class="error-status-icon"
+          icon="octicon:alert-16"
+          aria-hidden="true"
+        ></iconify-icon>
+        <span class="error-status-code" th:text="${status}">404</span>
+      </p>
+
+      <h1 class="error-title">
+        <th:block th:if="${isNotFound}" th:text="#{error.titleNotFound}">页面走丢了</th:block>
+        <th:block th:if="${isClientError and not isNotFound}" th:text="#{error.titleClientError}">
+          请求没能完成
+        </th:block>
+        <th:block th:if="${isServerError}" th:text="#{error.titleServerError}">
+          服务器开了小差
+        </th:block>
+        <th:block
+          th:if="${not isNotFound and not isClientError and not isServerError}"
+          th:text="#{error.titleGeneric}"
+        >
+          出错了
+        </th:block>
+      </h1>
+
+      <p class="error-desc">
+        <th:block th:if="${isNotFound}" th:text="#{error.descNotFound}">
+          你访问的页面不存在、已被移除，或者链接输入有误。
+        </th:block>
+        <th:block th:if="${isClientError and not isNotFound}" th:text="#{error.descClientError}">
+          服务器拒绝了这次请求，可能是地址或参数有误。
+        </th:block>
+        <th:block th:if="${isServerError}" th:text="#{error.descServerError}">
+          服务端处理请求时出错了，请稍后再试。
+        </th:block>
+        <th:block
+          th:if="${not isNotFound and not isClientError and not isServerError}"
+          th:text="#{error.descGeneric}"
+        >
+          请求没能正常完成，请稍后再试或返回首页。
+        </th:block>
+      </p>
+
+      <div class="error-actions">
+        <a class="error-action error-action-primary" th:href="@{/}" th:text="#{error.backHome}">
+          返回首页
+        </a>
+        <a class="error-action" th:href="@{/archives}" th:text="#{error.viewArchives}">
+          浏览文章
+        </a>
+        <button class="error-action" type="button" data-search-trigger th:text="#{error.search}">
+          搜索站内内容
+        </button>
+      </div>
+
+      <!--
+        技术详情默认收起。
+        error.detail 是服务端的原始异常信息，对排障有用、对访客无用，
+        放在 <details> 里随时可展开，也不至于把一句英文报错顶在页面正中。
+      -->
+      <details
+        class="error-details"
+        th:if="${not #strings.isEmpty(error.instance) or not #strings.isEmpty(error.detail)}"
+      >
+        <summary class="error-details-summary" th:text="#{error.technicalDetail}">技术详情</summary>
+        <dl class="error-details-list">
+          <div class="error-details-row" th:if="${not #strings.isEmpty(error.instance)}">
+            <dt class="error-details-label" th:text="#{error.requestUrl}">请求地址</dt>
+            <dd class="error-details-value">
+              <code th:text="${error.instance}">https://example.com/missing</code>
+            </dd>
+          </div>
+          <div class="error-details-row" th:if="${not #strings.isEmpty(error.detail)}">
+            <dt class="error-details-label" th:text="#{error.errorDetail}">异常信息</dt>
+            <dd class="error-details-value">
+              <code th:text="${error.detail}">Not Found</code>
+            </dd>
+          </div>
+        </dl>
+      </details>
+    </div>
+
+    <!--
+      最近更新的文章。
+      th:with 必须落在外层 th:block 上：Thymeleaf 的属性优先级里
+      th:if（300）早于 th:with（500），写在同一个元素上时
+      th:if 求值时 posts 还不存在。
+
+      sort 显式给成发布时间倒序：postFinder.list 的默认排序把置顶文章
+      排在最前面，那是首页与归档页想要的顺序，但这里要的是「最近更新」。
+    -->
+    <th:block
+      th:with="posts=${postFinder.list({page: 1, size: 4, sort: {'spec.publishTime,desc'}})}"
+    >
+      <aside class="error-suggestions" th:if="${not #lists.isEmpty(posts.items)}">
+        <h2 class="error-suggestions-title" th:text="#{error.recentPosts}">最近更新</h2>
+        <ul class="error-suggestions-list">
+          <li class="error-suggestions-item" th:each="post : ${posts.items}">
+            <a
+              class="error-suggestions-link"
+              th:href="@{${post.status.permalink}}"
+              th:text="${post.spec.title}"
+            >
+              文章标题
+            </a>
+          </li>
+        </ul>
+        <a class="error-suggestions-more" th:href="@{/archives}" th:text="#{error.viewAllPosts}">
+          查看全部文章
+        </a>
+      </aside>
+    </th:block>
+  </section>
+</include>
