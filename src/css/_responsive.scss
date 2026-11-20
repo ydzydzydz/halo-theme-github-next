@@ -462,16 +462,36 @@
     padding: $space-20 $space-16;
   }
 
-  .footer-halo:not(:empty)::before {
-    display: none;
-  }
-
-  .footer-rss::before {
-    display: none;
-  }
-
+  /* 窄屏下版权、后台页脚内容与 RSS 仍然排在同一行。
+     这里不再改成列布局：否则 RSS 会掉到下一行单独占位，
+     那一行只有一个小图标，视觉上很突兀。 */
   .footer-primary {
-    flex-direction: column;
-    gap: $space-4;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: $space-4 $space-7;
+  }
+
+  /* 版权块允许收缩：站点名过长时在块内换行，与桌面端行为一致，
+     不会把整页撑出横向滚动条 */
+  .footer-copyright {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  /* 「保留所有权利」不参与换行，保证与 RSS 同行 */
+  .footer-copyright > span:last-child {
+    white-space: nowrap;
+  }
+
+  /* 后台页脚内容是可选项，空间不足时由它收缩，版权与 RSS 不受影响 */
+  .footer-halo {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* RSS 入口不参与收缩，始终保持图标与文字在同一行 */
+  .footer-rss {
+    flex: 0 0 auto;
   }
 }
